@@ -80,7 +80,7 @@ export default function EntryFilters({ users = [], locations = [], isAdmin }) {
     return (
         <Card className="mb-6">
             <CardContent className="pt-6">
-                <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 items-end">
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6 items-end">
                     
                     {/* User Filter (Admin Only) */}
                     {isAdmin && (
