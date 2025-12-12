@@ -17,6 +17,7 @@ import { Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { clsx } from "clsx";
 import { ModeToggle } from "@/components/ModeToggle";
+import NotificationFeed from "@/components/NotificationFeed";
 
 export default function Navbar() {
     const pathname = usePathname();
@@ -71,6 +72,11 @@ export default function Navbar() {
                     </div>
                     <div className="hidden sm:ml-6 sm:flex sm:items-center">
                         <ModeToggle />
+                        {session?.user && (
+                            <div className="ml-2">
+                                <NotificationFeed />
+                            </div>
+                        )}
                         <div className="ml-4">
                             {mounted && (
                                 <DropdownMenu>
