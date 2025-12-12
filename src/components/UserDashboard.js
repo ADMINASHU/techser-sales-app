@@ -17,7 +17,7 @@ export default function UserDashboard({ totalEntries, completedEntries, recentEn
                 </Link>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Total Entries</CardTitle>
@@ -53,16 +53,16 @@ export default function UserDashboard({ totalEntries, completedEntries, recentEn
                 ) : (
                     <div className="grid gap-4">
                         {recentEntries.map((entry) => (
-                            <Link key={entry._id.toString()} href={`/entries/${entry._id}`}>
+                            <Link key={entry._id.toString()} href={`/entries/${entry._id}`} className="block min-w-0">
                                 <Card className="hover:bg-muted/50 transition-colors">
-                                    <CardContent className="p-4 flex justify-between items-center">
-                                        <div>
-                                            <div className="font-medium">{entry.customerName}</div>
-                                            <div className="text-sm text-muted-foreground">{entry.branch} - {entry.purpose}</div>
+                                    <CardContent className="p-4 flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                        <div className="w-full">
+                                            <div className="font-medium truncate">{entry.customerName}</div>
+                                            <div className="text-sm text-muted-foreground truncate">{entry.branch} - {entry.purpose}</div>
                                         </div>
-                                        <div className="text-right">
+                                        <div className="w-full sm:w-auto sm:text-right flex flex-row sm:flex-col justify-between items-center sm:items-end mt-2 sm:mt-0">
                                             <div className={`text-sm font-medium ${entry.status === 'Completed' ? 'text-green-600' :
-                                                    entry.status === 'In Process' ? 'text-blue-600' : 'text-gray-600'
+                                                entry.status === 'In Process' ? 'text-blue-600' : 'text-gray-600'
                                                 }`}>
                                                 {entry.status}
                                             </div>

@@ -15,13 +15,13 @@ export default function EntryFilters({ users = [], locations = [], isAdmin }) {
     const [selectedUser, setSelectedUser] = useState(searchParams.get("user") || "all");
     const [selectedRegion, setSelectedRegion] = useState(searchParams.get("region") || "all");
     const [selectedBranch, setSelectedBranch] = useState(searchParams.get("branch") || "all");
-    
+
     // Initialize state - Default to "all" (All Time)
     const [selectedMonth, setSelectedMonth] = useState(searchParams.get("month") || "all");
     const [selectedYear, setSelectedYear] = useState(searchParams.get("year") || "all");
 
     // Derived branches based on selected region
-    const availableBranches = selectedRegion === "all" 
+    const availableBranches = selectedRegion === "all"
         ? Array.from(new Set(locations.flatMap(l => l.branches))).sort()
         : (locations.find(l => l.name === selectedRegion)?.branches.sort() || []);
 
@@ -30,7 +30,7 @@ export default function EntryFilters({ users = [], locations = [], isAdmin }) {
     useEffect(() => {
         const params = new URLSearchParams(searchParams);
         let hasChanges = false;
-        
+
         const updateParam = (key, value) => {
             const current = params.get(key);
             if (value !== "all") {
@@ -51,11 +51,11 @@ export default function EntryFilters({ users = [], locations = [], isAdmin }) {
         updateParam("branch", selectedBranch);
         updateParam("month", selectedMonth);
         updateParam("year", selectedYear);
-        
+
         // Only push if params actually changed
         if (hasChanges) {
-             params.set("page", "1"); // Reset page on filter change
-             router.push(`/entries?${params.toString()}`);
+            params.set("page", "1"); // Reset page on filter change
+            router.push(`/entries?${params.toString()}`);
         }
     }, [selectedUser, selectedRegion, selectedBranch, selectedMonth, selectedYear, router, searchParams]);
 
@@ -80,8 +80,8 @@ export default function EntryFilters({ users = [], locations = [], isAdmin }) {
     return (
         <Card className="mb-6">
             <CardContent className="pt-6">
-                <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6 items-end">
-                    
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 items-end">
+
                     {/* User Filter (Admin Only) */}
                     {isAdmin && (
                         <div className="space-y-2">
@@ -156,7 +156,7 @@ export default function EntryFilters({ users = [], locations = [], isAdmin }) {
                             </SelectContent>
                         </Select>
                     </div>
-                    
+
                     <Button variant="ghost" onClick={clearFilters} className="text-muted-foreground">
                         <X className="mr-2 h-4 w-4" /> Clear
                     </Button>

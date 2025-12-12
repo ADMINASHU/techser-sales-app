@@ -11,7 +11,7 @@ import { toast } from "sonner";
 
 export default function AdminDashboard() {
     const [filters, setFilters] = useState({ users: [], locations: [] }); // locations: [{name, branches:[]}]
-    
+
     // Default to current Month/Year
     const currentDate = new Date();
     const [selectedUser, setSelectedUser] = useState("all");
@@ -19,7 +19,7 @@ export default function AdminDashboard() {
     const [selectedBranch, setSelectedBranch] = useState("all");
     const [selectedMonth, setSelectedMonth] = useState(currentDate.getMonth().toString());
     const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear().toString());
-    
+
     const [loading, setLoading] = useState(false);
     const [dataLoading, setDataLoading] = useState(true);
 
@@ -50,10 +50,10 @@ export default function AdminDashboard() {
     // Reset branch when region changes if current branch is not valid for new region
     useEffect(() => {
         if (selectedRegion !== "all" && selectedBranch !== "all") {
-             const region = filters.locations.find(l => l.name === selectedRegion);
-             if (region && !region.branches.includes(selectedBranch)) {
-                 setSelectedBranch("all");
-             }
+            const region = filters.locations.find(l => l.name === selectedRegion);
+            if (region && !region.branches.includes(selectedBranch)) {
+                setSelectedBranch("all");
+            }
         }
     }, [selectedRegion, filters.locations]);
 
@@ -88,7 +88,7 @@ export default function AdminDashboard() {
         setLoading(true);
         try {
             const { startDate, endDate } = getDateRange();
-            
+
             const data = await getReportData({
                 startDate: startDate,
                 endDate: endDate,
@@ -199,7 +199,7 @@ export default function AdminDashboard() {
                 </CardContent>
             </Card>
 
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {/* Stats Placeholders - In a real app these would be calculated based on the filtered data too */}
                 <Card>
                     <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Total Entries</CardTitle></CardHeader>

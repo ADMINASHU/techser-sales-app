@@ -15,7 +15,7 @@ import { PlusCircle } from "lucide-react";
 export default async function EntriesPage({ searchParams }) {
     const session = await auth();
     await dbConnect();
-    
+
     // Fetch filter data for dropdowns
     const filtersData = await getFilters();
 
@@ -47,10 +47,10 @@ export default async function EntriesPage({ searchParams }) {
     if (params.month !== undefined && params.year !== undefined) {
         const month = parseInt(params.month);
         const year = parseInt(params.year);
-        
+
         const startDate = new Date(year, month, 1);
         const endDate = new Date(year, month + 1, 0, 23, 59, 59);
-        
+
         query.createdAt = {
             $gte: startDate,
             $lte: endDate
@@ -87,16 +87,16 @@ export default async function EntriesPage({ searchParams }) {
 
             {/* Filter Component */}
             <Suspense fallback={<div>Loading filters...</div>}>
-                <EntryFilters 
-                    users={filtersData.users} 
-                    locations={filtersData.locations} 
+                <EntryFilters
+                    users={filtersData.users}
+                    locations={filtersData.locations}
                     isAdmin={isAdmin}
                 />
             </Suspense>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {entries.map((entry) => (
-                    <Link key={entry._id.toString()} href={`/entries/${entry._id}`}>
+                    <Link key={entry._id.toString()} href={`/entries/${entry._id}`} className="block min-w-0">
                         <Card className="group hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer h-full relative">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                 <CardTitle className="text-base font-medium truncate">{entry.customerName}</CardTitle>
@@ -119,7 +119,7 @@ export default async function EntriesPage({ searchParams }) {
                             </CardContent>
                             {!isAdmin && (
                                 <div className="absolute bottom-2 right-2 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-200">
-                                     <DeleteEntryButton entryId={entry._id.toString()} />
+                                    <DeleteEntryButton entryId={entry._id.toString()} />
                                 </div>
                             )}
                         </Card>
