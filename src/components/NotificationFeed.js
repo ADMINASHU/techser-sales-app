@@ -1,8 +1,9 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { NotificationFeedPopover, useKnockFeed } from "@knocklabs/react";
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 export default function NotificationFeed() {
     const [isVisible, setIsVisible] = useState(false);
@@ -27,6 +28,30 @@ export default function NotificationFeed() {
     }
     
     const meta = useFeedStore((state) => state.metadata);
+
+    useEffect(() => {
+        if (!feedClient) return;
+
+        const onNotificationsReceived = ({ items }) => {
+            items.forEach((item) => {
+                // Show a toast for each new notification
+                toast.info("New Notification", {
+                    description:  <div dangerouslySetInnerHTML={{ __html: item.blocks[0].rendered }} />,
+                    action: {
+                        label: "View",
+                        onClick: () => setIsVisible(true),
+                    },
+                });
+            });
+        };
+
+        // Subscribe to real-time updates
+        feedClient.on("items.received.realtime", onNotificationsReceived);
+
+        return () => {
+            feedClient.off("items.received.realtime", onNotificationsReceived);
+        };
+    }, [feedClient]);
 
     return (
         <>
