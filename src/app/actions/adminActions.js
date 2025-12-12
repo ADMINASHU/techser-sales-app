@@ -98,3 +98,69 @@ export async function deleteUser(userId) {
         return { error: "Failed to delete user" };
     }
 }
+
+export async function updateUserRole(userId, newRole) {
+    try {
+        await checkAdmin();
+        await dbConnect();
+
+        if (!["user", "admin"].includes(newRole)) {
+            return { error: "Invalid role" };
+        }
+
+        await User.findByIdAndUpdate(userId, { role: newRole });
+        revalidatePath("/users");
+        return { success: true };
+    } catch (error) {
+        console.error("Update Role Error", error);
+        return { error: "Failed to update role" };
+    }
+}
+
+export async function getUsers({ page = 1, limit = 10, search = "", region = "", branch = "" }) {
+    try {
+        await checkAdmin();
+        await dbConnect();
+
+        const query = {};
+
+        if (search) {
+            query.$or = [
+                { name: { $regex: search, $options: "i" } },
+                { email: { $regex: search, $options: "i" } },
+            ];
+        }
+
+        if (region && region !== "all") query.region = region;
+        if (branch && branch !== "all") query.branch = branch;
+
+        const skip = (page - 1) * limit;
+
+        const users = await User.find(query)
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .lean(); // Use lean for better performance and plain objects
+
+        const totalUsers = await User.countDocuments(query);
+        const totalPages = Math.ceil(totalUsers / limit);
+
+        // Convert _id and dates to string to be passed to client components
+        const sanitizedUsers = users.map(user => ({
+            ...user,
+            _id: user._id.toString(),
+            createdAt: user.createdAt.toISOString(),
+            updatedAt: user.updatedAt.toISOString(),
+        }));
+
+        return {
+            users: sanitizedUsers,
+            totalPages,
+            currentPage: page,
+            totalUsers
+        };
+    } catch (error) {
+        console.error("Get Users Error", error);
+        return { error: "Failed to fetch users", users: [], totalPages: 0 };
+    }
+}

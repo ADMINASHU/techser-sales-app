@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import dbConnect from "@/lib/db";
 import Entry from "@/models/Entry";
 import User from "@/models/User";
+import Location from "@/models/Location";
 
 export async function getReportData({ startDate, endDate, userId, region, branch }) {
     const session = await auth();
@@ -49,15 +50,14 @@ export async function getReportData({ startDate, endDate, userId, region, branch
 
 export async function getFilters() {
     await dbConnect();
-    const users = await User.find({}, "name _id");
-    // Unique regions/branches could be aggregated from Entries or Users
-    // Mocking for performance or extracting distinct
-    const regions = await Entry.distinct("region");
-    const branches = await Entry.distinct("branch");
+    // Exclude admins from the user dropdown as they likely don't have sales data
+    const users = await User.find({ role: "user" }, "name _id");
+    
+    // Fetch Locations (Hierarchy)
+    const locations = await Location.find({}).sort({ name: 1 });
 
     return {
         users: JSON.parse(JSON.stringify(users)),
-        regions: JSON.parse(JSON.stringify(regions)),
-        branches: JSON.parse(JSON.stringify(branches))
+        locations: JSON.parse(JSON.stringify(locations)), // { _id, name, branches: [] }
     };
 }

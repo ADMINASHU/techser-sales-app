@@ -2,10 +2,12 @@
 
 import { useSession } from "next-auth/react";
 import { createEntry } from "@/app/actions/entryActions";
+import { getLocations } from "@/app/actions/settingsActions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import LocationPicker from "@/components/LocationPicker"; // [NEW]
 import {
     Select,
     SelectContent,
@@ -16,21 +18,72 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function NewEntryPage() {
     const { data: session } = useSession();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
-
-    // Default values could be from user profile if we want
+    
+    const [locations, setLocations] = useState([]);
     const [region, setRegion] = useState(session?.user?.region || "");
     const [branch, setBranch] = useState(session?.user?.branch || "");
+    const [availableBranches, setAvailableBranches] = useState([]);
+
+    // New Address Fields
+    const [customerAddress, setCustomerAddress] = useState("");
+    const [district, setDistrict] = useState("");
+    const [state, setState] = useState("");
+    const [pincode, setPincode] = useState("");
+    const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
+
+    useEffect(() => {
+        getLocations().then(data => setLocations(data));
+    }, []);
+
+    useEffect(() => {
+        if (region) {
+            const loc = locations.find(l => l.name === region);
+            setAvailableBranches(loc ? loc.branches.sort() : []);
+            
+            if (branch) {
+                const isValid = loc ? loc.branches.includes(branch) : false;
+                if (!isValid) setBranch(""); 
+            }
+        } else {
+            setAvailableBranches([]);
+        }
+    }, [region, locations]); 
+
+    useEffect(() => {
+        if (session?.user?.region && locations.length > 0 && !region) {
+             setRegion(session.user.region);
+        }
+        if (session?.user?.branch && locations.length > 0 && !branch) {
+             setBranch(session.user.branch);
+        }
+    }, [session, locations]);
+
+    const handleLocationSelect = (data) => {
+        setCustomerAddress(data.address);
+        setDistrict(data.district);
+        setState(data.state);
+        setPincode(data.pincode);
+        setCoordinates({ lat: data.lat, lng: data.lng });
+    };
 
     async function clientAction(formData) {
         setLoading(true);
         formData.append("region", region);
         formData.append("branch", branch);
+        
+        // Append controlled inputs
+        formData.set("customerAddress", customerAddress);
+        formData.append("district", district);
+        formData.append("state", state);
+        formData.append("pincode", pincode);
+        if (coordinates.lat) formData.append("lat", coordinates.lat);
+        if (coordinates.lng) formData.append("lng", coordinates.lng);
 
         const res = await createEntry(formData);
         setLoading(false);
@@ -39,7 +92,7 @@ export default function NewEntryPage() {
             toast.error(res.error);
         } else {
             toast.success("Entry created!");
-            router.push("/entries");
+            router.push("/dashboard"); 
         }
     }
 
@@ -52,50 +105,88 @@ export default function NewEntryPage() {
                 <CardContent>
                     <form action={clientAction}>
                         <div className="space-y-4">
-                            <div className="space-y-2">
-                                <Label>User Email</Label>
-                                <Input value={session?.user?.email || ""} disabled />
-                            </div>
-
+                            {/* Hidden User Email - Fixed */}
+                            
                             <div className="space-y-2">
                                 <Label htmlFor="customerName">Customer Name</Label>
                                 <Input id="customerName" name="customerName" required />
                             </div>
 
+                            {/* Map & Address Picker */}
                             <div className="space-y-2">
-                                <Label htmlFor="customerAddress">Customer Address</Label>
-                                <Input id="customerAddress" name="customerAddress" required />
+                                <Label>Select Location</Label>
+                                <LocationPicker onLocationSelect={handleLocationSelect} />
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="customerAddress">Address Details</Label>
+                                <Input 
+                                    id="customerAddress" 
+                                    name="customerAddress" 
+                                    value={customerAddress} 
+                                    onChange={(e) => setCustomerAddress(e.target.value)}
+                                    placeholder="Full address"
+                                    required 
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-3 gap-4">
                                 <div className="space-y-2">
-                                    <Label>Region</Label>
-                                    <Select value={region} onValueChange={setRegion} required>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select Region" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="North">North</SelectItem>
-                                            <SelectItem value="South">South</SelectItem>
-                                            <SelectItem value="East">East</SelectItem>
-                                            <SelectItem value="West">West</SelectItem>
-                                        </SelectContent>
-                                    </Select>
+                                    <Label>District</Label>
+                                    <Input 
+                                        value={district} 
+                                        onChange={(e) => setDistrict(e.target.value)} 
+                                        name="district" 
+                                        placeholder="District" 
+                                    />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label>Branch</Label>
-                                    <Select value={branch} onValueChange={setBranch} required>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select Branch" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="Main">Main Branch</SelectItem>
-                                            <SelectItem value="Downtown">Downtown</SelectItem>
-                                            <SelectItem value="Uptown">Uptown</SelectItem>
-                                        </SelectContent>
-                                    </Select>
+                                    <Label>State</Label>
+                                    <Input 
+                                        value={state} 
+                                        onChange={(e) => setState(e.target.value)} 
+                                        name="state" 
+                                        placeholder="State" 
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Pincode</Label>
+                                    <Input 
+                                        value={pincode} 
+                                        onChange={(e) => setPincode(e.target.value)} 
+                                        name="pincode" 
+                                        placeholder="Pincode" 
+                                    />
                                 </div>
                             </div>
+
+                            {/* Hidden Region & Branch (Auto-filled) */}
+                            {false && (
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label>Region</Label>
+                                        <Select value={region} onValueChange={setRegion} required>
+                                            <SelectTrigger><SelectValue placeholder="Select Region" /></SelectTrigger>
+                                            <SelectContent>
+                                                {locations.map((loc) => (
+                                                    <SelectItem key={loc._id} value={loc.name}>{loc.name}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Branch</Label>
+                                        <Select value={branch} onValueChange={setBranch} disabled={!region} required>
+                                            <SelectTrigger><SelectValue placeholder="Select Branch" /></SelectTrigger>
+                                            <SelectContent>
+                                                {availableBranches.map((b) => (
+                                                    <SelectItem key={b} value={b}>{b}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                </div>
+                            )}
 
                             <div className="space-y-2">
                                 <Label htmlFor="purpose">Purpose of Visit</Label>

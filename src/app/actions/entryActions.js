@@ -10,7 +10,7 @@ export async function createEntry(formData) {
     const session = await auth();
     if (!session) return { error: "Not authenticated" };
 
-    const { customerName, customerAddress, region, branch, purpose } = Object.fromEntries(formData);
+    const { customerName, customerAddress, district, state, pincode, lat, lng, region, branch, purpose } = Object.fromEntries(formData);
 
     try {
         await dbConnect();
@@ -18,6 +18,13 @@ export async function createEntry(formData) {
             userId: session.user.id,
             customerName,
             customerAddress,
+            district,
+            state,
+            pincode,
+            location: {
+                lat: lat ? parseFloat(lat) : undefined,
+                lng: lng ? parseFloat(lng) : undefined,
+            },
             region,
             branch,
             purpose,

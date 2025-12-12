@@ -2,21 +2,46 @@
 
 import { useSession } from "next-auth/react";
 import { updateProfile } from "@/app/actions/userActions";
+import { getLocations } from "@/app/actions/settingsActions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function ProfileSetupPage() {
     const { data: session, update } = useSession();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    
+    const [locations, setLocations] = useState([]);
+    const [region, setRegion] = useState("");
+    const [branch, setBranch] = useState("");
+    const [availableBranches, setAvailableBranches] = useState([]);
+
+    useEffect(() => {
+        getLocations().then(data => setLocations(data));
+    }, []);
+
+    useEffect(() => {
+        if (region) {
+            const loc = locations.find(l => l.name === region);
+            setAvailableBranches(loc ? loc.branches.sort() : []);
+            setBranch(""); // Reset branch when region changes
+        } else {
+            setAvailableBranches([]);
+        }
+    }, [region, locations]);
 
     async function clientAction(formData) {
         setLoading(true);
+        // Manually append region and branch since they are controlled state
+        formData.append("region", region);
+        formData.append("branch", branch);
+
         const res = await updateProfile(formData);
         setLoading(false);
 
@@ -24,8 +49,6 @@ export default function ProfileSetupPage() {
             toast.error(res.error);
         } else {
             toast.success("Profile updated!");
-            // Trigger session update if needed, though session usually stale.
-            // Force redirect to check layout logic again
             router.push("/dashboard");
             router.refresh();
         }
@@ -53,11 +76,34 @@ export default function ProfileSetupPage() {
                             </div>
                             <div className="flex flex-col space-y-1.5">
                                 <Label htmlFor="region">Region</Label>
-                                <Input id="region" name="region" placeholder="E.g., North, NY" required />
+                                <Select value={region} onValueChange={setRegion} required>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select Region" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {locations.map((loc) => (
+                                            <SelectItem key={loc._id} value={loc.name}>
+                                                {loc.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                { /* Hidden input for form submission if needed, but we append manually */ }
                             </div>
                             <div className="flex flex-col space-y-1.5">
                                 <Label htmlFor="branch">Branch</Label>
-                                <Input id="branch" name="branch" placeholder="Main Branch" required />
+                                <Select value={branch} onValueChange={setBranch} disabled={!region} required>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select Branch" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {availableBranches.map((b) => (
+                                            <SelectItem key={b} value={b}>
+                                                {b}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                             </div>
                             <Button type="submit" disabled={loading}>
                                 {loading ? "Saving..." : "Save & Continue"}

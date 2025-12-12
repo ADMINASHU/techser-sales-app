@@ -40,6 +40,7 @@ export default function Navbar() {
 
     if (session?.user?.role === "admin") {
         links.push({ href: "/users", label: "Users" });
+        links.push({ href: "/settings", label: "Settings" });
     }
 
     return (

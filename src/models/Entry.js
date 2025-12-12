@@ -12,6 +12,13 @@ const EntrySchema = new mongoose.Schema(
             required: true,
         },
         customerAddress: String,
+        district: String,
+        state: String,
+        pincode: String,
+        location: {
+            lat: Number,
+            lng: Number,
+        },
         region: String,
         branch: String,
         purpose: String,
