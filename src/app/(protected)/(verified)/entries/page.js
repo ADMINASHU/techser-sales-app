@@ -64,7 +64,7 @@ export default async function EntriesPage({ searchParams }) {
 
     return (
         <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex flex-row items-center justify-between gap-4">
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">Entry Log</h1>
                 {/* Hide New Entry Button for Admins */}
                 {!isAdmin && (

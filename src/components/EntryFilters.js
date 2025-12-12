@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 
-export default function EntryFilters({ users = [], locations = [], isAdmin }) {
+export default function EntryFilters({ users = [], locations = [], isAdmin, showStatus = true }) {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
@@ -21,8 +21,6 @@ export default function EntryFilters({ users = [], locations = [], isAdmin }) {
 
     // Initialize state - Default to All or specific param, prioritizing user choice logic in useEffect
     const currentDate = new Date();
-    // Logic change: If URL has month/year, use it. Else default to all or let page logic handle.
-    // For visual sync, we read exactly what's in params, defaulting to "all" if missing/cleared
     const [selectedMonth, setSelectedMonth] = useState(searchParams.get("month") || currentDate.getMonth().toString());
     const [selectedYear, setSelectedYear] = useState(searchParams.get("year") || currentDate.getFullYear().toString());
 
@@ -32,8 +30,6 @@ export default function EntryFilters({ users = [], locations = [], isAdmin }) {
     useEffect(() => {
         setMounted(true);
     }, []);
-
-    // ... existing useEffect for searchParams ... (Line 36)
 
     // Derived branches based on selected region
     const availableBranches = selectedRegion === "all"
@@ -69,8 +65,6 @@ export default function EntryFilters({ users = [], locations = [], isAdmin }) {
 
         // Only push if params actually changed
         if (hasChanges) {
-            // Reset page only if filter actually changes (user interaction), not initial load
-            // But simpler logic: always reset page on filter change
             params.set("page", "1");
             router.push(`${pathname}?${params.toString()}`);
         }
@@ -128,22 +122,24 @@ export default function EntryFilters({ users = [], locations = [], isAdmin }) {
                     </div>
 
                     {/* Filters Grid */}
-                    <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className={`flex-1 grid gap-2 ${showStatus ? 'grid-cols-3 md:grid-cols-4' : 'grid-cols-2 md:grid-cols-3'}`}>
                         {/* Status */}
-                        <div className="space-y-1.5">
-                            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">Status</span>
-                            <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                                <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10">
-                                    <SelectValue placeholder="All Statuses" />
-                                </SelectTrigger>
-                                <SelectContent className="glass-card border-white/10">
-                                    <SelectItem value="all">All Statuses</SelectItem>
-                                    {statuses.map(s => (
-                                        <SelectItem key={s} value={s}>{s}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
+                        {showStatus && (
+                            <div className="space-y-1.5">
+                                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">Status</span>
+                                <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                                    <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10">
+                                        <SelectValue placeholder="Status" />
+                                    </SelectTrigger>
+                                    <SelectContent className="glass-card border-white/10">
+                                        <SelectItem value="all">All</SelectItem>
+                                        {statuses.map(s => (
+                                            <SelectItem key={s} value={s}>{s}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        )}
 
                         {/* User (Admin) */}
                         {isAdmin && (
@@ -151,10 +147,10 @@ export default function EntryFilters({ users = [], locations = [], isAdmin }) {
                                 <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">Account</span>
                                 <Select value={selectedUser} onValueChange={setSelectedUser}>
                                     <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10">
-                                        <SelectValue placeholder="All Accounts" />
+                                        <SelectValue placeholder="User" />
                                     </SelectTrigger>
                                     <SelectContent className="glass-card border-white/10">
-                                        <SelectItem value="all">All Accounts</SelectItem>
+                                        <SelectItem value="all">All</SelectItem>
                                         {users.map(u => (
                                             <SelectItem key={u._id} value={u._id}>{u.name}</SelectItem>
                                         ))}
@@ -168,10 +164,10 @@ export default function EntryFilters({ users = [], locations = [], isAdmin }) {
                             <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">Month</span>
                             <Select value={selectedMonth} onValueChange={setSelectedMonth}>
                                 <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10">
-                                    <SelectValue placeholder="Select Month" />
+                                    <SelectValue placeholder="Month" />
                                 </SelectTrigger>
                                 <SelectContent className="glass-card border-white/10">
-                                    <SelectItem value="all">All Months</SelectItem>
+                                    <SelectItem value="all">All</SelectItem>
                                     {months.map(m => (
                                         <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
                                     ))}
@@ -184,10 +180,10 @@ export default function EntryFilters({ users = [], locations = [], isAdmin }) {
                             <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">Year</span>
                             <Select value={selectedYear} onValueChange={setSelectedYear}>
                                 <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10">
-                                    <SelectValue placeholder="Select Year" />
+                                    <SelectValue placeholder="Year" />
                                 </SelectTrigger>
                                 <SelectContent className="glass-card border-white/10">
-                                    <SelectItem value="all">All Years</SelectItem>
+                                    <SelectItem value="all">All</SelectItem>
                                     {years.map(y => (
                                         <SelectItem key={y} value={y}>{y}</SelectItem>
                                     ))}

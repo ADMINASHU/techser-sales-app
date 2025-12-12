@@ -5,6 +5,7 @@ import Link from "next/link";
 import { PlusCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge"; // [NEW]
 import { format } from "date-fns";
+import EntryCard from "@/components/EntryCard";
 
 export default function UserDashboard({ totalEntries, completedEntries, recentEntries }) {
     return (
@@ -66,32 +67,13 @@ export default function UserDashboard({ totalEntries, completedEntries, recentEn
                         No entries found. Start by creating one!
                     </div>
                 ) : (
-                    <div className="grid gap-4">
+                    <div className="grid gap-4 md:grid-cols-2">
                         {recentEntries.map((entry) => (
-                            <Link key={entry._id.toString()} href={`/entries/${entry._id}`} className="block min-w-0">
-                                <div className="glass-panel p-4 rounded-xl hover:bg-white/5 transition-all group relative overflow-hidden">
-                                    <div className="flex justify-between items-start mb-2">
-                                        <h3 className="text-base font-semibold text-white truncate pr-2">{entry.customerName}</h3>
-                                        <Badge variant="outline" className={
-                                            entry.status === 'Completed' ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
-                                                "bg-blue-500/10 text-blue-400 border-blue-500/20"
-                                        }>
-                                            {entry.status}
-                                        </Badge>
-                                    </div>
-                                    <p className="text-sm text-gray-400 mb-3 truncate">{entry.customerAddress}</p>
-                                    <div className="flex items-center justify-between text-xs text-gray-500">
-                                        <div className="flex flex-col gap-1">
-                                            <span className="text-gray-300">Date: {format(new Date(entry.entryDate || entry.createdAt), "PP")}</span>
-                                            <DurationDisplay
-                                                startTime={entry.stampIn?.time}
-                                                endTime={entry.stampOut?.time}
-                                                status={entry.status}
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            </Link>
+                            <EntryCard
+                                key={entry._id.toString()}
+                                entry={JSON.parse(JSON.stringify(entry))}
+                                isAdmin={false}
+                            />
                         ))}
                     </div>
                 )}

@@ -9,7 +9,7 @@ export default function ViewToggle() {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
-    const currentView = searchParams.get("view") || "list";
+    const currentView = searchParams.get("view") || "grid";
 
     const setView = (view) => {
         const params = new URLSearchParams(searchParams);
