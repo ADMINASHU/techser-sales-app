@@ -11,12 +11,22 @@ function KnockProviderContent({ children }) {
         return <>{children}</>;
     }
 
+    const apiKey = process.env.NEXT_PUBLIC_KNOCK_PUBLIC_API_KEY;
+    const feedId = process.env.NEXT_PUBLIC_KNOCK_FEED_ID;
+    
+    console.log("Knock Config Check:", { 
+        hasApiKey: !!apiKey, 
+        apiKeyPrefix: apiKey?.substring(0, 8),
+        hasFeedId: !!feedId,
+        userId: session.user.id 
+    });
+
     return (
         <KnockProvider
-            apiKey={process.env.NEXT_PUBLIC_KNOCK_PUBLIC_API_KEY}
+            apiKey={apiKey}
             userId={session.user.id}
         >
-            <KnockFeedProvider feedId={process.env.NEXT_PUBLIC_KNOCK_FEED_ID}>
+            <KnockFeedProvider feedId={feedId}>
                 {children}
             </KnockFeedProvider>
         </KnockProvider>
