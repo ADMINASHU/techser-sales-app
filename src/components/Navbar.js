@@ -35,7 +35,6 @@ export default function Navbar() {
     const links = [
         { href: "/dashboard", label: "Dashboard" },
         { href: "/entries", label: "Entry Log" },
-        { href: "/profile", label: "Profile" },
     ];
 
     if (session?.user?.role === "admin") {
@@ -90,13 +89,13 @@ export default function Navbar() {
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent className="w-56" align="end" forceMount>
-                                        <DropdownMenuLabel className="font-normal">
-                                            <div className="flex flex-col space-y-1">
+                                        <DropdownMenuLabel className="font-normal p-0">
+                                            <Link href="/profile" className="flex flex-col space-y-1 p-2 cursor-pointer hover:bg-muted/50 transition-colors rounded-sm">
                                                 <p className="text-sm font-medium leading-none">{session?.user?.name}</p>
                                                 <p className="text-xs leading-none text-muted-foreground">
                                                     {session?.user?.email}
                                                 </p>
-                                            </div>
+                                            </Link>
                                         </DropdownMenuLabel>
                                         <DropdownMenuSeparator />
                                         <DropdownMenuItem onClick={() => signOut()}>

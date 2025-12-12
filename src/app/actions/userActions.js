@@ -9,6 +9,11 @@ import { Knock } from "@knocklabs/node";
 
 // const knock = process.env.KNOCK_SECRET_API_KEY ? new Knock(process.env.KNOCK_SECRET_API_KEY) : null;
 
+import bcrypt from "bcryptjs";
+import { triggerNotification } from "@/lib/knock";
+
+// ... existing code ...
+
 export async function updateProfile(formData) {
     const session = await auth();
     if (!session) return { error: "Not authenticated" };
@@ -28,70 +33,20 @@ export async function updateProfile(formData) {
             branch,
         });
 
-        // Notify Admins
-        const secretKey = process.env.KNOCK_SECRET_API_KEY;
-        console.log("DEBUG: KNOCK_SECRET_API_KEY:", {
-            type: typeof secretKey,
-            length: secretKey?.length,
-            value: secretKey ? `${secretKey.substring(0, 5)}...` : "MISSING/EMPTY",
-            isTruthy: !!secretKey
-        });
+        // Trigger Verification Request Notification to Admins
+        // Fetch admins to notify
+        const admins = await User.find({ role: "admin" }).select("_id email name");
+        const adminIds = admins.map(a => a._id.toString());
 
-        if (secretKey && secretKey.trim().length > 0) {
-            // Using object syntax as suggested by the error message
-            const knock = new Knock({ apiKey: secretKey.trim() });
-            const admins = await User.find({ role: "admin" });
-            if (admins.length > 0) {
-                const adminIds = admins.map(admin => admin._id.toString());
-                
-                try {
-                    // Direct API call to identify user (bypassing SDK issues)
-                    const identifyUserRaw = async (userId, traits) => {
-                        try {
-                            const response = await fetch(`https://api.knock.app/v1/users/${userId}`, {
-                                method: 'PUT',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'Authorization': `Bearer ${secretKey.trim()}`
-                                },
-                                body: JSON.stringify(traits)
-                            });
-                            if (!response.ok) {
-                                console.error(`Failed to identify user ${userId}:`, await response.text());
-                            }
-                        } catch (e) {
-                            console.error(`Network error identifying user ${userId}:`, e);
-                        }
-                    };
-
-                    // Identify actor
-                    await identifyUserRaw(session.user.id, {
-                        name: session.user.name || "User",
-                        email: session.user.email,
-                    });
-
-                    // Identify recipients
-                    for (const admin of admins) {
-                         await identifyUserRaw(admin._id.toString(), {
-                            name: admin.name || "Admin",
-                            email: admin.email,
-                         });
-                    }
-
-                    await knock.workflows.trigger("verification-request", {
-                        actor: session.user.id,
-                        recipients: adminIds,
-                        data: {
-                            name: session.user.name || "User",
-                            email: session.user.email,
-                        },
-                    });
-                } catch (kError) {
-                    console.error("Knock Notification Failed", kError);
+        if (adminIds.length > 0) {
+            await triggerNotification("verification-request", {
+                actor: { id: session.user.id, name: session.user.name, email: session.user.email },
+                recipients: adminIds,
+                data: {
+                    name: session.user.name,
+                    email: session.user.email,
                 }
-            }
-        } else {
-            console.warn("KNOCK_SECRET_API_KEY is missing. Notification not sent.");
+            });
         }
 
         revalidatePath("/profile");
@@ -99,7 +54,33 @@ export async function updateProfile(formData) {
 
         return { success: true };
     } catch (error) {
-        console.error("Profile Update DETAILED Error:", error);
+        console.error("Profile Update Error:", error);
         return { error: `Failed to update profile: ${error.message}` };
+    }
+}
+
+export async function changePassword(currentPassword, newPassword) {
+    const session = await auth();
+    if (!session) return { error: "Not authenticated" };
+
+    try {
+        await dbConnect();
+        const user = await User.findById(session.user.id).select("+password");
+
+        if (!user) return { error: "User not found" };
+
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) {
+            return { error: "Incorrect current password" };
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.password = hashedPassword;
+        await user.save();
+
+        return { success: true };
+    } catch (error) {
+        console.error("Change Password Error:", error);
+        return { error: "Failed to change password" };
     }
 }

@@ -6,6 +6,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 
+import EditProfileDialog from "@/components/EditProfileDialog"; // [NEW]
+
 export default async function ProfilePage() {
     const session = await auth();
     await dbConnect();
@@ -15,9 +17,25 @@ export default async function ProfilePage() {
         return <div>User not found</div>;
     }
 
+    // Convert Mongoose doc to plain object for Client Component
+    const userPlain = {
+        name: user.name,
+        email: user.email,
+        contactNumber: user.contactNumber,
+        address: user.address,
+        region: user.region,
+        branch: user.branch,
+        role: user.role,
+        status: user.status,
+        image: user.image,
+    };
+
     return (
         <div className="space-y-6">
-            <h1 className="text-3xl font-bold tracking-tight">Profile</h1>
+            <div className="flex items-center justify-between">
+                <h1 className="text-3xl font-bold tracking-tight">Profile</h1>
+                <EditProfileDialog user={userPlain} />
+            </div>
 
             <div className="grid gap-6 md:grid-cols-2">
                 <Card>
