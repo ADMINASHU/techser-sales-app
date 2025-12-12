@@ -21,6 +21,12 @@ function KnockProviderContent({ children }) {
         userId: session.user.id 
     });
 
+    // Only render providers if we have the required configuration
+    if (!apiKey || !feedId) {
+        console.warn("Knock configuration incomplete. Skipping provider initialization.");
+        return <>{children}</>;
+    }
+
     return (
         <KnockProvider
             apiKey={apiKey}

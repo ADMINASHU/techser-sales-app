@@ -72,7 +72,7 @@ export default function Navbar() {
                     </div>
                     <div className="hidden sm:ml-6 sm:flex sm:items-center">
                         <ModeToggle />
-                        {session?.user && (
+                        {session?.user?.id && process.env.NEXT_PUBLIC_KNOCK_FEED_ID && (
                             <div className="ml-2">
                                 <NotificationFeed />
                             </div>
