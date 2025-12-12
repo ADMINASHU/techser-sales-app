@@ -10,7 +10,9 @@ export async function createEntry(formData) {
     const session = await auth();
     if (!session) return { error: "Not authenticated" };
 
-    const { customerName, customerAddress, district, state, pincode, lat, lng, region, branch, purpose } = Object.fromEntries(formData);
+    const data = Object.fromEntries(formData);
+    console.log("Server createEntry Received Data:", data);
+    const { customerName, customerAddress, district, state, pincode, lat, lng, region, branch, purpose } = data;
 
     try {
         await dbConnect();
@@ -76,8 +78,25 @@ export async function stampOut(entryId, location) {
 }
 
 export async function deleteEntry(entryId) {
+    const session = await auth();
+    if (!session) return { error: "Not authenticated" };
+
+    // RESTRICTION: Admins cannot delete entries (as per "user only" request)
+    if (session.user.role === "admin") {
+        return { error: "Admins are not allowed to delete entries." };
+    }
+
     try {
         await dbConnect();
+        
+        // Optional: Ensure the user actually owns the entry being deleted
+        const entry = await Entry.findById(entryId);
+        if (!entry) return { error: "Entry not found" };
+        
+        if (entry.userId.toString() !== session.user.id) {
+             return { error: "You are not authorized to delete this entry" };
+        }
+
         await Entry.findByIdAndDelete(entryId);
         revalidatePath("/entries");
         revalidatePath("/dashboard");

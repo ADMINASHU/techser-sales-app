@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import dbConnect from "@/lib/db";
 import Entry from "@/models/Entry";
 import EntryActionButtons from "@/components/EntryActionButtons";
+import EntryMap from "@/components/EntryMap"; // [NEW]
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { redirect } from "next/navigation";
@@ -16,11 +17,14 @@ export default async function EntryDetailPage({ params }) {
     if (!session) redirect("/login");
 
     await dbConnect();
-    const entry = await Entry.findById(id);
+    const entryDoc = await Entry.findById(id);
 
-    if (!entry) {
+    if (!entryDoc) {
         return <div>Entry not found</div>;
     }
+
+    // Convert to plain JSON to avoid Next.js serialization issues with Mongoose objects (IDs, Dates)
+    const entry = JSON.parse(JSON.stringify(entryDoc));
 
     // Determine variant for badge
     const statusColor =
@@ -51,16 +55,21 @@ export default async function EntryDetailPage({ params }) {
                         </div>
                         <div className="col-span-2">
                             <Label className="text-muted-foreground">Address</Label>
-                            <div className="font-medium">{entry.customerAddress}</div>
+                            <div className="font-medium mb-2">{entry.customerAddress}</div>
+                            {/* Map Visualization */}
+                            <EntryMap 
+                                location={entry.location} 
+                                destinationName={entry.customerName} 
+                            />
                         </div>
-                        <div>
+                        {/* <div>
                             <Label className="text-muted-foreground">Region</Label>
                             <div className="font-medium">{entry.region}</div>
                         </div>
                         <div>
                             <Label className="text-muted-foreground">Branch</Label>
                             <div className="font-medium">{entry.branch}</div>
-                        </div>
+                        </div> */}
                         <div className="col-span-2">
                             <Label className="text-muted-foreground">Purpose</Label>
                             <div className="font-medium">{entry.purpose}</div>
@@ -79,7 +88,7 @@ export default async function EntryDetailPage({ params }) {
                     </div>
                 </CardContent>
                 <CardFooter>
-                    <EntryActionButtons entry={JSON.parse(JSON.stringify(entry))} />
+                    <EntryActionButtons entry={entry} />
                 </CardFooter>
             </Card>
         </div>

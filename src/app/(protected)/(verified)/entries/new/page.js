@@ -74,6 +74,9 @@ export default function NewEntryPage() {
 
     async function clientAction(formData) {
         setLoading(true);
+        console.log("Client Action Triggered");
+        console.log("Coordinates State:", coordinates);
+        
         formData.append("region", region);
         formData.append("branch", branch);
         
@@ -82,8 +85,14 @@ export default function NewEntryPage() {
         formData.append("district", district);
         formData.append("state", state);
         formData.append("pincode", pincode);
-        if (coordinates.lat) formData.append("lat", coordinates.lat);
-        if (coordinates.lng) formData.append("lng", coordinates.lng);
+        if (coordinates.lat) {
+            formData.append("lat", coordinates.lat);
+            console.log("Appended lat:", coordinates.lat);
+        }
+        if (coordinates.lng) {
+            formData.append("lng", coordinates.lng);
+            console.log("Appended lng:", coordinates.lng);
+        }
 
         const res = await createEntry(formData);
         setLoading(false);
