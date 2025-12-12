@@ -42,91 +42,117 @@ export default function Navbar() {
         links.push({ href: "/settings", label: "Settings" });
     }
 
+
     return (
-        <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
+        <nav className="sticky top-0 z-50 w-full glass-panel border-b border-white/5">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between h-16">
-                    <div className="flex">
-                        <div className="flex-shrink-0 flex items-center">
-                            <Link href="/dashboard" className="text-xl font-bold text-gray-800 dark:text-gray-100">
-                                Techser
-                            </Link>
+                <div className="flex justify-between items-center h-20">
+                    {/* Logo */}
+                    <Link href="/dashboard" className="flex-shrink-0 flex items-center group">
+                        <div className="bg-white/5 p-2 rounded-xl mr-3 border border-white/5 group-hover:border-white/10 transition-colors">
+                            <div className="w-6 h-6 bg-gradient-to-br from-violet-500 to-fuchsia-500 rounded-lg shadow-lg shadow-fuchsia-500/20"></div>
                         </div>
-                        <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
+                        <span className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent tracking-tight group-hover:to-white transition-all">
+                            Techser
+                        </span>
+                    </Link>
+
+                    {/* Desktop Center Pill Navigation */}
+                    <div className="hidden md:flex items-center justify-center">
+                        <div className="bg-white/5 border border-white/5 rounded-full px-1.5 py-1.5 flex space-x-1 shadow-inner backdrop-blur-md">
                             {isVerified &&
                                 links.map((link) => (
                                     <Link
                                         key={link.href}
                                         href={link.href}
                                         className={clsx(
-                                            "inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium",
+                                            "relative px-6 py-2 rounded-full text-sm font-medium transition-all duration-300",
                                             pathname === link.href
-                                                ? "border-indigo-500 text-gray-900 dark:text-gray-100"
-                                                : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                                                ? "text-white"
+                                                : "text-gray-400 hover:text-white hover:bg-white/5"
                                         )}
                                     >
+                                        {pathname === link.href && (
+                                            <div className="absolute inset-0 bg-gradient-to-r from-violet-500/80 to-fuchsia-500/80 rounded-full shadow-lg shadow-fuchsia-500/20 -z-10" />
+                                        )}
                                         {link.label}
                                     </Link>
                                 ))}
                         </div>
                     </div>
-                    <div className="hidden sm:ml-6 sm:flex sm:items-center">
-                        <ModeToggle />
-                        {session?.user?.id && process.env.NEXT_PUBLIC_KNOCK_FEED_ID && (
-                            <div className="ml-2">
-                                <NotificationFeed />
-                            </div>
-                        )}
-                        <div className="ml-4">
-                            {mounted && (
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                                            <Avatar className="h-8 w-8">
-                                                <AvatarImage src={session?.user?.image} alt={session?.user?.name} />
-                                                <AvatarFallback>{session?.user?.name?.charAt(0) || "U"}</AvatarFallback>
-                                            </Avatar>
-                                        </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent className="w-56" align="end" forceMount>
-                                        <DropdownMenuLabel className="font-normal p-0">
-                                            <Link href="/profile" className="flex flex-col space-y-1 p-2 cursor-pointer hover:bg-muted/50 transition-colors rounded-sm">
-                                                <p className="text-sm font-medium leading-none">{session?.user?.name}</p>
-                                                <p className="text-xs leading-none text-muted-foreground">
-                                                    {session?.user?.email}
-                                                </p>
-                                            </Link>
-                                        </DropdownMenuLabel>
-                                        <DropdownMenuSeparator />
-                                        <DropdownMenuItem onClick={() => signOut()}>
-                                            Log out
-                                        </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                            )}
+
+                    {/* Right Actions */}
+                    <div className="hidden sm:flex items-center space-x-4">
+                        <div className="hidden lg:block relative group">
+                            <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 to-fuchsia-400 rounded-full blur opacity-0 group-hover:opacity-20 transition duration-500"></div>
+                            <ModeToggle />
                         </div>
+
+                        {session?.user?.id && process.env.NEXT_PUBLIC_KNOCK_FEED_ID && (
+                            <NotificationFeed />
+                        )}
+                        <div className="h-8 w-px bg-white/10 mx-2"></div>
+
+                        {mounted && (
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" className="relative h-10 w-10 rounded-full ring-2 ring-white/10 hover:ring-white/30 transition-all p-0 overflow-hidden">
+                                        <Avatar className="h-full w-full">
+                                            <AvatarImage src={session?.user?.image} alt={session?.user?.name} />
+                                            <AvatarFallback className="bg-violet-500/20 text-violet-300">{session?.user?.name?.charAt(0) || "U"}</AvatarFallback>
+                                        </Avatar>
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent className="w-72 glass-card mt-2 p-2" align="end" forceMount>
+                                    <div className="flex items-center gap-3 p-3 bg-white/5 rounded-lg mb-2 border border-white/5">
+                                        <Avatar className="h-10 w-10 border border-white/10">
+                                            <AvatarImage src={session?.user?.image} />
+                                            <AvatarFallback>{session?.user?.name?.charAt(0)}</AvatarFallback>
+                                        </Avatar>
+                                        <div className="flex flex-col space-y-0.5">
+                                            <p className="text-sm font-semibold text-white">{session?.user?.name}</p>
+                                            <p className="text-xs text-gray-400 truncate max-w-[150px]">{session?.user?.email}</p>
+                                        </div>
+                                    </div>
+                                    <DropdownMenuItem asChild>
+                                        <Link href="/profile" className="cursor-pointer py-2.5 px-3 rounded-md hover:bg-white/10 focus:bg-white/10 focus:text-white transition-colors flex items-center gap-2">
+                                            <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                                            Profile Settings
+                                        </Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator className="bg-white/10 my-1" />
+                                    <DropdownMenuItem onClick={() => signOut()} className="cursor-pointer py-2.5 px-3 rounded-md text-red-400 hover:bg-red-500/10 focus:bg-red-500/10 focus:text-red-400 transition-colors flex items-center gap-2">
+                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                                        Log out
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        )}
                     </div>
+
+                    {/* Mobile Menu Button */}
                     <div className="-mr-2 flex items-center sm:hidden">
-                        <Button variant="ghost" onClick={() => setIsOpen(!isOpen)}>
+                        <Button variant="ghost" className="text-white hover:bg-white/10" onClick={() => setIsOpen(!isOpen)}>
                             <span className="sr-only">Open main menu</span>
                             {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
                         </Button>
                     </div>
                 </div>
 
+                {/* Mobile Menu */}
                 {isOpen && (
-                    <div className="sm:hidden">
-                        <div className="pt-2 pb-3 space-y-1">
+                    <div className="sm:hidden glass-card absolute left-0 right-0 top-20 shadow-2xl z-50 p-4 border-t-0 rounded-b-2xl animate-in slide-in-from-top-2 duration-300">
+                        <div className="space-y-1">
                             {isVerified &&
                                 links.map((link) => (
                                     <Link
                                         key={link.href}
                                         href={link.href}
                                         className={clsx(
-                                            "block pl-3 pr-4 py-2 border-l-4 text-base font-medium",
+                                            "block px-4 py-3 rounded-xl text-base font-medium transition-all border border-transparent",
                                             pathname === link.href
-                                                ? "bg-indigo-50 border-indigo-500 text-indigo-700 dark:bg-gray-800 dark:text-indigo-400"
-                                                : "border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-800"
+                                                ? "bg-white/10 text-white border-white/5 shadow-inner"
+                                                : "text-gray-400 hover:bg-white/5 hover:text-white"
                                         )}
                                         onClick={() => setIsOpen(false)}
                                     >
@@ -134,32 +160,20 @@ export default function Navbar() {
                                     </Link>
                                 ))}
                         </div>
-                        <div className="pt-4 pb-4 border-t border-gray-200 dark:border-gray-800">
-                            <div className="flex items-center px-4">
-                                <div className="flex-shrink-0">
-                                    <Avatar className="h-10 w-10">
-                                        <AvatarImage src={session?.user?.image} alt={session?.user?.name} />
-                                        <AvatarFallback>{session?.user?.name?.charAt(0) || "U"}</AvatarFallback>
-                                    </Avatar>
-                                </div>
-                                <div className="ml-3">
-                                    <div className="text-base font-medium text-gray-800 dark:text-gray-100">
-                                        {session?.user?.name}
-                                    </div>
-                                    <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                        {session?.user?.email}
-                                    </div>
+                        <div className="mt-6 pt-6 border-t border-white/10 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <Avatar className="h-10 w-10 ring-2 ring-white/10">
+                                    <AvatarImage src={session?.user?.image} />
+                                    <AvatarFallback>{session?.user?.name?.charAt(0)}</AvatarFallback>
+                                </Avatar>
+                                <div>
+                                    <div className="font-medium text-white">{session?.user?.name}</div>
+                                    <div className="text-sm text-gray-400">{session?.user?.email}</div>
                                 </div>
                             </div>
-                            <div className="mt-3 space-y-1">
-                                <Button
-                                    variant="ghost"
-                                    className="block w-full text-left px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-gray-800"
-                                    onClick={() => signOut()}
-                                >
-                                    Log out
-                                </Button>
-                            </div>
+                            <Button variant="ghost" size="icon" onClick={() => signOut()} className="text-red-400 hover:bg-red-500/10 hover:text-red-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" x2="9" y1="12" y2="12" /></svg>
+                            </Button>
                         </div>
                     </div>
                 )}

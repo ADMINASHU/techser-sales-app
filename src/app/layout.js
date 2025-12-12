@@ -20,7 +20,7 @@ export default async function RootLayout({ children }) {
 
     return (
         <html lang="en" suppressHydrationWarning>
-            <body className={inter.className}>
+            <body className={inter.className} suppressHydrationWarning>
                 <KnockClientProvider session={session}>
                     <ThemeProvider
                         attribute="class"
