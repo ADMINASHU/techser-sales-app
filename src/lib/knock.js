@@ -1,10 +1,11 @@
 import { Knock } from "@knocklabs/node";
 
-const knockClient = new Knock(process.env.KNOCK_SECRET_KEY);
+const apiKey = process.env.KNOCK_SECRET_API_KEY || process.env.KNOCK_SECRET_KEY;
+const knockClient = apiKey ? new Knock({ apiKey }) : null;
 
 export async function triggerNotification(key, { recipients, actor, data }) {
-    if (!process.env.KNOCK_SECRET_KEY) {
-        console.warn("[Knock] Skipping notification: KNOCK_SECRET_KEY is missing.");
+    if (!knockClient) {
+        console.warn("[Knock] Skipping notification: KNOCK_SECRET_API_KEY is missing.");
         return;
     }
 

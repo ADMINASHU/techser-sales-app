@@ -84,3 +84,24 @@ export async function changePassword(currentPassword, newPassword) {
         return { error: "Failed to change password" };
     }
 }
+
+export async function updateAvatar(base64Image) {
+    const session = await auth();
+    if (!session) return { error: "Not authenticated" };
+
+    try {
+        await dbConnect();
+
+        // Update User
+        await User.findByIdAndUpdate(session.user.id, { image: base64Image });
+
+        // Revalidate to update Navbar and Profile
+        revalidatePath("/profile");
+        revalidatePath("/", "layout"); // Revalidate all layouts to update Navbar
+
+        return { success: true };
+    } catch (error) {
+        console.error("Update Avatar Error:", error);
+        return { error: "Failed to update avatar" };
+    }
+}

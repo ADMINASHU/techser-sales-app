@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 
 import EditProfileDialog from "@/components/EditProfileDialog"; // [NEW]
+import AvatarUploader from "@/components/AvatarUploader"; // [NEW]
 
 export default async function ProfilePage() {
     const session = await auth();
@@ -45,10 +46,7 @@ export default async function ProfilePage() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="flex items-center space-x-4">
-                            <Avatar className="h-20 w-20">
-                                <AvatarImage src={user.image} alt={user.name} />
-                                <AvatarFallback>{user.name?.charAt(0) || "U"}</AvatarFallback>
-                            </Avatar>
+                            <AvatarUploader user={userPlain} />
                             <div>
                                 <h3 className="text-xl font-semibold">{user.name}</h3>
                                 <p className="text-sm text-muted-foreground">{user.email}</p>
