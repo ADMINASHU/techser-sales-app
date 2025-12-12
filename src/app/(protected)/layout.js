@@ -11,7 +11,7 @@ export default async function ProtectedLayout({ children }) {
     }
 
     return (
-        <SessionProvider session={session}>
+        <SessionProvider session={session} refetchOnWindowFocus={false}>
             <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
                 <Navbar />
                 <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">

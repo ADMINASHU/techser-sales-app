@@ -50,7 +50,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     callbacks: {
         ...authConfig.callbacks,
         async signIn({ user, account, profile }) {
-            console.log("WAIT: signIn callback", { email: user?.email, provider: account?.provider });
             if (account.provider === "google") {
                 try {
                     await dbConnect();
@@ -78,12 +77,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             return true;
         },
         async jwt({ token, user, account }) {
-            console.log("WAIT: jwt callback", { tokenUser: token?.name, user: user?.email, provider: account?.provider });
             if (user) {
                 if (account?.provider === "google") {
                     await dbConnect();
                     const dbUser = await User.findOne({ email: user.email });
-                    console.log("jwt: found dbUser?", dbUser?._id);
                     if (dbUser) {
                         token.id = dbUser._id.toString();
                         token.role = dbUser.role;

@@ -25,7 +25,7 @@ export default async function EntriesPage({ searchParams }) {
     const skip = (page - 1) * limit;
 
     const isAdmin = session.user.role === "admin";
-    console.log("DEBUG: User Role:", session.user.role, "Is Admin?", isAdmin);
+
 
     // Build Query
     const query = {};

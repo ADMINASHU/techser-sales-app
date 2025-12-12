@@ -26,20 +26,37 @@ export default function EntryFilters({ users = [], locations = [], isAdmin }) {
         : (locations.find(l => l.name === selectedRegion)?.branches.sort() || []);
 
     // Update URL when filters change
+    // Update URL when filters change
     useEffect(() => {
         const params = new URLSearchParams(searchParams);
+        let hasChanges = false;
         
-        if (selectedUser !== "all") params.set("user", selectedUser); else params.delete("user");
-        if (selectedRegion !== "all") params.set("region", selectedRegion); else params.delete("region");
-        if (selectedBranch !== "all") params.set("branch", selectedBranch); else params.delete("branch");
-        
-        if (selectedMonth !== "all") params.set("month", selectedMonth); else params.delete("month");
-        if (selectedYear !== "all") params.set("year", selectedYear); else params.delete("year");
-        
-        // Reset page to 1 when filters change
-        params.set("page", "1");
+        const updateParam = (key, value) => {
+            const current = params.get(key);
+            if (value !== "all") {
+                if (current !== value) {
+                    params.set(key, value);
+                    hasChanges = true;
+                }
+            } else {
+                if (params.has(key)) {
+                    params.delete(key);
+                    hasChanges = true;
+                }
+            }
+        };
 
-        router.push(`/entries?${params.toString()}`);
+        updateParam("user", selectedUser);
+        updateParam("region", selectedRegion);
+        updateParam("branch", selectedBranch);
+        updateParam("month", selectedMonth);
+        updateParam("year", selectedYear);
+        
+        // Only push if params actually changed
+        if (hasChanges) {
+             params.set("page", "1"); // Reset page on filter change
+             router.push(`/entries?${params.toString()}`);
+        }
     }, [selectedUser, selectedRegion, selectedBranch, selectedMonth, selectedYear, router, searchParams]);
 
     const clearFilters = () => {
