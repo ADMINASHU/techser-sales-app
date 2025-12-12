@@ -13,12 +13,12 @@ function KnockProviderContent({ children }) {
 
     const apiKey = process.env.NEXT_PUBLIC_KNOCK_PUBLIC_API_KEY;
     const feedId = process.env.NEXT_PUBLIC_KNOCK_FEED_ID;
-    
-    console.log("Knock Config Check:", { 
-        hasApiKey: !!apiKey, 
+
+    console.log("Knock Config Check:", {
+        hasApiKey: !!apiKey,
         apiKeyPrefix: apiKey?.substring(0, 8),
         hasFeedId: !!feedId,
-        userId: session.user.id 
+        userId: session.user.id
     });
 
     // Only render providers if we have the required configuration
@@ -32,7 +32,17 @@ function KnockProviderContent({ children }) {
             apiKey={apiKey}
             userId={session.user.id}
         >
-            <KnockFeedProvider feedId={feedId}>
+            <KnockFeedProvider 
+                feedId={feedId} 
+                colorMode="dark"
+                theme={{
+                    colors: {
+                        background: "#0b0f19", // App deep navy --background
+                        surface: "#1a1f2e",    // App lighter navy --card
+                        primary: "#a855f7",    // Violet-500 equivalent for primary actions
+                    }
+                }}
+            >
                 {children}
             </KnockFeedProvider>
         </KnockProvider>
