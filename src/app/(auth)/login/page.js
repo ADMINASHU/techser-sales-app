@@ -39,7 +39,7 @@ export default function LoginPage() {
     }
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center p-4">
+        <div className="min-h-screen w-full flex flex-col items-center justify-center p-4">
             {/* Logo Section */}
             <div className="mb-8 flex flex-col items-center">
                 <div className="flex items-center gap-3 mb-2">
@@ -54,7 +54,7 @@ export default function LoginPage() {
             </div>
 
             {/* Login Card */}
-            <div className="w-full max-w-[400px]">
+            <div className="w-full max-w-md">
                 <form action={clientAction} className="space-y-4">
                     <div className="space-y-2">
 
@@ -122,9 +122,6 @@ export default function LoginPage() {
                     </Link>
                 </div>
 
-                <div className="mt-8 text-center text-xs text-gray-600">
-                    © 2025 Techser. All rights reserved.
-                </div>
             </div>
         </div>
     );

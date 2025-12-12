@@ -1,7 +1,27 @@
 export default function AuthLayout({ children }) {
     return (
-        <div className="flex h-screen w-full items-center justify-center bg-gray-100 dark:bg-gray-900">
-            {children}
+        <div className="min-h-screen w-full flex flex-col bg-[#0b0f19] text-white">
+            <div className="flex-1 flex items-center justify-center p-4">
+                {children}
+            </div>
+
+            <footer className="w-full py-6 px-4 border-t border-white/5 bg-[#0b0f19]">
+                <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-500">
+                    <div className="flex items-center gap-2">
+                        <div className="bg-gradient-to-br from-violet-500 to-fuchsia-500 p-1.5 rounded-lg opacity-80">
+                            <div className="w-3 h-3 bg-white rounded-[2px]"></div>
+                        </div>
+                        <span className="font-semibold text-gray-300">Techser</span>
+                        <span className="hidden md:inline">•</span>
+                        <span>© 2025 All rights reserved.</span>
+                    </div>
+
+                    <div className="flex items-center gap-6">
+                        <a href="#" className="hover:text-gray-300 transition-colors">Privacy Policy</a>
+                        <a href="#" className="hover:text-gray-300 transition-colors">Terms of Service</a>
+                    </div>
+                </div>
+            </footer>
         </div>
     );
 }

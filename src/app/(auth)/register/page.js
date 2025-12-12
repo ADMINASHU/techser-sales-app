@@ -40,7 +40,7 @@ export default function RegisterPage() {
     }
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center p-4">
+        <div className="min-h-screen w-full flex flex-col items-center justify-center p-4">
             {/* Logo Section */}
             <div className="mb-8 flex flex-col items-center">
                 <div className="flex items-center gap-3 mb-2">
@@ -54,7 +54,7 @@ export default function RegisterPage() {
                 <p className="text-gray-400 text-sm">Join to start tracking your finances</p>
             </div>
 
-            <div className="w-full max-w-[400px]">
+            <div className="w-full max-w-md">
                 <form action={clientAction} className="space-y-4">
                     <div className="space-y-2">
                         <Label htmlFor="name" className="text-gray-300">Display Name</Label>
@@ -74,7 +74,7 @@ export default function RegisterPage() {
 
                     <div className="space-y-2">
                         <Label htmlFor="password" className="text-gray-300">Password</Label>
-                         <div className="relative">
+                        <div className="relative">
                             <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400 z-10" />
                             <Input id="password" name="password" type="password" placeholder="•••••••" className="pl-10 h-11 glass-inputs" required />
                         </div>
@@ -92,9 +92,6 @@ export default function RegisterPage() {
                     </Link>
                 </div>
 
-                <div className="mt-8 text-center text-xs text-gray-600">
-                    © 2025 Techser. All rights reserved.
-                </div>
             </div>
         </div>
     );

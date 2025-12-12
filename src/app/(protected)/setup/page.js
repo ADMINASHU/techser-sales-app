@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function ProfileSetupPage() {
     const { data: session, update } = useSession();
@@ -72,38 +73,39 @@ export default function ProfileSetupPage() {
                             </div>
                             <div className="flex flex-col space-y-1.5">
                                 <Label htmlFor="address">Address</Label>
-                                <Input id="address" name="address" placeholder="123 Main St" required />
+                                <Textarea id="address" name="address" placeholder="123 Main St" required />
                             </div>
-                            <div className="flex flex-col space-y-1.5">
-                                <Label htmlFor="region">Region</Label>
-                                <Select value={region} onValueChange={setRegion} required>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select Region" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {locations.map((loc) => (
-                                            <SelectItem key={loc._id} value={loc.name}>
-                                                {loc.name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                { /* Hidden input for form submission if needed, but we append manually */ }
-                            </div>
-                            <div className="flex flex-col space-y-1.5">
-                                <Label htmlFor="branch">Branch</Label>
-                                <Select value={branch} onValueChange={setBranch} disabled={!region} required>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select Branch" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {availableBranches.map((b) => (
-                                            <SelectItem key={b} value={b}>
-                                                {b}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="flex flex-col space-y-1.5">
+                                    <Label htmlFor="region">Region</Label>
+                                    <Select value={region} onValueChange={setRegion} required>
+                                        <SelectTrigger className="w-full">
+                                            <SelectValue placeholder="Select Region" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {locations.map((loc) => (
+                                                <SelectItem key={loc._id} value={loc.name}>
+                                                    {loc.name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="flex flex-col space-y-1.5">
+                                    <Label htmlFor="branch">Branch</Label>
+                                    <Select value={branch} onValueChange={setBranch} disabled={!region} required>
+                                        <SelectTrigger className="w-full">
+                                            <SelectValue placeholder="Select Branch" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {availableBranches.map((b) => (
+                                                <SelectItem key={b} value={b}>
+                                                    {b}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
                             </div>
                             <Button type="submit" disabled={loading}>
                                 {loading ? "Saving..." : "Save & Continue"}

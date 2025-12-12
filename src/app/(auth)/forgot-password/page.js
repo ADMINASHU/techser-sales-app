@@ -25,7 +25,7 @@ export default function ForgotPasswordPage() {
     }
 
     return (
-        <Card className="w-[350px] shadow-lg">
+        <Card className="w-full max-w-md shadow-lg">
             <CardHeader>
                 <CardTitle>Forgot Password</CardTitle>
                 <CardDescription>
