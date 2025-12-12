@@ -13,17 +13,30 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { updateProfile, changePassword } from "@/app/actions/userActions";
+import { getLocations } from "@/app/actions/settingsActions";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
-export default function EditProfileDialog({ user }) {
+export default function EditProfileDialog({ user, trigger }) {
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [mounted, setMounted] = useState(false);
 
+    // Settings State
+    const [locations, setLocations] = useState([]);
+    const [availableBranches, setAvailableBranches] = useState([]);
+
     useEffect(() => {
         setMounted(true);
+        getLocations().then(data => setLocations(data));
     }, []);
 
     // Profile State
@@ -32,7 +45,23 @@ export default function EditProfileDialog({ user }) {
         address: user.address || "",
         region: user.region || "",
         branch: user.branch || "",
+        designation: user.designation || "",
     });
+
+    // Update available branches when region changes
+    useEffect(() => {
+        if (formData.region) {
+            const loc = locations.find(l => l.name === formData.region);
+            setAvailableBranches(loc ? loc.branches.sort() : []);
+
+            // Check if current branch is valid for new region
+            if (formData.branch && loc && !loc.branches.includes(formData.branch)) {
+                setFormData(prev => ({ ...prev, branch: "" }));
+            }
+        } else {
+            setAvailableBranches([]);
+        }
+    }, [formData.region, locations]);
 
     // Password State
     const [passwordData, setPasswordData] = useState({
@@ -45,6 +74,10 @@ export default function EditProfileDialog({ user }) {
 
     const handleProfileChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleSelectChange = (name, value) => {
+        setFormData(prev => ({ ...prev, [name]: value }));
     };
 
     const handlePasswordChange = (e) => {
@@ -85,71 +118,105 @@ export default function EditProfileDialog({ user }) {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button variant="outline">Edit Profile</Button>
+                {trigger || <Button variant="outline">Edit Profile</Button>}
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                    <DialogTitle>Edit Profile</DialogTitle>
-                    <DialogDescription>
+            <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto bg-[#1a1f2e] border-white/10 shadow-2xl">
+                <DialogHeader className="border-b border-white/5 pb-4">
+                    <DialogTitle className="text-white">Edit Profile</DialogTitle>
+                    <DialogDescription className="text-gray-400">
                         Make changes to your profile here. Click save when you're done.
                     </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="grid gap-4 py-4">
                     <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="contactNumber" className="text-right">Contact</Label>
+                        <Label htmlFor="contactNumber" className="text-right text-gray-300">Contact</Label>
                         <Input
                             id="contactNumber"
                             name="contactNumber"
                             value={formData.contactNumber}
                             onChange={handleProfileChange}
-                            className="col-span-3"
+                            className="col-span-3 bg-[#1e293b]/50 border-white/10 text-white placeholder:text-gray-500 focus-visible:ring-fuchsia-500/50"
                         />
                     </div>
+
                     <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="branch" className="text-right">Branch</Label>
+                        <Label htmlFor="designation" className="text-right text-gray-300">Designation</Label>
                         <Input
-                            id="branch"
-                            name="branch"
-                            value={formData.branch}
+                            id="designation"
+                            name="designation"
+                            value={formData.designation}
                             onChange={handleProfileChange}
-                            className="col-span-3"
+                            placeholder="e.g. Sales Executive"
+                            className="col-span-3 bg-[#1e293b]/50 border-white/10 text-white placeholder:text-gray-500 focus-visible:ring-fuchsia-500/50"
                         />
                     </div>
+
+                    {/* Region Select */}
                     <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="region" className="text-right">Region</Label>
-                        <Input
-                            id="region"
-                            name="region"
-                            value={formData.region}
-                            onChange={handleProfileChange}
-                            className="col-span-3"
-                        />
+                        <Label htmlFor="region" className="text-right text-gray-300">Region</Label>
+                        <div className="col-span-3">
+                            <Select
+                                value={formData.region}
+                                onValueChange={(val) => handleSelectChange("region", val)}
+                            >
+                                <SelectTrigger className="w-full bg-[#1e293b]/50 border-white/10 text-white focus:ring-1 focus:ring-fuchsia-500/50">
+                                    <SelectValue placeholder="Select Region" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-[#1a1f2e] border-white/10 text-white">
+                                    {locations.map(loc => (
+                                        <SelectItem key={loc._id} value={loc.name}>{loc.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
+
+                    {/* Branch Select */}
                     <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="address" className="text-right">Address</Label>
+                        <Label htmlFor="branch" className="text-right text-gray-300">Branch</Label>
+                        <div className="col-span-3">
+                            <Select
+                                value={formData.branch}
+                                onValueChange={(val) => handleSelectChange("branch", val)}
+                                disabled={!formData.region}
+                            >
+                                <SelectTrigger className="w-full bg-[#1e293b]/50 border-white/10 text-white focus:ring-1 focus:ring-fuchsia-500/50 disabled:opacity-50">
+                                    <SelectValue placeholder="Select Branch" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-[#1a1f2e] border-white/10 text-white">
+                                    {availableBranches.map(branch => (
+                                        <SelectItem key={branch} value={branch}>{branch}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="address" className="text-right text-gray-300">Address</Label>
                         <Input
                             id="address"
                             name="address"
                             value={formData.address}
                             onChange={handleProfileChange}
-                            className="col-span-3"
+                            className="col-span-3 bg-[#1e293b]/50 border-white/10 text-white placeholder:text-gray-500 focus-visible:ring-fuchsia-500/50"
                         />
                     </div>
 
-                    <div className="border-t pt-4 mt-2">
+                    <div className="border-t border-white/5 pt-4 mt-2">
                         <button
                             type="button"
                             onClick={() => setIsPasswordSectionOpen(!isPasswordSectionOpen)}
-                            className="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center"
+                            className="text-sm font-medium text-cyan-400 hover:text-cyan-300 flex items-center transition-colors"
                         >
                             {isPasswordSectionOpen ? "- Cancel Password Change" : "+ Change Password"}
                         </button>
                     </div>
 
                     {isPasswordSectionOpen && (
-                        <div className="grid gap-4 bg-muted/30 p-4 rounded-md">
+                        <div className="grid gap-4 bg-white/5 border border-white/5 p-4 rounded-md">
                             <div className="grid gap-2">
-                                <Label htmlFor="currentPassword">Current Password</Label>
+                                <Label htmlFor="currentPassword" className="text-gray-300">Current Password</Label>
                                 <Input
                                     id="currentPassword"
                                     name="currentPassword"
@@ -157,10 +224,11 @@ export default function EditProfileDialog({ user }) {
                                     value={passwordData.currentPassword}
                                     onChange={handlePasswordChange}
                                     required={isPasswordSectionOpen}
+                                    className="bg-[#1e293b]/50 border-white/10 text-white focus-visible:ring-fuchsia-500/50"
                                 />
                             </div>
                             <div className="grid gap-2">
-                                <Label htmlFor="newPassword">New Password</Label>
+                                <Label htmlFor="newPassword" className="text-gray-300">New Password</Label>
                                 <Input
                                     id="newPassword"
                                     name="newPassword"
@@ -168,10 +236,11 @@ export default function EditProfileDialog({ user }) {
                                     value={passwordData.newPassword}
                                     onChange={handlePasswordChange}
                                     required={isPasswordSectionOpen}
+                                    className="bg-[#1e293b]/50 border-white/10 text-white focus-visible:ring-fuchsia-500/50"
                                 />
                             </div>
                             <div className="grid gap-2">
-                                <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                                <Label htmlFor="confirmPassword" className="text-gray-300">Confirm New Password</Label>
                                 <Input
                                     id="confirmPassword"
                                     name="confirmPassword"
@@ -179,13 +248,18 @@ export default function EditProfileDialog({ user }) {
                                     value={passwordData.confirmPassword}
                                     onChange={handlePasswordChange}
                                     required={isPasswordSectionOpen}
+                                    className="bg-[#1e293b]/50 border-white/10 text-white focus-visible:ring-fuchsia-500/50"
                                 />
                             </div>
                         </div>
                     )}
 
                     <DialogFooter>
-                        <Button type="submit" disabled={loading}>
+                        <Button
+                            type="submit"
+                            disabled={loading}
+                            className="bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 text-white border-0 shadow-lg shadow-fuchsia-500/20"
+                        >
                             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             Save changes
                         </Button>

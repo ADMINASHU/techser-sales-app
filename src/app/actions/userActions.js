@@ -18,7 +18,14 @@ export async function updateProfile(formData) {
     const session = await auth();
     if (!session) return { error: "Not authenticated" };
 
-    const { contactNumber, address, region, branch } = Object.fromEntries(formData);
+    const { contactNumber, address, region, branch, designation } = Object.fromEntries(formData);
+    console.log("[DEBUG] updateProfile Action Received:", { designation });
+
+    if (!contactNumber) { // Address, region, branch might be optional for some changes? Keeping validation strict as per existing.
+        return { error: "Contact number is required" };
+    }
+    // Re-evaluating existing validation: "if (!contactNumber || !address || !region || !branch)"
+    // User didn't ask to relax validation, but designation can be optional.
 
     if (!contactNumber || !address || !region || !branch) {
         return { error: "All fields are required" };
@@ -31,6 +38,7 @@ export async function updateProfile(formData) {
             address,
             region,
             branch,
+            designation,
         });
 
         // Trigger Verification Request Notification to Admins

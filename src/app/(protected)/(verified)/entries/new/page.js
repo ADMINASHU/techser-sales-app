@@ -105,7 +105,7 @@ export default function NewEntryPage() {
     }
 
     return (
-        <div className="flex items-center justify-center min-h-[calc(100vh-6rem)] p-4">
+        <div className="flex items-center justify-center min-h-[calc(100vh-6rem)] p-2 sm:p-4">
             <Card className="w-full max-w-2xl bg-[#1a1f2e] border-white/10 shadow-2xl">
                 <CardHeader className="flex flex-row items-center justify-between border-b border-white/10 pb-4">
                     <div>
@@ -116,11 +116,11 @@ export default function NewEntryPage() {
                         <X className="h-5 w-5" />
                     </Button>
                 </CardHeader>
-                <CardContent className="pt-6">
+                <CardContent className="pt-4 sm:pt-6">
                     <form action={clientAction}>
-                        <div className="space-y-5">
+                        <div className="space-y-4 sm:space-y-5">
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="entryDate" className="text-gray-300">Date of Visit</Label>
                                     <Input
@@ -155,13 +155,13 @@ export default function NewEntryPage() {
 
                             <div className="space-y-2">
                                 <Label htmlFor="customerAddress" className="text-gray-300">Address Details</Label>
-                                <Input
+                                <Textarea
                                     id="customerAddress"
                                     name="customerAddress"
                                     value={customerAddress}
                                     onChange={(e) => setCustomerAddress(e.target.value)}
                                     placeholder="Full address"
-                                    className="bg-[#1e293b]/80 border-white/10 text-white placeholder:text-gray-500 focus-visible:ring-fuchsia-500/50"
+                                    className="bg-[#1e293b]/80 border-white/10 text-white placeholder:text-gray-500 focus-visible:ring-fuchsia-500/50 min-h-[80px]"
                                     required
                                 />
                             </div>

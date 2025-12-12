@@ -34,6 +34,7 @@ const UserSchema = new mongoose.Schema(
         address: String,
         region: String,
         branch: String,
+        designation: String,
         resetToken: String,
         resetTokenExpiry: Date,
         provider: {

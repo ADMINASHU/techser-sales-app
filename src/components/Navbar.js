@@ -136,7 +136,7 @@ export default function Navbar() {
 
                 {/* Mobile Menu */}
                 {isOpen && (
-                    <div className="sm:hidden glass-card absolute left-0 right-0 top-20 shadow-2xl z-50 p-4 border-t-0 rounded-b-2xl animate-in slide-in-from-top-2 duration-300">
+                    <div className="sm:hidden bg-[#0f1117] border-b border-white/10 absolute left-0 right-0 top-20 shadow-2xl z-50 p-4 border-t-0 rounded-b-2xl animate-in slide-in-from-top-2 duration-300">
                         <div className="space-y-1">
                             {isVerified &&
                                 links.map((link) => (
@@ -156,7 +156,11 @@ export default function Navbar() {
                                 ))}
                         </div>
                         <div className="mt-6 pt-6 border-t border-white/10 flex items-center justify-between">
-                            <div className="flex items-center gap-3">
+                            <Link
+                                href="/profile"
+                                onClick={() => setIsOpen(false)}
+                                className="flex items-center gap-3 active:opacity-80 transition-opacity"
+                            >
                                 <Avatar className="h-10 w-10 ring-2 ring-white/10">
                                     <AvatarImage src={session?.user?.image} />
                                     <AvatarFallback>{session?.user?.name?.charAt(0)}</AvatarFallback>
@@ -165,7 +169,7 @@ export default function Navbar() {
                                     <div className="font-medium text-white">{session?.user?.name}</div>
                                     <div className="text-sm text-gray-400">{session?.user?.email}</div>
                                 </div>
-                            </div>
+                            </Link>
                             <Button variant="ghost" size="icon" onClick={() => signOut()} className="text-red-400 hover:bg-red-500/10 hover:text-red-300">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" x2="9" y1="12" y2="12" /></svg>
                             </Button>
