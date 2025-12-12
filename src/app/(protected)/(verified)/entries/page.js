@@ -79,15 +79,13 @@ export default async function EntriesPage({ searchParams }) {
             </div>
 
             {/* Filter Component */}
-            <div className="glass-panel p-4 rounded-xl">
-                <Suspense fallback={<div className="text-gray-400">Loading filters...</div>}>
-                    <EntryFilters
-                        users={filtersData.users}
-                        locations={filtersData.locations}
-                        isAdmin={isAdmin}
-                    />
-                </Suspense>
-            </div>
+            <Suspense fallback={<div className="text-gray-400">Loading filters...</div>}>
+                <EntryFilters
+                    users={filtersData.users}
+                    locations={filtersData.locations}
+                    isAdmin={isAdmin}
+                />
+            </Suspense>
 
             {/* Mobile View: Stacked Glass Cards */}
             <div className="grid gap-4 md:hidden">
@@ -156,8 +154,8 @@ export default async function EntriesPage({ searchParams }) {
                                     </td>
                                     <td className="px-6 py-4">
                                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${entry.status === 'Completed'
-                                                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                                                : "bg-blue-500/10 text-blue-400 border-blue-500/20"
+                                            ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                                            : "bg-blue-500/10 text-blue-400 border-blue-500/20"
                                             }`}>
                                             <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${entry.status === 'Completed' ? "bg-emerald-400" : "bg-blue-400"
                                                 }`}></span>

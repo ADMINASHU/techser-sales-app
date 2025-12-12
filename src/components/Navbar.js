@@ -83,11 +83,6 @@ export default function Navbar() {
 
                     {/* Right Actions */}
                     <div className="hidden sm:flex items-center space-x-4">
-                        <div className="hidden lg:block relative group">
-                            <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 to-fuchsia-400 rounded-full blur opacity-0 group-hover:opacity-20 transition duration-500"></div>
-                            <ModeToggle />
-                        </div>
-
                         {session?.user?.id && process.env.NEXT_PUBLIC_KNOCK_FEED_ID && (
                             <NotificationFeed />
                         )}
