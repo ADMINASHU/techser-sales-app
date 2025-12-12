@@ -43,6 +43,11 @@ const EntrySchema = new mongoose.Schema(
             enum: ["Not Started", "In Process", "Completed"],
             default: "Not Started",
         },
+        entryDate: {
+            type: Date,
+            required: true,
+            default: Date.now,
+        },
         googleSheetRowId: Number, // To track row in Google Sheets for updates
     },
     { timestamps: true }

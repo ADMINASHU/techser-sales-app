@@ -5,6 +5,7 @@ import Entry from "@/models/Entry";
 import { getFilters } from "@/app/actions/reportActions";
 import EntryFilters from "@/components/EntryFilters"; // [NEW]
 import DeleteEntryButton from "@/components/DeleteEntryButton"; // [NEW]
+import DurationDisplay from "@/components/DurationDisplay"; // [NEW]
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -107,14 +108,12 @@ export default async function EntriesPage({ searchParams }) {
                             <CardContent>
                                 <p className="text-sm text-muted-foreground mb-2 truncate">{entry.customerAddress}</p>
                                 <div className="text-xs text-muted-foreground space-y-1">
-                                    {/* Show User Name for Admins */}
-                                    {(isAdmin || entry.userId) && (
-                                        <div className="font-semibold text-primary">
-                                            User: {entry.userId?.name || "Unknown"}
-                                        </div>
-                                    )}
-                                    <div>Branch: {entry.branch}</div>
-                                    <div>Date: {format(new Date(entry.createdAt), "PP")}</div>
+                                    <DurationDisplay
+                                        startTime={entry.stampIn?.time}
+                                        endTime={entry.stampOut?.time}
+                                        status={entry.status}
+                                    />
+                                    <div>Date: {format(new Date(entry.entryDate || entry.createdAt), "PP")}</div>
                                 </div>
                             </CardContent>
                             {!isAdmin && (

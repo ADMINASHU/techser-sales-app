@@ -57,9 +57,9 @@ export default async function EntryDetailPage({ params }) {
                             <Label className="text-muted-foreground">Address</Label>
                             <div className="font-medium mb-2">{entry.customerAddress}</div>
                             {/* Map Visualization */}
-                            <EntryMap 
-                                location={entry.location} 
-                                destinationName={entry.customerName} 
+                            <EntryMap
+                                location={entry.location}
+                                destinationName={entry.customerName}
                             />
                         </div>
                         {/* <div>
@@ -88,7 +88,13 @@ export default async function EntryDetailPage({ params }) {
                     </div>
                 </CardContent>
                 <CardFooter>
-                    <EntryActionButtons entry={entry} />
+                    {new Date().toDateString() === new Date(entry.entryDate || entry.createdAt).toDateString() ? (
+                        <EntryActionButtons entry={entry} />
+                    ) : (
+                        <div className="w-full p-4 bg-yellow-50 text-yellow-800 rounded-md text-sm text-center">
+                            Action allowed only on {format(new Date(entry.entryDate || entry.createdAt), "PP")}
+                        </div>
+                    )}
                 </CardFooter>
             </Card>
         </div>

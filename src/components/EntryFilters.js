@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,16 +9,20 @@ import { X } from "lucide-react";
 
 export default function EntryFilters({ users = [], locations = [], isAdmin }) {
     const router = useRouter();
+    const pathname = usePathname();
     const searchParams = useSearchParams();
+    const [isFiltersOpen, setIsFiltersOpen] = useState(false); // Mobile toggle state
 
     // Initialize state from URL params or defaults
     const [selectedUser, setSelectedUser] = useState(searchParams.get("user") || "all");
     const [selectedRegion, setSelectedRegion] = useState(searchParams.get("region") || "all");
     const [selectedBranch, setSelectedBranch] = useState(searchParams.get("branch") || "all");
+    const [selectedStatus, setSelectedStatus] = useState(searchParams.get("status") || "all"); // [NEW]
 
-    // Initialize state - Default to "all" (All Time)
-    const [selectedMonth, setSelectedMonth] = useState(searchParams.get("month") || "all");
-    const [selectedYear, setSelectedYear] = useState(searchParams.get("year") || "all");
+    // Initialize state - Default to Current Month/Year
+    const currentDate = new Date();
+    const [selectedMonth, setSelectedMonth] = useState(searchParams.get("month") || currentDate.getMonth().toString());
+    const [selectedYear, setSelectedYear] = useState(searchParams.get("year") || currentDate.getFullYear().toString());
 
     // Derived branches based on selected region
     const availableBranches = selectedRegion === "all"
@@ -49,20 +53,22 @@ export default function EntryFilters({ users = [], locations = [], isAdmin }) {
         updateParam("user", selectedUser);
         updateParam("region", selectedRegion);
         updateParam("branch", selectedBranch);
+        updateParam("status", selectedStatus); // [NEW]
         updateParam("month", selectedMonth);
         updateParam("year", selectedYear);
 
         // Only push if params actually changed
         if (hasChanges) {
             params.set("page", "1"); // Reset page on filter change
-            router.push(`/entries?${params.toString()}`);
+            router.push(`${pathname}?${params.toString()}`);
         }
-    }, [selectedUser, selectedRegion, selectedBranch, selectedMonth, selectedYear, router, searchParams]);
+    }, [selectedUser, selectedRegion, selectedBranch, selectedStatus, selectedMonth, selectedYear, router, searchParams]);
 
     const clearFilters = () => {
         setSelectedUser("all");
         setSelectedRegion("all");
         setSelectedBranch("all");
+        setSelectedStatus("all"); // [NEW]
         setSelectedMonth("all"); // Reset to All
         setSelectedYear("all"); // Reset to All
     };
@@ -74,13 +80,27 @@ export default function EntryFilters({ users = [], locations = [], isAdmin }) {
         { value: "9", label: "October" }, { value: "10", label: "November" }, { value: "11", label: "December" },
     ];
 
-    const currentDate = new Date();
+    const statuses = ["Not Started", "In Process", "Completed"]; // [NEW]
+
     const years = Array.from({ length: 5 }, (_, i) => (currentDate.getFullYear() - i).toString());
 
     return (
         <Card className="mb-6">
             <CardContent className="pt-6">
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 items-end">
+                {/* Mobile Filter Toggle */}
+                <div className="md:hidden mb-4">
+                    <Button
+                        variant="outline"
+                        className="w-full flex justify-between items-center"
+                        onClick={() => setIsFiltersOpen(!isFiltersOpen)}
+                    >
+                        <span>Filters</span>
+                        {isFiltersOpen ? <X className="h-4 w-4" /> : <div className="h-4 w-4 rotate-0 transition-transform" >▼</div>}
+                    </Button>
+                </div>
+
+                {/* Filter Grid - Hidden on mobile unless open, always visible on md+ */}
+                <div className={`${isFiltersOpen ? 'grid' : 'hidden'} md:grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 items-end`}>
 
                     {/* User Filter (Admin Only) */}
                     {isAdmin && (
@@ -98,32 +118,50 @@ export default function EntryFilters({ users = [], locations = [], isAdmin }) {
                         </div>
                     )}
 
-                    {/* Region Filter */}
-                    <div className="space-y-2">
-                        <span className="text-xs font-semibold text-muted-foreground uppercase">Region</span>
-                        <Select value={selectedRegion} onValueChange={(val) => {
-                            setSelectedRegion(val);
-                            setSelectedBranch("all"); // Reset branch
-                        }}>
-                            <SelectTrigger><SelectValue placeholder="Region" /></SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">All Regions</SelectItem>
-                                {locations.map(loc => (
-                                    <SelectItem key={loc._id} value={loc.name}>{loc.name}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
+                    {/* Region Filter (Admin Only) */}
+                    {isAdmin && (
+                        <div className="space-y-2">
+                            <span className="text-xs font-semibold text-muted-foreground uppercase">Region</span>
+                            <Select value={selectedRegion} onValueChange={(val) => {
+                                setSelectedRegion(val);
+                                setSelectedBranch("all"); // Reset branch
+                            }}>
+                                <SelectTrigger><SelectValue placeholder="Region" /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Regions</SelectItem>
+                                    {locations.map(loc => (
+                                        <SelectItem key={loc._id} value={loc.name}>{loc.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    )}
 
-                    {/* Branch Filter */}
+                    {/* Branch Filter (Admin Only) */}
+                    {isAdmin && (
+                        <div className="space-y-2">
+                            <span className="text-xs font-semibold text-muted-foreground uppercase">Branch</span>
+                            <Select value={selectedBranch} onValueChange={setSelectedBranch}>
+                                <SelectTrigger><SelectValue placeholder="Branch" /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Branches</SelectItem>
+                                    {availableBranches.map(b => (
+                                        <SelectItem key={b} value={b}>{b}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    )}
+
+                    {/* Status Filter [NEW] */}
                     <div className="space-y-2">
-                        <span className="text-xs font-semibold text-muted-foreground uppercase">Branch</span>
-                        <Select value={selectedBranch} onValueChange={setSelectedBranch}>
-                            <SelectTrigger><SelectValue placeholder="Branch" /></SelectTrigger>
+                        <span className="text-xs font-semibold text-muted-foreground uppercase">Status</span>
+                        <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                            <SelectTrigger><SelectValue placeholder="Status" /></SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="all">All Branches</SelectItem>
-                                {availableBranches.map(b => (
-                                    <SelectItem key={b} value={b}>{b}</SelectItem>
+                                <SelectItem value="all">All Statuses</SelectItem>
+                                {statuses.map(s => (
+                                    <SelectItem key={s} value={s}>{s}</SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>

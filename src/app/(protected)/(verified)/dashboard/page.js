@@ -4,10 +4,14 @@ import Entry from "@/models/Entry";
 import { redirect } from "next/navigation";
 import UserDashboard from "@/components/UserDashboard";
 import AdminDashboard from "@/components/AdminDashboard";
+import EntryFilters from "@/components/EntryFilters"; // [NEW]
+import Link from "next/link"; // [NEW]
+import { Button } from "@/components/ui/button"; // [NEW]
+import { PlusCircle } from "lucide-react"; // [NEW]
 
 export const dynamic = 'force-dynamic';
 
-export default async function DashboardPage() {
+export default async function DashboardPage({ searchParams }) {
     const session = await auth();
     if (!session) redirect("/login");
 
@@ -19,18 +23,55 @@ export default async function DashboardPage() {
     }
 
     // Default User Dashboard Logic
+    const params = await searchParams;
+    const now = new Date();
+
+    // Default filters
+    const month = params.month !== undefined ? parseInt(params.month) : now.getMonth();
+    const year = params.year !== undefined ? parseInt(params.year) : now.getFullYear();
+    const status = params.status || "all";
+
+    const startDate = new Date(year, month, 1);
+    const endDate = new Date(year, month + 1, 0, 23, 59, 59);
+
+    const query = {
+        userId: session.user.id,
+        createdAt: {
+            $gte: startDate,
+            $lte: endDate
+        }
+    };
+
+    if (status && status !== "all") {
+        query.status = status;
+    }
+
     // Fetch data for the logged-in user
-    const totalEntries = await Entry.countDocuments({ userId: session.user.id });
-    const completedEntries = await Entry.countDocuments({ userId: session.user.id, status: "Completed" });
-    const recentEntries = await Entry.find({ userId: session.user.id })
+    const totalEntries = await Entry.countDocuments(query);
+    const completedEntries = await Entry.countDocuments({ ...query, status: "Completed" });
+    const recentEntries = await Entry.find(query)
         .sort({ createdAt: -1 })
-        .limit(5);
+        .limit(20); // Increased limit as we are filtering
 
     return (
-        <UserDashboard 
-            totalEntries={totalEntries} 
-            completedEntries={completedEntries} 
-            recentEntries={recentEntries} 
-        />
+        <div className="space-y-6">
+            <div className="flex items-center justify-between">
+                <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+                <Link href="/entries/new">
+                    <Button>
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        New Entry
+                    </Button>
+                </Link>
+            </div>
+
+            <EntryFilters isAdmin={false} />
+
+            <UserDashboard
+                totalEntries={totalEntries}
+                completedEntries={completedEntries}
+                recentEntries={recentEntries}
+            />
+        </div>
     );
 }
