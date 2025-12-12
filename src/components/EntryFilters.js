@@ -27,6 +27,14 @@ export default function EntryFilters({ users = [], locations = [], isAdmin }) {
     const [selectedYear, setSelectedYear] = useState(searchParams.get("year") || currentDate.getFullYear().toString());
 
 
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    // ... existing useEffect for searchParams ... (Line 36)
+
     // Derived branches based on selected region
     const availableBranches = selectedRegion === "all"
         ? Array.from(new Set(locations.flatMap(l => l.branches))).sort()
@@ -87,6 +95,15 @@ export default function EntryFilters({ users = [], locations = [], isAdmin }) {
     const statuses = ["Not Started", "In Process", "Completed"];
 
     const years = Array.from({ length: 5 }, (_, i) => (currentDate.getFullYear() - i).toString());
+
+    if (!mounted) {
+        return (
+            <div className="glass-panel border-white/5 mb-8 rounded-xl shadow-2xl p-4">
+                <div className="h-10 bg-white/5 rounded animate-pulse w-full"></div>
+            </div>
+        );
+    }
+
 
     return (
         <div className="glass-panel border-white/5 mb-8 rounded-xl shadow-2xl">

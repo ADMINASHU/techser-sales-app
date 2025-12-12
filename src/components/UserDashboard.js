@@ -62,34 +62,35 @@ export default function UserDashboard({ totalEntries, completedEntries, recentEn
             <div className="mt-8">
                 <h2 className="text-xl font-semibold mb-4">Recent Entries</h2>
                 {recentEntries.length === 0 ? (
-                    <Card>
-                        <CardContent className="p-6 text-center text-muted-foreground">
-                            No entries found. Start by creating one!
-                        </CardContent>
-                    </Card>
+                    <div className="glass-panel p-6 rounded-xl text-center text-gray-400">
+                        No entries found. Start by creating one!
+                    </div>
                 ) : (
                     <div className="grid gap-4">
                         {recentEntries.map((entry) => (
                             <Link key={entry._id.toString()} href={`/entries/${entry._id}`} className="block min-w-0">
-                                <Card className="group hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer h-full relative">
-                                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                        <CardTitle className="text-base font-medium truncate">{entry.customerName}</CardTitle>
-                                        <Badge variant={entry.status === 'Completed' ? 'default' : 'secondary'}>
+                                <div className="glass-panel p-4 rounded-xl hover:bg-white/5 transition-all group relative overflow-hidden">
+                                    <div className="flex justify-between items-start mb-2">
+                                        <h3 className="text-base font-semibold text-white truncate pr-2">{entry.customerName}</h3>
+                                        <Badge variant="outline" className={
+                                            entry.status === 'Completed' ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
+                                                "bg-blue-500/10 text-blue-400 border-blue-500/20"
+                                        }>
                                             {entry.status}
                                         </Badge>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <p className="text-sm text-muted-foreground mb-2 truncate">{entry.customerAddress}</p>
-                                        <div className="text-xs text-muted-foreground space-y-1">
+                                    </div>
+                                    <p className="text-sm text-gray-400 mb-3 truncate">{entry.customerAddress}</p>
+                                    <div className="flex items-center justify-between text-xs text-gray-500">
+                                        <div className="flex flex-col gap-1">
+                                            <span className="text-gray-300">Date: {format(new Date(entry.entryDate || entry.createdAt), "PP")}</span>
                                             <DurationDisplay
                                                 startTime={entry.stampIn?.time}
                                                 endTime={entry.stampOut?.time}
                                                 status={entry.status}
                                             />
-                                            <div>Date: {format(new Date(entry.entryDate || entry.createdAt), "PP")}</div>
                                         </div>
-                                    </CardContent>
-                                </Card>
+                                    </div>
+                                </div>
                             </Link>
                         ))}
                     </div>
