@@ -3,13 +3,12 @@ import { auth } from "@/auth";
 import dbConnect from "@/lib/db";
 import Entry from "@/models/Entry";
 import { getFilters } from "@/app/actions/reportActions";
-import EntryCard from "@/components/EntryCard";
 import EntryFilters from "@/components/EntryFilters";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { PlusCircle } from "lucide-react";
 import ViewToggle from "@/components/ViewToggle";
-import EntryTableRow from "@/components/EntryTableRow";
+import InfiniteEntryList from "@/components/InfiniteEntryList";
 
 export default async function EntriesPage({ searchParams }) {
     const session = await auth();
@@ -49,8 +48,20 @@ export default async function EntriesPage({ searchParams }) {
         };
     }
 
-    if (params.status) {
+    if (params.status && params.status !== "all") {
         query.status = params.status;
+    }
+
+    if (params.search) {
+        query.customerName = { $regex: params.search, $options: "i" };
+    }
+
+    if (params.region && params.region !== "all") {
+        query.region = params.region;
+    }
+
+    if (params.branch && params.branch !== "all") {
+        query.branch = params.branch;
     }
 
     // Fetch Entries with populated User for Admins
@@ -58,9 +69,7 @@ export default async function EntriesPage({ searchParams }) {
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
-        .populate("userId", "name email");
-
-    const total = await Entry.countDocuments(query);
+        .populate("userId", "name email region branch");
 
     return (
         <div className="space-y-6">
@@ -88,75 +97,17 @@ export default async function EntriesPage({ searchParams }) {
                 </Suspense>
 
                 {/* View Toggle - Aligned Right */}
-                <div className="flex justify-end">
+                <div className="hidden md:flex justify-end">
                     <ViewToggle />
                 </div>
             </div>
 
-            {/* Data Grids */}
-            <div className={`grid gap-4 ${view === 'grid' ? 'md:grid-cols-2 lg:grid-cols-3' : 'md:hidden'}`}>
-                {entries.map((entry) => (
-                    <EntryCard
-                        key={entry._id.toString()}
-                        entry={JSON.parse(JSON.stringify(entry))}
-                        isAdmin={isAdmin}
-                    />
-                ))}
-            </div>
-
-            {/* Desktop View: Glass Table */}
-            {view === 'list' && (
-                <div className="hidden md:block rounded-xl overflow-hidden glass-panel border border-white/5 shadow-2xl">
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left text-sm text-gray-400">
-                            <thead className="bg-white/5 text-gray-200 uppercase tracking-wider font-semibold border-b border-white/5">
-                                <tr>
-                                    <th className="px-6 py-4">Customer</th>
-                                    <th className="px-6 py-4">Status</th>
-                                    <th className="px-6 py-4">Date</th>
-                                    <th className="px-6 py-4">Duration</th>
-                                    <th className="px-6 py-4 text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-white/5">
-                                {entries.map((entry) => (
-                                    <EntryTableRow
-                                        key={entry._id.toString()}
-                                        entry={JSON.parse(JSON.stringify(entry))}
-                                        isAdmin={isAdmin}
-                                    />
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            )}
-
-            {entries.length === 0 && (
-                <div className="flex flex-col items-center justify-center py-16 text-center glass-panel rounded-xl">
-                    <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4">
-                        <svg className="w-8 h-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                    </div>
-                    <h3 className="text-lg font-medium text-white mb-1">No entries found</h3>
-                    <p className="text-gray-400 max-w-sm">
-                        Try adjusting your filters or create a new entry to get started.
-                    </p>
-                </div>
-            )}
-
-            {/* Pagination Controls */}
-            <div className="flex justify-center space-x-2 pt-4">
-                {page > 1 && (
-                    <Link href={`/entries?page=${page - 1}&view=${view}`}>
-                        <Button variant="outline" className="glass-panel text-white hover:bg-white/10 border-white/10">Previous</Button>
-                    </Link>
-                )}
-                {skip + entries.length < total && (
-                    <Link href={`/entries?page=${page + 1}&view=${view}`}>
-                        <Button variant="outline" className="glass-panel text-white hover:bg-white/10 border-white/10">Next</Button>
-                    </Link>
-                )}
-            </div>
+            <InfiniteEntryList
+                initialEntries={JSON.parse(JSON.stringify(entries))}
+                searchParams={params}
+                isAdmin={isAdmin}
+                view={view}
+            />
         </div>
     );
 }

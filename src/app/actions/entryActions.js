@@ -155,3 +155,88 @@ export async function deleteEntry(entryId) {
         return { error: "Failed to delete" };
     }
 }
+
+export async function fetchEntries({ page = 1, limit = 30, filters = {} }) {
+    try {
+        const session = await auth();
+        if (!session) {
+            throw new Error("Unauthorized");
+        }
+        await dbConnect();
+
+        const skip = (page - 1) * limit;
+        const isAdmin = session.user.role === "admin";
+        const query = {};
+
+        // 1. Role-based Base Query
+        if (!isAdmin) {
+            query.userId = session.user.id;
+        } else {
+            if (filters.user && filters.user !== "all") {
+                query.userId = filters.user;
+            }
+        }
+
+        // 2. Date Filter
+        if (filters.month !== undefined && filters.year !== undefined && filters.month !== "all" && filters.year !== "all") {
+            const month = parseInt(filters.month);
+            const year = parseInt(filters.year);
+            const startDate = new Date(year, month, 1);
+            const endDate = new Date(year, month + 1, 0, 23, 59, 59);
+            query.createdAt = {
+                $gte: startDate,
+                $lte: endDate
+            };
+        }
+
+        // 3. Status Filter
+        if (filters.status && filters.status !== "all") {
+            query.status = filters.status;
+        }
+
+        // 4. Search Filter
+        if (filters.search) {
+            query.customerName = { $regex: filters.search, $options: "i" };
+        }
+
+        // 5. Region & Branch Filters
+        if (filters.region && filters.region !== "all") {
+            query.region = filters.region;
+        }
+
+        if (filters.branch && filters.branch !== "all") {
+            query.branch = filters.branch;
+        }
+
+        // Fetch Entries
+        const entries = await Entry.find(query)
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .populate("userId", "name email region branch")
+            .lean();
+
+        // Serialize
+        const serializedEntries = entries.map(entry => ({
+            ...entry,
+            _id: entry._id.toString(),
+            userId: entry.userId ? {
+                ...entry.userId,
+                _id: entry.userId._id.toString()
+            } : null,
+            createdAt: entry.createdAt.toISOString(),
+            updatedAt: entry.updatedAt.toISOString(),
+            entryDate: entry.entryDate ? new Date(entry.entryDate).toISOString() : null,
+            // Ensure any other serialized fields needed
+        }));
+
+        return {
+            entries: serializedEntries,
+            hasMore: entries.length === limit
+        };
+
+    } catch (error) {
+        console.error("Error fetching entries:", error);
+        throw new Error("Failed to fetch entries");
+    }
+}

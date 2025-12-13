@@ -2,29 +2,29 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useDebounce } from "use-debounce";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
 
 export default function EntryFilters({ users = [], locations = [], isAdmin, showStatus = true }) {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
-    const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
     // Initialize state from URL params or defaults
     const [selectedUser, setSelectedUser] = useState(searchParams.get("user") || "all");
     const [selectedRegion, setSelectedRegion] = useState(searchParams.get("region") || "all");
     const [selectedBranch, setSelectedBranch] = useState(searchParams.get("branch") || "all");
     const [selectedStatus, setSelectedStatus] = useState(searchParams.get("status") || "all");
+    const [search, setSearch] = useState(searchParams.get("search") || "");
 
     // Initialize state - Default to All or specific param, prioritizing user choice logic in useEffect
     const currentDate = new Date();
     const [selectedMonth, setSelectedMonth] = useState(searchParams.get("month") || currentDate.getMonth().toString());
     const [selectedYear, setSelectedYear] = useState(searchParams.get("year") || currentDate.getFullYear().toString());
 
-
+    const [debouncedSearch] = useDebounce(search, 500);
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
@@ -36,6 +36,16 @@ export default function EntryFilters({ users = [], locations = [], isAdmin, show
         ? Array.from(new Set(locations.flatMap(l => l.branches))).sort()
         : (locations.find(l => l.name === selectedRegion)?.branches.sort() || []);
 
+    // Reset branch if region changes
+    useEffect(() => {
+        if (selectedRegion !== "all" && selectedBranch !== "all") {
+            const loc = locations.find(l => l.name === selectedRegion);
+            if (loc && !loc.branches.includes(selectedBranch)) {
+                setSelectedBranch("all");
+            }
+        }
+    }, [selectedRegion, locations]);
+
     // Update URL when filters change
     useEffect(() => {
         const params = new URLSearchParams(searchParams);
@@ -43,7 +53,7 @@ export default function EntryFilters({ users = [], locations = [], isAdmin, show
 
         const updateParam = (key, value) => {
             const current = params.get(key);
-            if (value !== "all") {
+            if (value !== "all" && value !== "") {
                 if (current !== value) {
                     params.set(key, value);
                     hasChanges = true;
@@ -62,13 +72,14 @@ export default function EntryFilters({ users = [], locations = [], isAdmin, show
         updateParam("status", selectedStatus);
         updateParam("month", selectedMonth);
         updateParam("year", selectedYear);
+        updateParam("search", debouncedSearch);
 
         // Only push if params actually changed
         if (hasChanges) {
             params.set("page", "1");
             router.push(`${pathname}?${params.toString()}`);
         }
-    }, [selectedUser, selectedRegion, selectedBranch, selectedStatus, selectedMonth, selectedYear, router, pathname, searchParams]);
+    }, [selectedUser, selectedRegion, selectedBranch, selectedStatus, selectedMonth, selectedYear, debouncedSearch, router, pathname, searchParams]);
 
     const clearFilters = () => {
         setSelectedUser("all");
@@ -77,6 +88,7 @@ export default function EntryFilters({ users = [], locations = [], isAdmin, show
         setSelectedStatus("all");
         setSelectedMonth("all");
         setSelectedYear("all");
+        setSearch("");
     };
 
     const months = [
@@ -87,7 +99,6 @@ export default function EntryFilters({ users = [], locations = [], isAdmin, show
     ];
 
     const statuses = ["Not Started", "In Process", "Completed"];
-
     const years = Array.from({ length: 5 }, (_, i) => (currentDate.getFullYear() - i).toString());
 
     if (!mounted) {
@@ -97,7 +108,6 @@ export default function EntryFilters({ users = [], locations = [], isAdmin, show
             </div>
         );
     }
-
 
     return (
         <div className="glass-panel border-white/5 mb-8 rounded-xl shadow-2xl">
@@ -122,13 +132,14 @@ export default function EntryFilters({ users = [], locations = [], isAdmin, show
                     </div>
 
                     {/* Filters Grid */}
-                    <div className={`flex-1 grid gap-2 ${showStatus ? 'grid-cols-3 md:grid-cols-4' : 'grid-cols-2 md:grid-cols-3'}`}>
+                    <div className="flex-1 grid gap-2 grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+
                         {/* Status */}
                         {showStatus && (
                             <div className="space-y-1.5">
                                 <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">Status</span>
                                 <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                                    <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10">
+                                    <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
                                         <SelectValue placeholder="Status" />
                                     </SelectTrigger>
                                     <SelectContent className="glass-card border-white/10">
@@ -141,29 +152,65 @@ export default function EntryFilters({ users = [], locations = [], isAdmin, show
                             </div>
                         )}
 
-                        {/* User (Admin) */}
+                        {/* Admin Filters */}
                         {isAdmin && (
-                            <div className="space-y-1.5">
-                                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">Account</span>
-                                <Select value={selectedUser} onValueChange={setSelectedUser}>
-                                    <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10">
-                                        <SelectValue placeholder="User" />
-                                    </SelectTrigger>
-                                    <SelectContent className="glass-card border-white/10">
-                                        <SelectItem value="all">All</SelectItem>
-                                        {users.map(u => (
-                                            <SelectItem key={u._id} value={u._id}>{u.name}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
+                            <>
+                                <div className="space-y-1.5">
+                                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">Account</span>
+                                    <Select value={selectedUser} onValueChange={setSelectedUser}>
+                                        <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
+                                            <SelectValue placeholder="User" />
+                                        </SelectTrigger>
+                                        <SelectContent className="glass-card border-white/10">
+                                            <SelectItem value="all">All</SelectItem>
+                                            {users.map(u => (
+                                                <SelectItem key={u._id} value={u._id}>{u.name}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className="space-y-1.5">
+                                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">Region</span>
+                                    <Select value={selectedRegion} onValueChange={setSelectedRegion}>
+                                        <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
+                                            <SelectValue placeholder="Region" />
+                                        </SelectTrigger>
+                                        <SelectContent className="glass-card border-white/10">
+                                            <SelectItem value="all">All Regions</SelectItem>
+                                            {locations.map((loc) => (
+                                                <SelectItem key={loc._id} value={loc.name}>
+                                                    {loc.name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className="space-y-1.5">
+                                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">Branch</span>
+                                    <Select value={selectedBranch} onValueChange={setSelectedBranch}>
+                                        <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
+                                            <SelectValue placeholder="Branch" />
+                                        </SelectTrigger>
+                                        <SelectContent className="glass-card border-white/10">
+                                            <SelectItem value="all">All Branches</SelectItem>
+                                            {availableBranches.map((b) => (
+                                                <SelectItem key={b} value={b}>
+                                                    {b}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </>
                         )}
 
                         {/* Month */}
                         <div className="space-y-1.5">
                             <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">Month</span>
                             <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                                <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10">
+                                <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
                                     <SelectValue placeholder="Month" />
                                 </SelectTrigger>
                                 <SelectContent className="glass-card border-white/10">
@@ -179,7 +226,7 @@ export default function EntryFilters({ users = [], locations = [], isAdmin, show
                         <div className="space-y-1.5">
                             <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">Year</span>
                             <Select value={selectedYear} onValueChange={setSelectedYear}>
-                                <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10">
+                                <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
                                     <SelectValue placeholder="Year" />
                                 </SelectTrigger>
                                 <SelectContent className="glass-card border-white/10">
@@ -189,6 +236,17 @@ export default function EntryFilters({ users = [], locations = [], isAdmin, show
                                     ))}
                                 </SelectContent>
                             </Select>
+                        </div>
+
+                        {/* Search - Full width on mobile */}
+                        <div className="space-y-1.5 col-span-3 md:col-span-1">
+                            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">Search</span>
+                            <Input
+                                placeholder="Search customer..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10"
+                            />
                         </div>
                     </div>
                 </div>

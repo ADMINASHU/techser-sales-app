@@ -1,84 +1,102 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Plus, X, Trash2 } from "lucide-react";
+import { Plus, X, Trash2, Check, MapPin, Map } from "lucide-react";
 import { toast } from "sonner";
 import { addRegion, removeRegion, addBranch, removeBranch } from "@/app/actions/settingsActions";
 
 export default function LocationManager({ initialLocations }) {
     const [locations, setLocations] = useState(initialLocations);
-    const [newRegion, setNewRegion] = useState("");
-    const [newBranch, setNewBranch] = useState({}); // { [regionId]: "" }
+    const [selectedRegion, setSelectedRegion] = useState(locations.length > 0 ? locations[0] : null);
+
+    // Add Mode States
+    const [isAddingRegion, setIsAddingRegion] = useState(false);
+    const [isAddingBranch, setIsAddingBranch] = useState(false);
+
+    // Input States
+    const [newRegionName, setNewRegionName] = useState("");
+    const [newBranchName, setNewBranchName] = useState("");
+
     const [loading, setLoading] = useState(false);
 
+    // Update selected region when locations change (e.g. after adding a branch)
+    useEffect(() => {
+        if (selectedRegion) {
+            const updated = locations.find(l => l._id === selectedRegion._id);
+            if (updated) setSelectedRegion(updated);
+            else if (locations.length > 0) setSelectedRegion(locations[0]);
+            else setSelectedRegion(null);
+        } else if (locations.length > 0) {
+            setSelectedRegion(locations[0]);
+        }
+    }, [locations]);
+
     const handleAddRegion = async () => {
-        if (!newRegion.trim()) return;
+        if (!newRegionName.trim()) return;
         setLoading(true);
-        const result = await addRegion(newRegion);
+        const result = await addRegion(newRegionName);
         if (result.error) {
             toast.error(result.error);
         } else {
             toast.success("Region added");
-            // Optimistic update or refetch? For simplicity, we just reload logic or mocked update
-            // Since we need the ID, easiest is to refresh the page or return the new object from server.
-            // But our action doesn't return the object. Let's just reload for now or trust revalidatePath.
-            // Actually revalidatePath works but client state needs update. 
-            // In a real app we'd return the new location. 
-            // Let's manually add with a temp ID or just wait for revalidate if using a server component wrapper?
-            // Since this is a client component, we rely on props. But props don't update automatically without router.refresh().
-            // Let's force a refresh.
-            window.location.reload(); 
+            // Reload to get properly synced state (including new ID)
+            window.location.reload();
         }
         setLoading(false);
+        setNewRegionName("");
+        setIsAddingRegion(false);
     };
 
-    const handleRemoveRegion = async (id, name) => {
+    const handleRemoveRegion = async (id, name, e) => {
+        e.stopPropagation(); // Prevent selection
         if (!confirm(`Delete Region "${name}" and all its branches?`)) return;
         setLoading(true);
         const result = await removeRegion(id);
         if (result.error) {
             toast.error(result.error);
         } else {
-            setLocations(locations.filter(l => l._id !== id));
+            const newLocations = locations.filter(l => l._id !== id);
+            setLocations(newLocations);
+            if (selectedRegion?._id === id) {
+                setSelectedRegion(newLocations.length > 0 ? newLocations[0] : null);
+            }
             toast.success("Region deleted");
         }
         setLoading(false);
     };
 
-    const handleAddBranch = async (regionId) => {
-        const branchName = newBranch[regionId];
-        if (!branchName?.trim()) return;
-        
+    const handleAddBranch = async () => {
+        if (!selectedRegion || !newBranchName.trim()) return;
         setLoading(true);
-        const result = await addBranch(regionId, branchName);
+        const result = await addBranch(selectedRegion._id, newBranchName);
         if (result.error) {
             toast.error(result.error);
         } else {
             setLocations(locations.map(l => {
-                if (l._id === regionId) {
-                    return { ...l, branches: [...l.branches, branchName.trim()] };
+                if (l._id === selectedRegion._id) {
+                    return { ...l, branches: [...l.branches, newBranchName.trim()] };
                 }
                 return l;
             }));
-            setNewBranch({ ...newBranch, [regionId]: "" });
             toast.success("Branch added");
+            setNewBranchName("");
+            setIsAddingBranch(false);
         }
         setLoading(false);
     };
 
-    const handleRemoveBranch = async (regionId, branchName) => {
+    const handleRemoveBranch = async (branchName) => {
+        if (!selectedRegion) return;
         if (!confirm(`Remove branch "${branchName}"?`)) return;
         setLoading(true);
-        const result = await removeBranch(regionId, branchName);
+        const result = await removeBranch(selectedRegion._id, branchName);
         if (result.error) {
             toast.error(result.error);
         } else {
             setLocations(locations.map(l => {
-                if (l._id === regionId) {
+                if (l._id === selectedRegion._id) {
                     return { ...l, branches: l.branches.filter(b => b !== branchName) };
                 }
                 return l;
@@ -89,83 +107,154 @@ export default function LocationManager({ initialLocations }) {
     };
 
     return (
-        <div className="space-y-6">
-            <Card>
-                <CardHeader>
-                    <CardTitle>Add New Region</CardTitle>
-                    <CardDescription>Create a new region to manage branches under it.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="flex gap-2">
-                        <Input
-                            placeholder="Region Name"
-                            value={newRegion}
-                            onChange={(e) => setNewRegion(e.target.value)}
-                            disabled={loading}
-                        />
-                        <Button onClick={handleAddRegion} disabled={loading || !newRegion.trim()}>
-                            <Plus className="h-4 w-4 mr-2" /> Add Region
-                        </Button>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-200px)] min-h-[500px]">
+            {/* Left Column: Regions List */}
+            <div className="glass-panel border-white/5 rounded-xl flex flex-col overflow-hidden shadow-2xl">
+                {/* Header */}
+                <div className="p-4 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+                    <div className="flex items-center gap-2">
+                        <Map className="w-5 h-5 text-violet-400" />
+                        <h3 className="font-semibold text-white">Regions</h3>
                     </div>
-                </CardContent>
-            </Card>
+                    <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setIsAddingRegion(true)}
+                        className={isAddingRegion ? "bg-violet-500/20 text-violet-300" : "text-gray-400 hover:text-white hover:bg-white/5"}
+                    >
+                        <Plus className="w-5 h-5" />
+                    </Button>
+                </div>
 
-            <div className="space-y-4">
-                {locations.map((location) => (
-                    <Card key={location._id}>
-                        <CardHeader className="py-4">
-                            <div className="flex items-center justify-between">
-                                <CardTitle className="text-lg">{location.name}</CardTitle>
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                                    onClick={() => handleRemoveRegion(location._id, location.name)}
-                                >
-                                    <Trash2 className="h-4 w-4" />
+                {/* Content */}
+                <div className="flex-1 overflow-y-auto p-4 space-y-2">
+                    {isAddingRegion && (
+                        <div className="p-3 rounded-lg bg-white/5 border border-white/10 animate-in slide-in-from-top-2">
+                            <Input
+                                autoFocus
+                                placeholder="Region Name"
+                                value={newRegionName}
+                                onChange={(e) => setNewRegionName(e.target.value)}
+                                className="mb-2 bg-black/20 border-white/10 text-white h-8 text-sm"
+                                onKeyDown={(e) => e.key === "Enter" && handleAddRegion()}
+                            />
+                            <div className="flex justify-end gap-2">
+                                <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-red-400 hover:bg-red-500/10" onClick={() => setIsAddingRegion(false)}>
+                                    <X className="w-4 h-4" />
+                                </Button>
+                                <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-green-400 hover:bg-green-500/10" onClick={handleAddRegion}>
+                                    <Check className="w-4 h-4" />
                                 </Button>
                             </div>
-                        </CardHeader>
-                        <CardContent className="pb-4">
-                            <Accordion type="single" collapsible>
-                                <AccordionItem value="branches" className="border-none">
-                                    <AccordionTrigger className="py-2 hover:no-underline">
-                                        <span className="text-sm font-medium">Branches ({location.branches.length})</span>
-                                    </AccordionTrigger>
-                                    <AccordionContent>
-                                        <div className="space-y-4 pt-2">
-                                            <div className="flex gap-2">
-                                                <Input
-                                                    placeholder="Add Branch"
-                                                    value={newBranch[location._id] || ""}
-                                                    onChange={(e) => setNewBranch({ ...newBranch, [location._id]: e.target.value })}
-                                                    onKeyDown={(e) => e.key === "Enter" && handleAddBranch(location._id)}
-                                                    size="sm"
-                                                />
-                                                <Button size="sm" onClick={() => handleAddBranch(location._id)}>
-                                                    <Plus className="h-4 w-4" />
-                                                </Button>
-                                            </div>
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                                                {location.branches.map((branch) => (
-                                                    <div key={branch} className="flex items-center justify-between p-2 text-sm border rounded bg-secondary/20">
-                                                        <span>{branch}</span>
-                                                        <button
-                                                            onClick={() => handleRemoveBranch(location._id, branch)}
-                                                            className="text-muted-foreground hover:text-red-600 ml-2"
-                                                        >
-                                                            <X className="h-3 w-3" />
-                                                        </button>
-                                                    </div>
-                                                ))}
-                                            </div>
+                        </div>
+                    )}
+
+                    {locations.map(loc => (
+                        <div
+                            key={loc._id}
+                            onClick={() => setSelectedRegion(loc)}
+                            className={`p-3 rounded-lg cursor-pointer transition-all border group flex items-center justify-between
+                                ${selectedRegion?._id === loc._id
+                                    ? "bg-violet-500/10 border-violet-500/50 shadow-[0_0_15px_-3px_rgba(139,92,246,0.2)]"
+                                    : "bg-transparent border-transparent hover:bg-white/5 hover:border-white/5 text-gray-400 hover:text-gray-200"
+                                }`}
+                        >
+                            <span className={`font-medium ${selectedRegion?._id === loc._id ? "text-violet-200" : ""}`}>
+                                {loc.name}
+                            </span>
+                            <Button
+                                size="sm"
+                                variant="ghost"
+                                className={`h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity ${selectedRegion?._id === loc._id ? "text-violet-300 hover:text-red-400" : "text-gray-500 hover:text-red-400"}`}
+                                onClick={(e) => handleRemoveRegion(loc._id, loc.name, e)}
+                            >
+                                <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                        </div>
+                    ))}
+
+                    {locations.length === 0 && !isAddingRegion && (
+                        <div className="text-center py-8 text-gray-500 text-sm">
+                            No regions found.
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Right Column: Branch Management */}
+            <div className="lg:col-span-2 glass-panel border-white/5 rounded-xl flex flex-col overflow-hidden shadow-2xl relative">
+                {!selectedRegion ? (
+                    <div className="flex-1 flex flex-col items-center justify-center text-gray-500 p-8">
+                        <MapPin className="w-12 h-12 mb-4 opacity-20" />
+                        <p>Select a region to manage branches</p>
+                    </div>
+                ) : (
+                    <>
+                        {/* Header */}
+                        <div className="p-4 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+                            <div className="flex items-center gap-2">
+                                <span className="px-2 py-0.5 rounded text-xs font-medium bg-violet-500/20 text-violet-300 border border-violet-500/20 uppercase tracking-widest">
+                                    Region
+                                </span>
+                                <h3 className="text-xl font-bold text-white">{selectedRegion.name}</h3>
+                            </div>
+                            <Button
+                                size="sm"
+                                className="bg-white/10 hover:bg-white/20 text-white border border-white/10"
+                                onClick={() => setIsAddingBranch(true)}
+                            >
+                                <Plus className="w-4 h-4 mr-2" /> Add Branch
+                            </Button>
+                        </div>
+
+                        {/* Content */}
+                        <div className="flex-1 overflow-y-auto p-6">
+                            {isAddingBranch && (
+                                <div className="mb-6 p-4 rounded-xl bg-white/5 border border-white/10 animate-in slide-in-from-top-2 max-w-md">
+                                    <h4 className="text-sm font-medium text-white mb-3">New Branch</h4>
+                                    <div className="flex gap-2">
+                                        <Input
+                                            autoFocus
+                                            placeholder="Branch Name (e.g. Koramangala)"
+                                            value={newBranchName}
+                                            onChange={(e) => setNewBranchName(e.target.value)}
+                                            className="bg-black/20 border-white/10 text-white"
+                                            onKeyDown={(e) => e.key === "Enter" && handleAddBranch()}
+                                        />
+                                        <Button variant="ghost" onClick={() => setIsAddingBranch(false)} className="text-gray-400 hover:text-white">Cancel</Button>
+                                        <Button onClick={handleAddBranch} className="bg-violet-600 hover:bg-violet-700 text-white">Save</Button>
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+                                {selectedRegion.branches.map(branch => (
+                                    <div
+                                        key={branch}
+                                        className="group flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/5 hover:border-white/20 hover:bg-white/10 transition-all text-sm text-gray-300"
+                                    >
+                                        <div className="flex items-center gap-2 truncate">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500/50"></div>
+                                            <span className="truncate" title={branch}>{branch}</span>
                                         </div>
-                                    </AccordionContent>
-                                </AccordionItem>
-                            </Accordion>
-                        </CardContent>
-                    </Card>
-                ))}
+                                        <button
+                                            onClick={() => handleRemoveBranch(branch)}
+                                            className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-500/20 rounded text-gray-500 hover:text-red-400 transition-all"
+                                        >
+                                            <X className="w-3.5 h-3.5" />
+                                        </button>
+                                    </div>
+                                ))}
+                                {selectedRegion.branches.length === 0 && !isAddingBranch && (
+                                    <div className="col-span-full py-12 flex flex-col items-center justify-center text-gray-500 border border-dashed border-white/10 rounded-xl">
+                                        <p>No branches yet.</p>
+                                        <Button variant="link" onClick={() => setIsAddingBranch(true)} className="text-violet-400">Add your first branch</Button>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </>
+                )}
             </div>
         </div>
     );

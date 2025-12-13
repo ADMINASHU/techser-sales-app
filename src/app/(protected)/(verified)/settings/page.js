@@ -16,7 +16,7 @@ export default async function SettingsPage() {
     if (!isAdmin) {
         return (
             <div className="space-y-6">
-                 <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between">
                     <h1 className="text-2xl font-bold">Settings</h1>
                 </div>
                 <div className="p-4 border rounded-md bg-muted/50">
@@ -30,15 +30,15 @@ export default async function SettingsPage() {
 
     return (
         <div className="space-y-6">
-             <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold">Settings</h1>
+            <div className="flex items-center justify-between">
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">Settings</h1>
             </div>
-            
+
             <div className="space-y-6">
-                 <div>
+                <div>
                     <h2 className="text-xl font-semibold mb-4">Location Management</h2>
                     <LocationManager initialLocations={locations} />
-                 </div>
+                </div>
             </div>
         </div>
     );

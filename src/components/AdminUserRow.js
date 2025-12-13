@@ -4,14 +4,8 @@ import { useState } from "react";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Shield, ShieldAlert, Check, X } from "lucide-react";
-import { verifyUser, declineUser, updateUserRole, deleteUser } from "@/app/actions/adminActions";
+import { Trash2 } from "lucide-react";
+import { deleteUser } from "@/app/actions/adminActions";
 import { toast } from "sonner";
 import UserProfileModal from "./UserProfileModal";
 
@@ -26,7 +20,7 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-export default function AdminUserRow({ user }) {
+export default function AdminUserRow({ user, index }) {
     const [isLoading, setIsLoading] = useState(false);
     const [showProfile, setShowProfile] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -47,79 +41,59 @@ export default function AdminUserRow({ user }) {
         }
     };
 
+
+
     return (
         <>
-            <TableRow>
-                <TableCell className="font-medium">{user.name}</TableCell>
-                <TableCell>{user.email}</TableCell>
+            <TableRow
+                className="hover:bg-white/5 border-white/5 group cursor-pointer transition-colors"
+                onClick={() => setShowProfile(true)}
+            >
+                <TableCell className="hidden md:table-cell text-center text-gray-500 font-mono text-xs w-12">{index}</TableCell>
+                <TableCell className="font-medium text-white">{user.name}</TableCell>
+                <TableCell className="hidden lg:table-cell text-gray-300">{user.contactNumber || "-"}</TableCell>
+                <TableCell className="hidden xl:table-cell text-gray-300">{user.email}</TableCell>
+                <TableCell className="hidden md:table-cell">
+                    <div className="flex flex-col">
+                        <span className="text-gray-300 font-medium">{user.branch || "-"}</span>
+                        <span className="text-xs text-gray-500">{user.region || "-"}</span>
+                    </div>
+                </TableCell>
                 <TableCell>
-                    <Badge variant={user.role === "admin" ? "default" : "secondary"}>
+                    <Badge variant="outline" className={user.role === "admin" ? "bg-violet-500/10 text-violet-400 border-violet-500/20" : "bg-blue-500/10 text-blue-400 border-blue-500/20"}>
                         {user.role}
                     </Badge>
                 </TableCell>
                 <TableCell>
                     <Badge
-                        variant={
-                            user.status === "verified"
-                                ? "success"
-                                : user.status === "declined"
-                                    ? "destructive"
-                                    : "outline"
-                        }
+                        variant="outline"
                         className={
                             user.status === "verified"
-                                ? "bg-green-100 text-green-800 hover:bg-green-100"
+                                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
                                 : user.status === "declined"
-                                    ? "bg-red-100 text-red-800 hover:bg-red-100"
-                                    : "bg-yellow-100 text-yellow-800 hover:bg-yellow-100"
+                                    ? "bg-red-500/10 text-red-400 border-red-500/20"
+                                    : "bg-yellow-500/10 text-yellow-400 border-yellow-500/20"
                         }
                     >
                         {user.status}
                     </Badge>
                 </TableCell>
-                <TableCell>
-                    {user.region || "-"} / {user.branch || "-"}
-                </TableCell>
                 <TableCell className="text-right">
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                                <span className="sr-only">Open menu</span>
-                                <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => setShowProfile(true)}>
-                                View Profile
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                                onClick={() => handleAction(updateUserRole, user._id, user.role === "admin" ? "user" : "admin")}
-                            >
-                                {user.role === "admin" ? <ShieldAlert className="mr-2 h-4 w-4" /> : <Shield className="mr-2 h-4 w-4" />}
-                                Set as {user.role === "admin" ? "User" : "Admin"}
-                            </DropdownMenuItem>
-                            {user.status === "pending" && (
-                                <>
-                                    <DropdownMenuItem onClick={() => handleAction(verifyUser, user._id)}>
-                                        <Check className="mr-2 h-4 w-4" /> Verify
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => handleAction(declineUser, user._id)}>
-                                        <X className="mr-2 h-4 w-4" /> Decline
-                                    </DropdownMenuItem>
-                                </>
-                            )}
-                             <DropdownMenuItem 
-                                className="text-red-600 focus:text-red-600" 
-                                onClick={() => setShowDeleteConfirm(true)}
-                            >
-                                Delete
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-gray-400 hover:text-red-400 hover:bg-red-500/10"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setShowDeleteConfirm(true);
+                        }}
+                    >
+                        <Trash2 className="h-4 w-4" />
+                    </Button>
                 </TableCell>
             </TableRow>
             <UserProfileModal user={user} open={showProfile} onOpenChange={setShowProfile} />
-            
+
             <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
                 <AlertDialogContent>
                     <AlertDialogHeader>

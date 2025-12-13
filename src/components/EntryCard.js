@@ -30,6 +30,18 @@ export default function EntryCard({ entry, isAdmin }) {
                 )}
             </div>
 
+            {/* Admin View: User & Location Details */}
+            {isAdmin && (
+                <div className="mb-3 pb-3 border-b border-white/5 flex items-center justify-between gap-2">
+                    <p className="text-sm font-semibold text-blue-400 truncate">
+                        {entry.userId?.name || "Unknown User"}
+                    </p>
+                    <p className="text-xs text-gray-500 whitespace-nowrap">
+                        {entry.userId?.branch || entry.branch} / {entry.userId?.region || entry.region}
+                    </p>
+                </div>
+            )}
+
             <div className="flex justify-between items-start mb-2 relative z-10 pr-8">
                 <h3 className="text-lg font-semibold text-white truncate">{entry.customerName}</h3>
                 <Badge variant="outline" className={

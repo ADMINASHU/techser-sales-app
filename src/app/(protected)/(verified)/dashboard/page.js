@@ -49,9 +49,9 @@ export default async function DashboardPage({ searchParams }) {
     // Fetch data for the logged-in user
     const totalEntries = await Entry.countDocuments(query);
     const completedEntries = await Entry.countDocuments({ ...query, status: "Completed" });
-    const recentEntries = await Entry.find(query)
+    const recentEntries = await Entry.find({ userId: session.user.id })
         .sort({ createdAt: -1 })
-        .limit(20); // Increased limit as we are filtering
+        .limit(10);
 
     return (
         <div className="space-y-6">
