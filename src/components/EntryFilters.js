@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-export default function EntryFilters({ users = [], locations = [], isAdmin, showStatus = true }) {
+export default function EntryFilters({ users = [], locations = [], isAdmin, showStatus = true, showSearch = true }) {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
@@ -239,15 +239,17 @@ export default function EntryFilters({ users = [], locations = [], isAdmin, show
                         </div>
 
                         {/* Search - Full width on mobile */}
-                        <div className="space-y-1.5 col-span-3 md:col-span-1">
-                            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">Search</span>
-                            <Input
-                                placeholder="Search customer..."
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10"
-                            />
-                        </div>
+                        {showSearch && (
+                            <div className="space-y-1.5 col-span-3 md:col-span-1">
+                                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">Search</span>
+                                <Input
+                                    placeholder="Search customer..."
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10"
+                                />
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

@@ -65,7 +65,7 @@ export default async function DashboardPage({ searchParams }) {
                 </Link>
             </div>
 
-            <EntryFilters isAdmin={false} showStatus={false} />
+            <EntryFilters isAdmin={false} showStatus={false} showSearch={false} />
 
             <UserDashboard
                 totalEntries={totalEntries}

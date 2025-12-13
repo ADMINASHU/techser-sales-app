@@ -163,11 +163,16 @@ export default function AdminDashboard() {
 
     return (
         <div className="space-y-6">
-            <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
-                <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
-                <Button onClick={handleDownload} disabled={loading || fetchLoading || statsEntries.length === 0} className="bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 text-white shadow-lg shadow-fuchsia-500/20 border-0">
-                    <Download className="mr-2 h-4 w-4" />
-                    {loading ? "Generating..." : "Export Report"}
+            <div className="flex flex-row items-center justify-between gap-4">
+                <h1 className="text-xl md:text-3xl font-bold tracking-tight">Admin Dashboard</h1>
+                <Button
+                    size="sm"
+                    onClick={handleDownload}
+                    disabled={loading || fetchLoading || statsEntries.length === 0}
+                    className="bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 text-white shadow-lg shadow-fuchsia-500/20 border-0 h-8 text-xs px-3"
+                >
+                    <Download className="mr-2 h-3.5 w-3.5" />
+                    {loading ? "Generating..." : "Export"}
                 </Button>
             </div>
 
@@ -200,8 +205,8 @@ export default function AdminDashboard() {
                             </Button>
                         </div>
 
-                        {/* Filters Grid */}
-                        <div className="flex-1 grid gap-2 grid-cols-2 md:grid-cols-5">
+                        {/* Filters Grid - 3 Columns */}
+                        <div className="flex-1 grid gap-3 grid-cols-3 md:grid-cols-5">
                             {/* User Filter */}
                             <div className="space-y-1.5">
                                 <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">User</span>

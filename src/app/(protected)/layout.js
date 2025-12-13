@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import { SessionProvider } from "next-auth/react";
 
 export default async function ProtectedLayout({ children }) {
@@ -12,11 +13,12 @@ export default async function ProtectedLayout({ children }) {
 
     return (
         <SessionProvider session={session} refetchOnWindowFocus={false}>
-            <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col">
                 <Navbar />
-                <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 w-full flex-grow">
                     {children}
                 </main>
+                <Footer />
             </div>
         </SessionProvider>
     );
