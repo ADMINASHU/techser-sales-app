@@ -156,7 +156,9 @@ export async function deleteEntry(entryId) {
     }
 }
 
-export async function fetchEntries({ page = 1, limit = 30, filters = {} }) {
+// ... existing imports ...
+
+export async function fetchEntries({ page = 1, limit = 30, filters = {}, skip: customSkip }) {
     try {
         const session = await auth();
         if (!session) {
@@ -164,9 +166,12 @@ export async function fetchEntries({ page = 1, limit = 30, filters = {} }) {
         }
         await dbConnect();
 
-        const skip = (page - 1) * limit;
+        // Use customSkip if provided, otherwise calculate from page/limit
+        const skip = customSkip !== undefined ? customSkip : (page - 1) * limit;
         const isAdmin = session.user.role === "admin";
         const query = {};
+
+        // ... rest of function ...
 
         // 1. Role-based Base Query
         if (!isAdmin) {

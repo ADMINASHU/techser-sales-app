@@ -20,7 +20,7 @@ export default async function EntriesPage({ searchParams }) {
     const params = await searchParams;
     const page = parseInt(params.page) || 1;
     const view = params.view || "grid"; // Default view
-    const limit = 30;
+    const limit = 18; // Default to Desktop limit (18) for initial render
     const skip = (page - 1) * limit;
 
     const isAdmin = session.user.role === "admin";

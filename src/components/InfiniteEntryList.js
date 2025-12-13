@@ -9,7 +9,6 @@ import { Loader2 } from "lucide-react";
 
 export default function InfiniteEntryList({ initialEntries, searchParams, isAdmin, view = "grid" }) {
     const [entries, setEntries] = useState(initialEntries);
-    const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const [loading, setLoading] = useState(false);
 
@@ -20,8 +19,10 @@ export default function InfiniteEntryList({ initialEntries, searchParams, isAdmi
 
     useEffect(() => {
         setEntries(initialEntries);
-        setPage(1);
-        setHasMore(initialEntries.length === 30);
+        // We assume valid initial load has entries. If 0, no more.
+        // Also check if initial load matches our expected "page size" roughly? 
+        // Simply: if we got entries, assume we might have more. If empty, stop.
+        setHasMore(initialEntries.length > 0);
         setLoading(false);
     }, [searchParams, initialEntries]);
 
@@ -30,24 +31,28 @@ export default function InfiniteEntryList({ initialEntries, searchParams, isAdmi
             if (loading || !hasMore) return;
 
             setLoading(true);
-            const nextPage = page + 1;
+
+            // Dynamic limit based on screen width
+            const isMobile = window.innerWidth < 768;
+            const currentLimit = isMobile ? 15 : 18;
+            const currentSkip = entries.length;
 
             try {
                 const { entries: newEntries, hasMore: moreAvailable } = await fetchEntries({
-                    page: nextPage,
-                    limit: 30,
+                    skip: currentSkip,
+                    limit: currentLimit,
                     filters: searchParams
                 });
 
                 if (newEntries.length > 0) {
                     setEntries(prev => [...prev, ...newEntries]);
-                    setPage(nextPage);
                     setHasMore(moreAvailable);
                 } else {
                     setHasMore(false);
                 }
             } catch (err) {
                 console.error("Failed to load more entries", err);
+                setHasMore(false);
             } finally {
                 setLoading(false);
             }
@@ -56,7 +61,7 @@ export default function InfiniteEntryList({ initialEntries, searchParams, isAdmi
         if (inView) {
             loadMore();
         }
-    }, [inView, hasMore, loading, page, searchParams]);
+    }, [inView, hasMore, loading, entries.length, searchParams]);
 
     return (
         <div className="pb-20 space-y-4">
