@@ -2,7 +2,7 @@ import { auth } from "@/auth";
 import dbConnect from "@/lib/db";
 import Entry from "@/models/Entry";
 import EntryActionButtons from "@/components/EntryActionButtons";
-import EntryMap from "@/components/EntryMap"; // [NEW]
+import EntryMap from "@/components/EntryMap";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { redirect } from "next/navigation";
@@ -42,8 +42,8 @@ export default async function EntryDetailPage({ params }) {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2">
                     <Card className="h-full flex flex-col">
-                         {/* Map Visualization */}
-                         <div className="grow p-1">
+                        {/* Map Visualization */}
+                        <div className="grow p-1">
                             <EntryMap
                                 location={entry.location}
                                 destinationName={entry.customerName}
@@ -51,7 +51,7 @@ export default async function EntryDetailPage({ params }) {
                                 stampOutLocation={session.user.role === 'admin' ? entry.stampOut?.location : null}
                                 className="w-full border-none rounded-t-lg lg:rounded-lg h-[400px] lg:h-[calc(100vh-200px)] min-h-[400px]"
                             />
-                         </div>
+                        </div>
                     </Card>
                 </div>
 
@@ -81,7 +81,7 @@ export default async function EntryDetailPage({ params }) {
                                     <div className="font-medium">{entry.purpose}</div>
                                 </div>
                             </div>
-        
+
                             <div className="border-t pt-4 space-y-2">
                                 <div className="flex justify-between">
                                     <span className="text-muted-foreground">Stamp In:</span>
@@ -95,9 +95,9 @@ export default async function EntryDetailPage({ params }) {
                         </CardContent>
                         <CardFooter className="flex flex-col gap-3">
                             {entry.location?.lat && entry.location?.lng && (
-                                <a 
-                                    href={`https://www.google.com/maps/dir/?api=1&destination=${entry.location.lat},${entry.location.lng}`} 
-                                    target="_blank" 
+                                <a
+                                    href={`https://www.google.com/maps/dir/?api=1&destination=${entry.location.lat},${entry.location.lng}`}
+                                    target="_blank"
                                     rel="noopener noreferrer"
                                     className="w-full"
                                 >
@@ -107,7 +107,7 @@ export default async function EntryDetailPage({ params }) {
                                     </Button>
                                 </a>
                             )}
-                            
+
                             {new Date().toDateString() === new Date(entry.entryDate || entry.createdAt).toDateString() ? (
                                 <EntryActionButtons entry={entry} />
                             ) : (

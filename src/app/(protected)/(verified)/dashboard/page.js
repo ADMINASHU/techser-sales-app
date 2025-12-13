@@ -2,12 +2,12 @@ import { auth } from "@/auth";
 import dbConnect from "@/lib/db";
 import Entry from "@/models/Entry";
 import { redirect } from "next/navigation";
+import EntryFilters from "@/components/EntryFilters";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { PlusCircle } from "lucide-react";
 import UserDashboard from "@/components/UserDashboard";
 import AdminDashboard from "@/components/AdminDashboard";
-import EntryFilters from "@/components/EntryFilters"; // [NEW]
-import Link from "next/link"; // [NEW]
-import { Button } from "@/components/ui/button"; // [NEW]
-import { PlusCircle } from "lucide-react"; // [NEW]
 
 export const dynamic = 'force-dynamic';
 

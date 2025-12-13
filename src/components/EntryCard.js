@@ -17,7 +17,7 @@ export default function EntryCard({ entry, isAdmin }) {
     return (
         <div
             onClick={handleCardClick}
-            className="glass-card p-4 rounded-xl relative overflow-hidden group active:scale-[0.98] transition-all h-full flex flex-col cursor-pointer"
+            className="glass-card p-4 rounded-xl relative overflow-hidden group active:scale-[0.98] transition-all duration-300 transform-gpu h-full flex flex-col cursor-pointer"
         >
             {/* Background Glow */}
             <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity pointer-events-none">

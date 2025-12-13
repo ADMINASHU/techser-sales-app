@@ -1,18 +1,20 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import useSWR from "swr";
 import { getReportData, getFilters, getRawEntries, getSystemStats } from "@/app/actions/reportActions";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Download, Loader2, ArrowRight, ShieldCheck, Users, MapPin } from "lucide-react";
-import * as XLSX from "xlsx";
+// XLSX imported dynamically
 import { toast } from "sonner";
 import EntryCard from "@/components/EntryCard";
 import Link from "next/link";
 
 export default function AdminDashboard() {
     const [filters, setFilters] = useState({ users: [], locations: [] }); // locations: [{name, branches:[]}]
+    const [filtersLoading, setFiltersLoading] = useState(true);
 
     // Default to current Month/Year
     const currentDate = new Date();
@@ -22,32 +24,41 @@ export default function AdminDashboard() {
     const [selectedMonth, setSelectedMonth] = useState(currentDate.getMonth().toString());
     const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear().toString());
 
-    const [statsEntries, setStatsEntries] = useState([]); // Filtered entries for stats
-    const [recentEntries, setRecentEntries] = useState([]); // Unfiltered recent entries
-    const [systemStats, setSystemStats] = useState(null); // System overview stats
-    const [loading, setLoading] = useState(false); // For export
-    const [fetchLoading, setFetchLoading] = useState(true); // For date fetching
-    const [recentLoading, setRecentLoading] = useState(true);
-    const [filtersLoading, setFiltersLoading] = useState(true);
+    // For export loading only (fetching loading is handled by SWR)
+    const [loading, setLoading] = useState(false);
+
+    // SWR: System Stats
+    const { data: systemStats } = useSWR('system-stats', getSystemStats);
+
+    // SWR: Recent Entries (Unfiltered)
+    const { data: recentEntries = [], isLoading: recentLoading } = useSWR('recent-entries', () => getRawEntries({ limit: 10 }));
+
+    // SWR: Main Stats
+    const statsFetcher = useCallback(async ([_, u, r, b, m, y]) => {
+        const year = parseInt(y);
+        const month = parseInt(m);
+        if (isNaN(year) || isNaN(month)) return [];
+
+        const startDate = new Date(year, month, 1);
+        const endDate = new Date(year, month + 1, 0, 23, 59, 59);
+        return await getRawEntries({ userId: u, region: r, branch: b, startDate, endDate });
+    }, []);
+
+    const { data: statsEntries = [], isLoading: statsLoading } = useSWR(
+        !filtersLoading ? ['dashboard-stats', selectedUser, selectedRegion, selectedBranch, selectedMonth, selectedYear] : null,
+        statsFetcher,
+        {
+            keepPreviousData: true,
+            revalidateOnFocus: false
+        }
+    );
+
+    const fetchLoading = statsLoading;
 
     useEffect(() => {
         getFilters().then(data => {
             setFilters(data);
             setFiltersLoading(false);
-        });
-
-        // Fetch System Stats
-        getSystemStats().then(data => {
-            setSystemStats(data);
-        }).catch(err => console.error("Failed to fetch system stats", err));
-
-        // Fetch Recent Entries (Unfiltered)
-        getRawEntries({ limit: 10 }).then(data => {
-            setRecentEntries(data);
-            setRecentLoading(false);
-        }).catch(err => {
-            console.error(err);
-            setRecentLoading(false);
         });
     }, []);
 
@@ -96,7 +107,7 @@ export default function AdminDashboard() {
 
     const years = Array.from({ length: 5 }, (_, i) => (currentDate.getFullYear() - i).toString());
 
-    // Compute Date Range from Month/Year
+    // Compute Date Range from Month/Year - Needed for Download logic
     const getDateRange = useCallback(() => {
         if (selectedMonth === "all" || selectedYear === "all") return { startDate: null, endDate: null };
         const year = parseInt(selectedYear);
@@ -108,40 +119,11 @@ export default function AdminDashboard() {
         return { startDate, endDate };
     }, [selectedMonth, selectedYear]);
 
-    // Fetch Stats Data on Filter Change
-    useEffect(() => {
-        const fetchStats = async () => {
-            setFetchLoading(true);
-            try {
-                const { startDate, endDate } = getDateRange();
-
-                // Use getRawEntries for the UI so we have _id, status, etc.
-                const data = await getRawEntries({
-                    startDate: startDate,
-                    endDate: endDate,
-                    userId: selectedUser,
-                    region: selectedRegion,
-                    branch: selectedBranch,
-                });
-                setStatsEntries(data);
-            } catch (error) {
-                console.error("Failed to fetch data:", error);
-                toast.error("Failed to fetch dashboard data");
-            } finally {
-                setFetchLoading(false);
-            }
-        };
-
-        if (!filtersLoading) {
-            fetchStats();
-        }
-    }, [selectedUser, selectedRegion, selectedBranch, selectedMonth, selectedYear, filtersLoading, getDateRange]);
-
-
     const handleDownload = async () => {
         setLoading(true);
         try {
             const { startDate, endDate } = getDateRange();
+            const XLSX = await import("xlsx");
 
             // Use getReportData for export so we get the pre-formatted Excel data
             const data = await getReportData({
@@ -188,8 +170,6 @@ export default function AdminDashboard() {
                     {loading ? "Generating..." : "Export Report"}
                 </Button>
             </div>
-
-            
 
             {/* Filters Section (Matching EntryFilters.js style) */}
             <div className="glass-panel border-white/5 mb-8 rounded-xl shadow-2xl">
