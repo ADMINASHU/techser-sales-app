@@ -56,8 +56,7 @@ export default function Navbar() {
                                 alt="Techser Logo"
                                 width={180}
                                 height={40}
-                                className="w-auto object-contain"
-                                style={{ width: 'auto', height: '2.5rem' }}
+                                className="object-contain"
                                 priority
                                 unoptimized
                             />

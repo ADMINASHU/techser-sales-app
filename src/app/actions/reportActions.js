@@ -27,22 +27,21 @@ export async function getReportData({ startDate, endDate, userId, region, branch
         };
     }
 
-    const entries = await Entry.find(query).populate("userId", "name email");
+    const entries = await Entry.find(query).populate("userId", "name email region branch");
 
     // Format for Excel
     const data = entries.map(e => ({
-        ID: e._id.toString(),
+        Date: new Date(e.createdAt).toLocaleDateString(),
         User: e.userId?.name || "Unknown",
-        Email: e.userId?.email || "Unknown",
+        // Email: e.userId?.email || "Unknown", // Removed as per request
+        Region: e.userId?.region || e.region || "", // Prioritize User's region
+        Branch: e.userId?.branch || e.branch || "", // Prioritize User's branch
         Customer: e.customerName,
         Address: e.customerAddress,
-        Region: e.region,
-        Branch: e.branch,
         Purpose: e.purpose,
         Status: e.status,
         StampIn: e.stampIn?.time ? new Date(e.stampIn.time).toLocaleString() : "",
         StampOut: e.stampOut?.time ? new Date(e.stampOut.time).toLocaleString() : "",
-        Date: new Date(e.createdAt).toLocaleDateString(),
     }));
 
     return data;
