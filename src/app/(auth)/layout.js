@@ -14,10 +14,10 @@ export default function AuthLayout({ children }) {
                         <Image
                             src="/logo.png"
                             alt="Techser Logo"
-                            width={100}
-                            height={20}
+                            width={0}
+                            height={0}
+                            sizes="100vw"
                             className="h-5 w-auto object-contain opacity-80"
-                            style={{ width: 'auto' }}
                             unoptimized
                         />
                         {/* <span className="font-semibold text-gray-300">Techser</span> */}
