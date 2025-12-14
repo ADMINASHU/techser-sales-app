@@ -7,9 +7,12 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { MapPin } from "lucide-react";
 
-export default function EntryActionButtons({ entry }) {
+export default function EntryActionButtons({ entry, role }) {
     const [loading, setLoading] = useState(false);
     const router = useRouter();
+
+    // Admins don't need to stamp in/out
+    if (role === 'admin') return null;
 
     const handleAction = async (actionType) => {
         setLoading(true);

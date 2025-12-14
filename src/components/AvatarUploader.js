@@ -8,7 +8,7 @@ import { Loader2, Camera } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 
-export default function AvatarUploader({ user }) {
+export default function AvatarUploader({ user, className }) {
     const [loading, setLoading] = useState(false);
     const fileInputRef = useRef(null);
     const router = useRouter();
@@ -67,8 +67,8 @@ export default function AvatarUploader({ user }) {
             />
 
             <div className="relative inline-block">
-                <Avatar className="h-20 w-20 border-2 border-transparent group-hover:border-primary transition-all">
-                    <AvatarImage src={user.image} alt={user.name} className={loading ? "opacity-50" : ""} />
+                <Avatar className={`h-20 w-20 border-2 border-transparent group-hover:border-primary transition-all ${className}`}>
+                    <AvatarImage src={user.image} alt={user.name} className={`object-cover ${loading ? "opacity-50" : ""}`} />
                     <AvatarFallback>{user.name?.charAt(0) || "U"}</AvatarFallback>
                 </Avatar>
 

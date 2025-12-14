@@ -109,7 +109,7 @@ export default async function EntryDetailPage({ params }) {
                             )}
 
                             {new Date().toDateString() === new Date(entry.entryDate || entry.createdAt).toDateString() ? (
-                                <EntryActionButtons entry={entry} />
+                                <EntryActionButtons entry={entry} role={session.user.role} />
                             ) : (
                                 <div className="w-full p-4 bg-yellow-50 text-yellow-800 rounded-md text-sm text-center">
                                     Action allowed only on {format(new Date(entry.entryDate || entry.createdAt), "PP")}

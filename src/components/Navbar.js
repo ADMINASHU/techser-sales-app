@@ -132,7 +132,10 @@ export default function Navbar() {
                     </div>
 
                     {/* Mobile Menu Button */}
-                    <div className="-mr-2 flex items-center sm:hidden">
+                    <div className="-mr-2 flex items-center gap-2 sm:hidden">
+                        {session?.user?.id && process.env.NEXT_PUBLIC_KNOCK_FEED_ID && (
+                            <NotificationFeed />
+                        )}
                         <Button variant="ghost" className="text-white hover:bg-white/10" onClick={() => setIsOpen(!isOpen)}>
                             <span className="sr-only">Open main menu</span>
                             {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
