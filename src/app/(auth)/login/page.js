@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Lock, Mail } from "lucide-react";
+import Image from "next/image";
 
 function SubmitButton() {
     const { pending } = useFormStatus();
@@ -39,22 +40,25 @@ export default function LoginPage() {
     }
 
     return (
-        <div className="min-h-screen w-full flex flex-col items-center justify-center p-4">
+        <div className="w-full flex flex-col items-center justify-center p-4">
             {/* Logo Section */}
             <div className="mb-8 flex flex-col items-center">
-                <div className="flex items-center gap-3 mb-2">
-                    <div className="bg-gradient-to-br from-violet-500 to-fuchsia-500 p-2.5 rounded-xl shadow-lg shadow-fuchsia-500/20">
-                        <div className="w-6 h-6 bg-white rounded-sm opacity-90"></div>
-                    </div>
-                    <span className="text-3xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-                        Techser
-                    </span>
+                <div className="flex items-center justify-center mb-6">
+                    <Image
+                        src="/logo.png"
+                        alt="Techser Logo"
+                        width={280}
+                        height={80}
+                        className="h-20 w-auto object-contain"
+                        priority
+                        unoptimized
+                    />
                 </div>
-                <p className="text-gray-400 text-sm">Sign in to continue tracking your finances</p>
+                <p className="text-gray-400 text-sm">Sign in to Techser Sales Management System</p>
             </div>
 
             {/* Login Card */}
-            <div className="w-full max-w-md">
+            <div className="w-full max-w-md">   
                 <form action={clientAction} className="space-y-4">
                     <div className="space-y-2">
 

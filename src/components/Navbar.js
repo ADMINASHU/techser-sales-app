@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -49,12 +50,17 @@ export default function Navbar() {
                 <div className="flex justify-between items-center h-20">
                     {/* Logo */}
                     <Link href="/dashboard" className="flex-shrink-0 flex items-center group">
-                        <div className="bg-white/5 p-2 rounded-xl mr-3 border border-white/5 group-hover:border-white/10 transition-colors">
-                            <div className="w-6 h-6 bg-gradient-to-br from-violet-500 to-fuchsia-500 rounded-lg shadow-lg shadow-fuchsia-500/20"></div>
+                        <div className="mr-3 transition-transform group-hover:scale-105">
+                            <Image
+                                src="/logo.png"
+                                alt="Techser Logo"
+                                width={180}
+                                height={40}
+                                className="h-10 w-auto object-contain"
+                                priority
+                                unoptimized
+                            />
                         </div>
-                        <span className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent tracking-tight group-hover:to-white transition-all">
-                            Techser
-                        </span>
                     </Link>
 
                     {/* Desktop Center Pill Navigation */}
