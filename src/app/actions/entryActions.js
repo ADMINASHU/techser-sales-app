@@ -38,6 +38,9 @@ export async function createEntry(formData) {
         entryData.userEmail = session.user.email;
         await appendEntryToSheet(entryData);
 
+        // Notify Admins (Knock + Firebase)
+        await notifyAdmins("Created Entry", entry, session.user);
+
         revalidatePath("/entries");
         revalidatePath("/dashboard");
         return { success: true, id: entry._id.toString() };
@@ -102,26 +105,82 @@ export async function updateEntry(id, formData) {
 
 import { triggerNotification } from "@/lib/knock";
 import User from "@/models/User";
+import admin from "@/lib/firebaseAdmin";
 
-// Helper for notifications
+// Helper specifically for Direct Firebase Push (Backend -> FCM -> Device)
+async function sendFirebasePush(title, body) {
+    try {
+        if (!admin) {
+            console.error("Firebase Admin not initialized, skipping push.");
+            return;
+        }
+
+        // 1. Get all admins with FCM tokens
+        const admins = await User.find({ role: "admin" }).select("fcmTokens");
+
+        // Flatten tokens
+        const tokens = [];
+        admins.forEach(admin => {
+            if (admin.fcmTokens && admin.fcmTokens.length > 0) {
+                tokens.push(...admin.fcmTokens);
+            }
+        });
+
+        if (tokens.length === 0) {
+            console.log("No admin FCM tokens found.");
+            return;
+        }
+
+        // 2. Send Multicast Message
+        console.log(`Sending Push '${title}' to ${tokens.length} devices...`);
+
+        const message = {
+            notification: {
+                title: title,
+                body: body,
+            },
+            tokens: tokens,
+        };
+
+        const response = await admin.messaging().sendEachForMulticast(message);
+        console.log("FCM Send Response:", response.successCount + " success, " + response.failureCount + " fail");
+
+        // Optional: Clean up invalid tokens if needed (response.responses[i].error)
+
+    } catch (error) {
+        console.error("Firebase Push Error:", error);
+    }
+}
+
+// Helper for notifications (Knock for In-App + Firebase for Push)
 async function notifyAdmins(action, entry, actor) {
     try {
+        // A. Knock (In-App Feed)
         const admins = await User.find({ role: "admin" }).select("_id");
         const recipientIds = admins.map(a => a._id.toString());
 
-        if (recipientIds.length === 0) return;
+        if (recipientIds.length > 0) {
+            await triggerNotification("entry-action", {
+                recipients: recipientIds,
+                actor: { id: actor.id, name: actor.name, email: actor.email },
+                data: {
+                    action,
+                    customerName: entry.customerName,
+                    entryId: entry._id.toString(),
+                    timestamp: new Date().toISOString(),
+                    location: entry.customerAddress,
+                },
+            });
+        }
 
-        await triggerNotification("entry-action", {
-            recipients: recipientIds,
-            actor: { id: actor.id, name: actor.name, email: actor.email },
-            data: {
-                action,
-                customerName: entry.customerName,
-                entryId: entry._id.toString(),
-                timestamp: new Date().toISOString(),
-                location: entry.customerAddress,
-            },
-        });
+        // B. Firebase (Push Notification)
+        // Construct a message based on action
+        const title = `New Activity: ${action}`;
+        const body = `${actor.name} ${action} for ${entry.customerName}`;
+
+        // Fire and forget (don't await strictly if we don't want to block)
+        await sendFirebasePush(title, body);
+
     } catch (error) {
         console.error("Failed to send notification:", error);
     }

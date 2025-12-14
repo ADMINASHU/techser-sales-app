@@ -41,6 +41,10 @@ const UserSchema = new mongoose.Schema(
             type: String,
             default: "credentials",
         },
+        fcmTokens: {
+            type: [String], // Array to support multiple devices
+            default: [],
+        },
     },
     { timestamps: true }
 );

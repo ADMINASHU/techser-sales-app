@@ -144,6 +144,11 @@ export default function Navbar() {
                     </div>
                 </div>
 
+                {/* Debug Panel - Temporary - Removed */}
+                {/* <div className="hidden md:block absolute top-20 right-4 w-64 z-50">
+                    <PushDebug />
+                </div> */}
+
                 {/* Mobile Menu */}
                 {isOpen && (
                     <div className="sm:hidden bg-[#0f1117] border-b border-white/10 absolute left-0 right-0 top-20 shadow-2xl z-50 p-4 border-t-0 rounded-b-2xl animate-in slide-in-from-top-2 duration-300">

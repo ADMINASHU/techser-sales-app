@@ -27,6 +27,7 @@ self.addEventListener('push', (event) => {
         body: data.body,
         icon: '/icon-192x192.png', // Fallback icon
         badge: '/icon-192x192.png',
+        requireInteraction: true,
         data: {
             url: data.url || data.link || "/" // Knock sends 'link' or 'url' typically
         }
