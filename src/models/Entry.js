@@ -57,6 +57,8 @@ const EntrySchema = new mongoose.Schema(
 EntrySchema.index({ userId: 1, status: 1 });
 EntrySchema.index({ "stampIn.time": -1 });
 EntrySchema.index({ createdAt: -1 });
+EntrySchema.index({ userId: 1, createdAt: -1 }); // Composite for User Dashboard
+EntrySchema.index({ customerName: "text" }); // Text index for Search
 
 // Check if model exists and delete it in development to prevent schema caching issues
 if (process.env.NODE_ENV !== "production" && mongoose.models.Entry) {
