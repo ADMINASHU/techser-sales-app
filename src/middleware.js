@@ -12,8 +12,15 @@ export function middleware(req) {
 
     const isLoggedIn = !!sessionToken;
 
-    const isAuthPage = pathname.startsWith("/login") || pathname.startsWith("/register");
-    const isPublicPage = pathname === "/";
+    const isAuthPage = pathname.startsWith("/login") ||
+        pathname.startsWith("/register") ||
+        pathname.startsWith("/forgot-password") ||
+        pathname.startsWith("/reset-password");
+
+    const isPublicPage = pathname === "/" ||
+        pathname.startsWith("/privacy") ||
+        pathname.startsWith("/terms") ||
+        pathname.startsWith("/support");
 
     if (isAuthPage) {
         if (isLoggedIn) {

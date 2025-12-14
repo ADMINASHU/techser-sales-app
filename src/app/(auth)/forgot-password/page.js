@@ -4,10 +4,11 @@ import { requestPasswordReset } from "@/app/actions/passwordActions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import { Mail } from "lucide-react";
 
 export default function ForgotPasswordPage() {
     const [loading, setLoading] = useState(false);
@@ -25,31 +26,55 @@ export default function ForgotPasswordPage() {
     }
 
     return (
-        <Card className="w-full max-w-md shadow-lg">
-            <CardHeader>
-                <CardTitle>Forgot Password</CardTitle>
-                <CardDescription>
-                    Enter your email to receive a reset link.
-                </CardDescription>
-            </CardHeader>
-            <CardContent>
-                <form action={clientAction}>
-                    <div className="grid w-full items-center gap-4">
-                        <div className="flex flex-col space-y-1.5">
-                            <Label htmlFor="email">Email</Label>
-                            <Input id="email" name="email" type="email" required />
+        <div className="w-full flex flex-col items-center justify-center p-4">
+            {/* Logo Section */}
+            <div className="mb-8 flex flex-col items-center">
+                <div className="flex items-center justify-center mb-6">
+                    <Image
+                        src="/logo.png"
+                        alt="Techser Logo"
+                        width={280}
+                        height={80}
+                        className="h-20 w-auto object-contain"
+                        priority
+                        unoptimized
+                    />
+                </div>
+                <p className="text-gray-400 text-sm">Reset your password to regain access</p>
+            </div>
+
+            <div className="w-full max-w-md">
+                <form action={clientAction} className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="email" className="text-gray-300">Email Address</Label>
+                        <div className="relative">
+                            <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400 z-10" />
+                            <Input
+                                id="email"
+                                name="email"
+                                type="email"
+                                placeholder="user@gmail.com"
+                                className="pl-10 h-11 bg-[#1e293b]/80 border-white/10 text-white placeholder:text-gray-500 focus-visible:ring-fuchsia-500/50"
+                                required
+                            />
                         </div>
-                        <Button type="submit" disabled={loading}>
-                            {loading ? "Sending..." : "Send Reset Link"}
-                        </Button>
                     </div>
+
+                    <Button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full h-11 text-base bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 shadow-lg shadow-fuchsia-500/20 border-0"
+                    >
+                        {loading ? "Sending..." : "Send Reset Link"}
+                    </Button>
                 </form>
-            </CardContent>
-            <CardFooter className="flex justify-center">
-                <Link href="/login" className="text-sm text-blue-600 hover:underline">
-                    Back to Login
-                </Link>
-            </CardFooter>
-        </Card>
+
+                <div className="mt-6 text-center text-sm">
+                    <Link href="/login" className="text-cyan-400 hover:text-cyan-300 font-medium hover:underline">
+                        Back to Login
+                    </Link>
+                </div>
+            </div>
+        </div>
     );
 }
