@@ -77,7 +77,7 @@ export default async function EntriesPage({ searchParams }) {
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">Entry Log</h1>
                 {/* Hide New Entry Button for Admins */}
                 {!isAdmin && (
-                    <Link href="/entries/new">
+                    <Link href="/entries/new?callbackUrl=/entries">
                         <Button className="glass-btn-primary">
                             <PlusCircle className="mr-2 h-4 w-4" />
                             New Entry

@@ -14,6 +14,7 @@ export default function EntryMap({ location, destinationName, stampInLocation, s
     const { isLoaded, loadError } = useLoadScript({
         googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
         libraries,
+        id: "google-map-script",
     });
 
     if (loadError) {
@@ -26,9 +27,9 @@ export default function EntryMap({ location, destinationName, stampInLocation, s
 
     if (!isLoaded) return <div className={cn("flex items-center justify-center bg-muted h-[300px]", className)}><Loader2 className="animate-spin" /></div>;
 
-    return <MapInterface 
-        location={location} 
-        destinationName={destinationName} 
+    return <MapInterface
+        location={location}
+        destinationName={destinationName}
         stampInLocation={stampInLocation}
         stampOutLocation={stampOutLocation}
         className={className}
@@ -46,8 +47,8 @@ function MapInterface({ location, destinationName, stampInLocation, stampOutLoca
         );
     }
 
-    const destination = useMemo(() => ({ 
-        lat: location.lat, 
+    const destination = useMemo(() => ({
+        lat: location.lat,
         lng: location.lng
     }), [location]);
 
@@ -63,11 +64,11 @@ function MapInterface({ location, destinationName, stampInLocation, stampOutLoca
 
     const [userLocation, setUserLocation] = useState(null);
     const [mapCenter, setMapCenter] = useState(destination);
-    
+
     // Calculate Distances and Radius
     const distances = useMemo(() => {
         if (!window.google) return { radius: 0, in: null, out: null };
-        
+
         const destLatLng = new window.google.maps.LatLng(destination);
         let maxDist = 0;
         let inDist = null;
@@ -75,7 +76,7 @@ function MapInterface({ location, destinationName, stampInLocation, stampOutLoca
 
         if (stampIn) {
             inDist = window.google.maps.geometry.spherical.computeDistanceBetween(
-                destLatLng, 
+                destLatLng,
                 new window.google.maps.LatLng(stampIn)
             );
             if (inDist > maxDist) maxDist = inDist;
@@ -83,12 +84,12 @@ function MapInterface({ location, destinationName, stampInLocation, stampOutLoca
 
         if (stampOut) {
             outDist = window.google.maps.geometry.spherical.computeDistanceBetween(
-                destLatLng, 
+                destLatLng,
                 new window.google.maps.LatLng(stampOut)
             );
             if (outDist > maxDist) maxDist = outDist;
         }
-        
+
         return { radius: maxDist, in: inDist, out: outDist };
     }, [destination, stampIn, stampOut]);
 
@@ -165,8 +166,8 @@ function MapInterface({ location, destinationName, stampInLocation, stampOutLoca
                     )}
 
                     {/* Destination Marker - Default Red Pin */}
-                    <MarkerF 
-                        position={destination} 
+                    <MarkerF
+                        position={destination}
                         title={destinationName || "Destination"}
                         label={{
                             text: "C",

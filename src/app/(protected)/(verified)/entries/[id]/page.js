@@ -9,7 +9,7 @@ import { redirect } from "next/navigation";
 import { format } from "date-fns";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Navigation } from "lucide-react";
+import { ArrowLeft, Navigation, Edit } from "lucide-react";
 
 export default async function EntryDetailPage({ params }) {
     const { id } = await params;
@@ -17,7 +17,8 @@ export default async function EntryDetailPage({ params }) {
     if (!session) redirect("/login");
 
     await dbConnect();
-    const entryDoc = await Entry.findById(id);
+    await dbConnect();
+    const entryDoc = await Entry.findById(id).populate("userId", "name email");
 
     if (!entryDoc) {
         return <div>Entry not found</div>;
@@ -60,7 +61,16 @@ export default async function EntryDetailPage({ params }) {
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0">
                             <CardTitle>Visit Details</CardTitle>
-                            <Badge variant={statusColor}>{entry.status}</Badge>
+                            <div className="flex items-center gap-2">
+                                {session.user.role !== 'admin' && entry.status === 'Not Started' && (
+                                    <Link href={`/entries/${entry._id}/edit`}>
+                                        <Button variant="outline" size="sm" className="h-8">
+                                            <Edit className="w-3 h-3 mr-1" /> Edit
+                                        </Button>
+                                    </Link>
+                                )}
+                                <Badge variant={statusColor}>{entry.status}</Badge>
+                            </div>
                         </CardHeader>
                         <CardContent className="space-y-4 mt-4">
                             <div className="space-y-4">
@@ -69,12 +79,22 @@ export default async function EntryDetailPage({ params }) {
                                     <div className="font-medium">{entry.customerName}</div>
                                 </div>
                                 <div>
-                                    <Label className="text-muted-foreground">User</Label>
-                                    <div className="font-medium">{session.user.name} ({session.user.email})</div>
+                                    <Label className="text-muted-foreground">Visited By</Label>
+                                    <div className="font-medium">{entry.userId?.name} ({entry.userId?.email})</div>
                                 </div>
                                 <div>
                                     <Label className="text-muted-foreground">Address</Label>
                                     <div className="font-medium mb-2">{entry.customerAddress}</div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <Label className="text-muted-foreground">Contact Person</Label>
+                                        <div className="font-medium text-sm sm:text-base">{entry.contactPerson || "-"}</div>
+                                    </div>
+                                    <div>
+                                        <Label className="text-muted-foreground">Contact Number</Label>
+                                        <div className="font-medium text-sm sm:text-base">{entry.contactNumber || "-"}</div>
+                                    </div>
                                 </div>
                                 <div>
                                     <Label className="text-muted-foreground">Purpose</Label>

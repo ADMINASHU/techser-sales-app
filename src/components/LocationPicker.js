@@ -10,12 +10,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, MapPin, Navigation } from "lucide-react";
 import { toast } from "sonner";
 
-const libraries = ["places"];
+const libraries = ["places", "geometry"];
 
 export default function LocationPicker({ onLocationSelect }) {
     const { isLoaded, loadError } = useLoadScript({
         googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
         libraries,
+        id: "google-map-script",
     });
 
     if (loadError) {
@@ -42,7 +43,7 @@ function MapInterface({ onLocationSelect }) {
     const [zoom, setZoom] = useState(5);
     const [markerPosition, setMarkerPosition] = useState(null);
     const [selectedAddress, setSelectedAddress] = useState("");
-    
+
     // Autocomplete hook
     const {
         ready,
@@ -91,7 +92,7 @@ function MapInterface({ onLocationSelect }) {
             setCenter(pos);
             setMarkerPosition(pos);
             setZoom(17);
-            
+
             // Process address components
             processAddressComponents(results[0], pos);
         } catch (error) {
@@ -130,16 +131,16 @@ function MapInterface({ onLocationSelect }) {
         let pincode = "";
         // Simplified address extraction
         addressComponents.forEach(component => {
-             const types = component.types;
-             if (types.includes("administrative_area_level_2") || types.includes("locality")) {
-                 district = component.long_name;
-             }
-             if (types.includes("administrative_area_level_1")) {
-                 state = component.long_name;
-             }
-             if (types.includes("postal_code")) {
-                 pincode = component.long_name;
-             }
+            const types = component.types;
+            if (types.includes("administrative_area_level_2") || types.includes("locality")) {
+                district = component.long_name;
+            }
+            if (types.includes("administrative_area_level_1")) {
+                state = component.long_name;
+            }
+            if (types.includes("postal_code")) {
+                pincode = component.long_name;
+            }
         });
 
         setSelectedAddress(result.formatted_address);
@@ -155,7 +156,7 @@ function MapInterface({ onLocationSelect }) {
     };
 
     const getCurrentLocation = () => {
-         if (navigator.geolocation) {
+        if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
                     const pos = {
@@ -232,13 +233,13 @@ function MapInterface({ onLocationSelect }) {
 
             {/* Selected Address Display */}
             <div className="p-4 bg-muted/50 rounded-lg space-y-1">
-                 <div className="flex items-start gap-2">
+                <div className="flex items-start gap-2">
                     <MapPin className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                     <div>
                         <p className="font-medium text-sm">Selected Location</p>
                         <p className="text-sm text-muted-foreground">{selectedAddress || "No location selected"}</p>
                     </div>
-                 </div>
+                </div>
             </div>
         </div>
     );

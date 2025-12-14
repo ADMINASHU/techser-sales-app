@@ -19,8 +19,8 @@ const EntrySchema = new mongoose.Schema(
             lat: Number,
             lng: Number,
         },
-        region: String,
-        branch: String,
+        contactPerson: String,
+        contactNumber: String,
         purpose: String,
         stampIn: {
             time: Date,
@@ -57,5 +57,10 @@ const EntrySchema = new mongoose.Schema(
 EntrySchema.index({ userId: 1, status: 1 });
 EntrySchema.index({ "stampIn.time": -1 });
 EntrySchema.index({ createdAt: -1 });
+
+// Check if model exists and delete it in development to prevent schema caching issues
+if (process.env.NODE_ENV !== "production" && mongoose.models.Entry) {
+    delete mongoose.models.Entry;
+}
 
 export default mongoose.models.Entry || mongoose.model("Entry", EntrySchema);

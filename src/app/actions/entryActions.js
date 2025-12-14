@@ -12,7 +12,7 @@ export async function createEntry(formData) {
 
     const data = Object.fromEntries(formData);
     console.log("Server createEntry Received Data:", data);
-    const { customerName, customerAddress, district, state, pincode, lat, lng, region, branch, purpose, entryDate } = data;
+    const { customerName, customerAddress, district, state, pincode, lat, lng, purpose, entryDate, contactPerson, contactNumber } = data;
 
     try {
         await dbConnect();
@@ -27,8 +27,8 @@ export async function createEntry(formData) {
                 lat: lat ? parseFloat(lat) : undefined,
                 lng: lng ? parseFloat(lng) : undefined,
             },
-            region,
-            branch,
+            contactPerson,
+            contactNumber,
             purpose,
             entryDate: entryDate ? new Date(entryDate) : new Date(),
             status: "Not Started",
@@ -43,6 +43,61 @@ export async function createEntry(formData) {
         return { success: true, id: entry._id.toString() };
     } catch (error) {
         return { error: "Failed to create entry" };
+    }
+}
+
+
+export async function updateEntry(id, formData) {
+    const session = await auth();
+    if (!session) return { error: "Not authenticated" };
+
+    if (session.user.role === "admin") {
+        return { error: "Admins cannot edit entries." };
+    }
+
+    const data = Object.fromEntries(formData);
+    const { customerName, customerAddress, district, state, pincode, lat, lng, purpose, entryDate, contactPerson, contactNumber } = data;
+
+    try {
+        await dbConnect();
+        const entry = await Entry.findById(id);
+        if (!entry) return { error: "Entry not found" };
+
+        if (entry.userId.toString() !== session.user.id) {
+            return { error: "Unauthorized" };
+        }
+
+        if (entry.status !== "Not Started" || (entry.stampIn && entry.stampIn.time)) {
+            return { error: "Cannot edit an entry that has already started." };
+        }
+
+        entry.customerName = customerName;
+        entry.customerAddress = customerAddress;
+        entry.district = district;
+        entry.state = state;
+        entry.pincode = pincode;
+        if (lat && lng) {
+            entry.location = {
+                lat: parseFloat(lat),
+                lng: parseFloat(lng),
+            };
+        }
+        entry.contactPerson = contactPerson;
+        entry.contactNumber = contactNumber;
+        entry.purpose = purpose;
+        if (entryDate) {
+            entry.entryDate = new Date(entryDate);
+        }
+
+        await entry.save();
+
+        revalidatePath("/entries");
+        revalidatePath(`/entries/${id}`);
+        revalidatePath("/dashboard");
+        return { success: true };
+    } catch (error) {
+        console.error("Update Entry Error:", error);
+        return { error: "Failed to update entry" };
     }
 }
 
