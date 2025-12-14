@@ -46,7 +46,6 @@ export async function createEntry(formData) {
     }
 }
 
-
 export async function updateEntry(id, formData) {
     const session = await auth();
     if (!session) return { error: "Not authenticated" };

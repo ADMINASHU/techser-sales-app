@@ -10,6 +10,7 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata = {
     title: "Techser Sales Management",
     description: "Sales management application",
+    manifest: "/manifest.json",
 };
 
 import { auth } from "@/auth";

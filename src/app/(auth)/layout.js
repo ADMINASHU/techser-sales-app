@@ -17,6 +17,7 @@ export default function AuthLayout({ children }) {
                             width={100}
                             height={20}
                             className="h-5 w-auto object-contain opacity-80"
+                            style={{ width: 'auto' }}
                             unoptimized
                         />
                         {/* <span className="font-semibold text-gray-300">Techser</span> */}
