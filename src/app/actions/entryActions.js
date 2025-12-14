@@ -131,13 +131,18 @@ async function sendFirebasePush(title, body) {
             return;
         }
 
-        // 2. Send Multicast Message
+        // 2. Send Multicast Message (Data-Only for reliable SW handling)
         console.log(`Sending Push '${title}' to ${tokens.length} devices...`);
 
         const message = {
-            notification: {
+            data: {
                 title: title,
                 body: body,
+            },
+            webpush: {
+                headers: {
+                    Urgency: "high"
+                }
             },
             tokens: tokens,
         };
