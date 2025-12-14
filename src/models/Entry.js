@@ -56,5 +56,6 @@ const EntrySchema = new mongoose.Schema(
 // Index for easier filtering
 EntrySchema.index({ userId: 1, status: 1 });
 EntrySchema.index({ "stampIn.time": -1 });
+EntrySchema.index({ createdAt: -1 });
 
 export default mongoose.models.Entry || mongoose.model("Entry", EntrySchema);

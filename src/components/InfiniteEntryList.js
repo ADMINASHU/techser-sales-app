@@ -69,7 +69,7 @@ export default function InfiniteEntryList({ initialEntries, searchParams, isAdmi
             <div className={`grid gap-4 ${view === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'hidden'}`}>
                 {entries.map((entry) => (
                     <EntryCard
-                        key={`${entry._id}-grid-${Math.random()}`}
+                        key={entry._id}
                         entry={entry}
                         isAdmin={isAdmin}
                     />
@@ -93,7 +93,7 @@ export default function InfiniteEntryList({ initialEntries, searchParams, isAdmi
                             <tbody className="divide-y divide-white/5">
                                 {entries.map((entry) => (
                                     <EntryTableRow
-                                        key={`${entry._id}-list-${Math.random()}`}
+                                        key={entry._id}
                                         entry={entry}
                                         isAdmin={isAdmin}
                                     />

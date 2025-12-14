@@ -14,8 +14,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             clientSecret: process.env.AUTH_GOOGLE_SECRET,
         }),
         Credentials({
+            name: "Credentials",
+            credentials: {
+                email: { label: "Email", type: "email" },
+                password: { label: "Password", type: "password" },
+            },
             async authorize(credentials) {
                 if (!credentials?.email || !credentials?.password) {
+                    console.log("Auth failed: Missing credentials");
                     return null;
                 }
 
@@ -26,6 +32,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     );
 
                     if (!user) {
+                        console.log("Auth failed: User not found");
+                        return null;
+                    }
+
+                    if (user.provider && user.provider !== "credentials") {
+                        console.log("Auth failed: Wrong provider", user.provider);
                         return null;
                     }
 
@@ -35,10 +47,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     );
 
                     if (!isPasswordCorrect) {
+                        console.log("Auth failed: Invalid password");
                         return null;
                     }
 
-                    return user;
+                    return {
+                        id: user._id.toString(),
+                        name: user.name,
+                        email: user.email,
+                        // image: user.image, // Removed to reduce cookie size
+                        role: user.role,
+                        status: user.status,
+                    };
                 } catch (error) {
                     console.error("Auth error:", error);
                     return null;
@@ -46,73 +66,66 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             },
         }),
     ],
-    // No need to duplicate pages/session strategy as they are in authConfig
     callbacks: {
         ...authConfig.callbacks,
-        async signIn({ user, account, profile }) {
-            if (account.provider === "google") {
-                try {
-                    await dbConnect();
-                    const existingUser = await User.findOne({ email: user.email });
-
-                    if (!existingUser) {
-                        console.log("Creating new Google user");
-                        await User.create({
-                            name: user.name,
-                            email: user.email,
-                            image: user.image,
-                            provider: "google",
-                            status: "pending",
-                        });
-                        console.log("User created");
-                    } else {
-                        console.log("User already exists", existingUser._id);
-                    }
-                    return true;
-                } catch (error) {
-                    console.error("Error in signIn callback:", error);
-                    return false;
-                }
+        async jwt({ token, user, account, trigger, session }) {
+            // Handle updates (e.g. valid -> verified) if triggered client side
+            if (trigger === "update" && session) {
+                if (session.status) token.status = session.status;
+                if (session.role) token.role = session.role;
+                // Add other updateable fields here
             }
-            return true;
-        },
-        async jwt({ token, user, account }) {
+
             if (user) {
+                // Initial sign in
                 if (account?.provider === "google") {
-                    await dbConnect();
-                    const dbUser = await User.findOne({ email: user.email });
-                    if (dbUser) {
+                    try {
+                        await dbConnect();
+                        let dbUser = await User.findOne({ email: user.email });
+
+                        if (!dbUser) {
+                            console.log("Creating new Google user");
+                            dbUser = await User.create({
+                                name: user.name,
+                                email: user.email,
+                                image: user.image,
+                                provider: "google",
+                                status: "pending",
+                                role: "user" // Default role
+                            });
+                        } else if (!dbUser.provider) {
+                            // Link existing user to Google if email matches and no provider
+                            // Optional consistency check
+                            dbUser.provider = "google";
+                            await dbUser.save();
+                        }
+
                         token.id = dbUser._id.toString();
                         token.role = dbUser.role;
+                        token.status = dbUser.status;
+                    } catch (error) {
+                        console.error("Error in JWT Google callback:", error);
                     }
                 } else {
+                    // Credentials login - user object comes from authorize() return
+                    token.id = user.id;
                     token.role = user.role;
-                    token.id = (user._id || user.id).toString();
+                    token.status = user.status;
                 }
             }
             return token;
         },
         async session({ session, token }) {
-            // console.log("WAIT: session callback", { tokenId: token?.id });
             if (token) {
                 session.user.id = token.id;
                 session.user.role = token.role;
-
-                try {
-                    await dbConnect();
-                    const dbUser = await User.findById(token.id);
-                    // console.log("session: found dbUser?", !!dbUser);
-                    if (dbUser) {
-                        session.user.role = dbUser.role;
-                        session.user.status = dbUser.status;
-                        session.user.name = dbUser.name;
-                        session.user.image = dbUser.image;
-                    }
-                } catch (e) {
-                    console.error("Session refresh error", e);
-                }
+                session.user.status = token.status;
+                // Inherit default fields from token/adapter usually, but ensure they are mapped
+                // session.user.name & email usually persist from initial
             }
             return session;
         },
     },
+    // Debug in dev as per reference
+    debug: process.env.NODE_ENV === 'development',
 });

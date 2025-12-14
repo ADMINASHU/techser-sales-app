@@ -47,9 +47,11 @@ export default function LoginPage() {
                     <Image
                         src="/logo.png"
                         alt="Techser Logo"
-                        width={280}
-                        height={80}
-                        className="h-20 w-auto object-contain"
+                        width={0}
+                        height={0}
+                        sizes="100vw"
+                        className="w-auto object-contain"
+                        style={{ width: 'auto', height: '5rem' }}
                         priority
                         unoptimized
                     />
@@ -58,7 +60,7 @@ export default function LoginPage() {
             </div>
 
             {/* Login Card */}
-            <div className="w-full max-w-md">   
+            <div className="w-full max-w-sm">
                 <form action={clientAction} className="space-y-4">
                     <div className="space-y-2">
 
