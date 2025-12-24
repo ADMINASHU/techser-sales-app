@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { getLocations } from "@/app/actions/settingsActions";
 import LocationManager from "@/components/LocationManager";
+import SyncButton from "@/components/SyncButton";
 import { redirect } from "next/navigation";
 
 export const dynamic = 'force-dynamic';
@@ -39,6 +40,8 @@ export default async function SettingsPage() {
                     <h2 className="text-xl font-semibold mb-4">Location Management</h2>
                     <LocationManager initialLocations={locations} />
                 </div>
+                
+                <SyncButton sheetId={process.env.GOOGLE_SHEET_ID} />
             </div>
         </div>
     );

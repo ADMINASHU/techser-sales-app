@@ -36,7 +36,16 @@ export async function createEntry(formData) {
 
         const entryData = entry.toObject();
         entryData.userEmail = session.user.email;
-        await appendEntryToSheet(entryData);
+        entryData.userName = session.user.name;
+        entryData.userRegion = session.user.region;
+        entryData.userBranch = session.user.branch;
+        const sheetResponse = await appendEntryToSheet(entryData);
+
+        // Save Google Sheet Row ID if available
+        if (sheetResponse && sheetResponse.rowId) {
+            entry.googleSheetRowId = sheetResponse.rowId;
+            await entry.save();
+        }
 
         // Notify Admins (Knock + Firebase)
         await notifyAdmins("Created Entry", entry, session.user);
@@ -45,6 +54,7 @@ export async function createEntry(formData) {
         revalidatePath("/dashboard");
         return { success: true, id: entry._id.toString() };
     } catch (error) {
+        console.error("Create Entry Error:", error);
         return { error: "Failed to create entry" };
     }
 }
@@ -102,7 +112,7 @@ export async function updateEntry(id, formData) {
         return { error: "Failed to update entry" };
     }
 }
-
+import { updateEntryInSheet } from "@/lib/googleSheets";
 import { triggerNotification } from "@/lib/knock";
 import User from "@/models/User";
 import admin from "@/lib/firebaseAdmin";
@@ -149,8 +159,6 @@ async function sendFirebasePush(title, body) {
 
         const response = await admin.messaging().sendEachForMulticast(message);
         console.log("FCM Send Response:", response.successCount + " success, " + response.failureCount + " fail");
-
-        // Optional: Clean up invalid tokens if needed (response.responses[i].error)
 
     } catch (error) {
         console.error("Firebase Push Error:", error);
@@ -205,15 +213,29 @@ export async function stampIn(entryId, location) {
                 status: "In Process",
             },
             { new: true }
-        );
+        ).populate("userId", "name email region branch"); // Populate for Sheet Sync
 
         // Trigger Notification
-        await notifyAdmins("Stamped In", updatedEntry, session.user);
+        if (updatedEntry) {
+            await notifyAdmins("Stamped In", updatedEntry, session.user);
+
+            // Sync Update to Sheet
+            if (updatedEntry.googleSheetRowId) {
+                const entryData = updatedEntry.toObject();
+                // Ensure user details are present (either from populate or session fallback)
+                entryData.userName = updatedEntry.userId?.name || session.user.name;
+                entryData.userRegion = updatedEntry.userId?.region || session.user.region;
+                entryData.userBranch = updatedEntry.userId?.branch || session.user.branch;
+                
+                await updateEntryInSheet(entryData);
+            }
+        }
 
         revalidatePath(`/entries`);
         revalidatePath("/dashboard");
         return { success: true };
     } catch (error) {
+        console.error("Stamp In Error:", error);
         return { error: "Failed to stamp in" };
     }
 }
@@ -232,15 +254,33 @@ export async function stampOut(entryId, location) {
                 status: "Completed",
             },
             { new: true }
-        );
+        ).populate("userId", "name email region branch");
+
+        if (!updatedEntry) {
+            console.error("Stamp Out: Entry not found for ID", entryId);
+            return { error: "Entry not found" };
+        }
 
         // Trigger Notification
-        await notifyAdmins("Stamped Out", updatedEntry, session.user);
+        if (updatedEntry) {
+            await notifyAdmins("Stamped Out", updatedEntry, session.user);
+
+            // Sync Update to Sheet
+            if (updatedEntry.googleSheetRowId) {
+                const entryData = updatedEntry.toObject();
+                entryData.userName = updatedEntry.userId?.name || session.user.name;
+                entryData.userRegion = updatedEntry.userId?.region || session.user.region;
+                entryData.userBranch = updatedEntry.userId?.branch || session.user.branch;
+                
+                await updateEntryInSheet(entryData);
+            }
+        }
 
         revalidatePath(`/entries`);
         revalidatePath("/dashboard");
         return { success: true };
     } catch (error) {
+        console.error("Stamp Out Error:", error);
         return { error: "Failed to stamp out" };
     }
 }

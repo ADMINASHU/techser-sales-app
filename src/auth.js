@@ -58,6 +58,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                         // image: user.image, // Removed to reduce cookie size
                         role: user.role,
                         status: user.status,
+                        region: user.region,
+                        branch: user.branch,
                     };
                 } catch (error) {
                     console.error("Auth error:", error);
@@ -103,6 +105,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                         token.id = dbUser._id.toString();
                         token.role = dbUser.role;
                         token.status = dbUser.status;
+                        token.region = dbUser.region;
+                        token.branch = dbUser.branch;
                     } catch (error) {
                         console.error("Error in JWT Google callback:", error);
                     }
@@ -111,6 +115,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     token.id = user.id;
                     token.role = user.role;
                     token.status = user.status;
+                    token.region = user.region;
+                    token.branch = user.branch;
                 }
             }
             return token;
@@ -120,6 +126,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 session.user.id = token.id;
                 session.user.role = token.role;
                 session.user.status = token.status;
+                session.user.region = token.region;
+                session.user.branch = token.branch;
                 // Inherit default fields from token/adapter usually, but ensure they are mapped
                 // session.user.name & email usually persist from initial
             }
