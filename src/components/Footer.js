@@ -20,7 +20,7 @@ export default function Footer() {
                     />
                     {/* <span className="font-semibold text-gray-300">Techser Sales Management</span> */}
                     <span className="hidden md:inline text-gray-600">|</span>
-                    <span>&copy; {currentYear} Techser. All rights reserved.</span>
+                    <span>&copy; {currentYear} v{process.env.NEXT_PUBLIC_APP_VERSION} Techser. All rights reserved.</span>
                 </div>
                 <div className="flex items-center gap-6">
                     <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
