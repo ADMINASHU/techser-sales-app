@@ -107,7 +107,7 @@ export default function LocationManager({ initialLocations }) {
     };
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-200px)] min-h-[500px]">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-auto lg:h-[calc(100vh-200px)] min-h-[500px]">
             {/* Left Column: Regions List */}
             <div className="glass-panel border-white/5 rounded-xl flex flex-col overflow-hidden shadow-2xl">
                 {/* Header */}
@@ -153,7 +153,7 @@ export default function LocationManager({ initialLocations }) {
                         <div
                             key={loc._id}
                             onClick={() => setSelectedRegion(loc)}
-                            className={`p-3 rounded-lg cursor-pointer transition-all border group flex items-center justify-between
+                            className={`p-3 rounded-lg cursor-pointer transition-all border group flex items-center justify-between active:scale-[0.98] active:bg-white/10 touch-manipulation min-h-[44px]
                                 ${selectedRegion?._id === loc._id
                                     ? "bg-violet-500/10 border-violet-500/50 shadow-[0_0_15px_-3px_rgba(139,92,246,0.2)]"
                                     : "bg-transparent border-transparent hover:bg-white/5 hover:border-white/5 text-gray-400 hover:text-gray-200"
@@ -165,7 +165,7 @@ export default function LocationManager({ initialLocations }) {
                             <Button
                                 size="sm"
                                 variant="ghost"
-                                className={`h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity ${selectedRegion?._id === loc._id ? "text-violet-300 hover:text-red-400" : "text-gray-500 hover:text-red-400"}`}
+                                className={`h-8 w-8 p-0 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity ${selectedRegion?._id === loc._id ? "text-violet-300 hover:text-red-400" : "text-gray-500 hover:text-red-400"} active:opacity-100`}
                                 onClick={(e) => handleRemoveRegion(loc._id, loc.name, e)}
                             >
                                 <Trash2 className="w-3.5 h-3.5" />
@@ -203,7 +203,7 @@ export default function LocationManager({ initialLocations }) {
                                 className="bg-white/10 hover:bg-white/20 text-white border border-white/10"
                                 onClick={() => setIsAddingBranch(true)}
                             >
-                                <Plus className="w-4 h-4 mr-2" /> Add Branch
+                                    <Plus className="w-5 h-5" />
                             </Button>
                         </div>
 
@@ -231,7 +231,7 @@ export default function LocationManager({ initialLocations }) {
                                 {selectedRegion.branches.map(branch => (
                                     <div
                                         key={branch}
-                                        className="group flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/5 hover:border-white/20 hover:bg-white/10 transition-all text-sm text-gray-300"
+                                        className="group flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/5 hover:border-white/20 hover:bg-white/10 active:bg-white/20 transition-all text-sm text-gray-300 min-h-[44px]"
                                     >
                                         <div className="flex items-center gap-2 truncate">
                                             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500/50"></div>
@@ -239,7 +239,7 @@ export default function LocationManager({ initialLocations }) {
                                         </div>
                                         <button
                                             onClick={() => handleRemoveBranch(branch)}
-                                            className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-500/20 rounded text-gray-500 hover:text-red-400 transition-all"
+                                            className="lg:opacity-0 lg:group-hover:opacity-100 p-2 hover:bg-red-500/20 rounded text-gray-500 hover:text-red-400 transition-all active:opacity-100"
                                         >
                                             <X className="w-3.5 h-3.5" />
                                         </button>

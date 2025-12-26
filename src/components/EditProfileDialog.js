@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { LoadingButton } from "@/components/ui/LoadingButton";
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
@@ -23,7 +24,6 @@ import {
 import { updateProfile, changePassword } from "@/app/actions/userActions";
 import { getLocations } from "@/app/actions/settingsActions";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
 
 export default function EditProfileDialog({ user, trigger }) {
     const [open, setOpen] = useState(false);
@@ -255,14 +255,13 @@ export default function EditProfileDialog({ user, trigger }) {
                     )}
 
                     <DialogFooter>
-                        <Button
+                        <LoadingButton
                             type="submit"
-                            disabled={loading}
+                            loading={loading}
                             className="bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 text-white border-0 shadow-lg shadow-fuchsia-500/20"
                         >
-                            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             Save changes
-                        </Button>
+                        </LoadingButton>
                     </DialogFooter>
                 </form>
             </DialogContent>

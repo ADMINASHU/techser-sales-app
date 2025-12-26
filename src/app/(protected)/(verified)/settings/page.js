@@ -35,12 +35,12 @@ export default async function SettingsPage() {
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">Settings</h1>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-6 pb-20">
                 <div>
                     <h2 className="text-xl font-semibold mb-4">Location Management</h2>
                     <LocationManager initialLocations={locations} />
                 </div>
-                
+
                 <SyncButton sheetId={process.env.GOOGLE_SHEET_ID} />
             </div>
         </div>

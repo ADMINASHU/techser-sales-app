@@ -13,9 +13,9 @@ export default function SyncButton({ sheetId }) {
         setIsLoading(true);
         try {
             toast.info("Starting sync...", { description: "This may take a while depending on the number of entries." });
-            
+
             const result = await syncOldEntries();
-            
+
             if (result.success) {
                 toast.success("Sync Completed", { description: result.message });
             } else {
@@ -35,33 +35,35 @@ export default function SyncButton({ sheetId }) {
                 Google Sheet Sync
             </h3>
             <p className="text-sm text-muted-foreground mb-4">
-                Manually sync all existing entries to the configured Google Sheet. 
+                Manually sync all existing entries to the configured Google Sheet.
                 Use this if entries are missing or if you updated the sheet structure.
             </p>
-            <Button onClick={handleSync} disabled={isLoading} variant="secondary">
-                {isLoading ? (
-                    <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Syncing...
-                    </>
-                ) : (
-                    "Sync All Entries"
-                )}
-            </Button>
-            
-            {sheetId && (
-                <Button variant="outline" asChild className="ml-4">
-                    <a 
-                        href={`https://docs.google.com/spreadsheets/d/${sheetId}`} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2"
-                    >
-                        <Database className="w-4 h-4" />
-                        Open Google Sheet
-                    </a>
+            <div className="flex flex-col sm:flex-row gap-3">
+                <Button onClick={handleSync} disabled={isLoading} variant="secondary" className="w-full sm:w-auto h-11 text-base">
+                    {isLoading ? (
+                        <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Syncing...
+                        </>
+                    ) : (
+                        "Sync All Entries"
+                    )}
                 </Button>
-            )}
+
+                {sheetId && (
+                    <Button variant="outline" asChild className="w-full sm:w-auto h-11 text-base">
+                        <a
+                            href={`https://docs.google.com/spreadsheets/d/${sheetId}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center justify-center gap-2"
+                        >
+                            <Database className="w-4 h-4" />
+                            Open Google Sheet
+                        </a>
+                    </Button>
+                )}
+            </div>
         </div>
     );
 }

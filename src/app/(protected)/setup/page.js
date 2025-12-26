@@ -3,7 +3,7 @@
 import { useSession } from "next-auth/react";
 import { updateProfile } from "@/app/actions/userActions";
 import { getLocations } from "@/app/actions/settingsActions";
-import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/LoadingButton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,7 +17,7 @@ export default function ProfileSetupPage() {
     const { data: session, update } = useSession();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
-    
+
     const [locations, setLocations] = useState([]);
     const [region, setRegion] = useState("");
     const [branch, setBranch] = useState("");
@@ -107,9 +107,9 @@ export default function ProfileSetupPage() {
                                     </Select>
                                 </div>
                             </div>
-                            <Button type="submit" disabled={loading}>
-                                {loading ? "Saving..." : "Save & Continue"}
-                            </Button>
+                            <LoadingButton type="submit" loading={loading}>
+                                Save & Continue
+                            </LoadingButton>
                         </div>
                     </form>
                 </CardContent>

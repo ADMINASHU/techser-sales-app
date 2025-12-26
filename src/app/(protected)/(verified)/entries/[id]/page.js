@@ -11,20 +11,21 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Navigation, Edit } from "lucide-react";
 
-export default async function EntryDetailPage({ params }) {
+export default async function EntryDetailPage({ params, searchParams }) {
     const { id } = await params;
+    const { from } = await searchParams;
     const session = await auth();
     if (!session) redirect("/login");
 
     await dbConnect();
-    await dbConnect();
+    // await dbConnect(); // duplicate removed
     const entryDoc = await Entry.findById(id).populate("userId", "name email");
 
     if (!entryDoc) {
         return <div>Entry not found</div>;
     }
 
-    // Convert to plain JSON to avoid Next.js serialization issues with Mongoose objects (IDs, Dates)
+    // Convert to plain JSON
     const entry = JSON.parse(JSON.stringify(entryDoc));
 
     // Determine variant for badge
@@ -32,11 +33,14 @@ export default async function EntryDetailPage({ params }) {
         entry.status === "Completed" ? "default" :
             entry.status === "In Process" ? "secondary" : "outline";
 
+    const backLink = from === "dashboard" ? "/dashboard" : "/entries";
+    const backText = from === "dashboard" ? "Back to Dashboard" : "Back to List";
+
     return (
         <div className="max-w-7xl mx-auto space-y-4">
-            <Link href="/entries">
+            <Link href={backLink}>
                 <Button variant="ghost" size="sm">
-                    <ArrowLeft className="mr-2 h-4 w-4" /> Back to List
+                    <ArrowLeft className="mr-2 h-4 w-4" /> {backText}
                 </Button>
             </Link>
 

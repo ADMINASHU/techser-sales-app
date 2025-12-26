@@ -45,7 +45,11 @@ export default function InfiniteEntryList({ initialEntries, searchParams, isAdmi
                 });
 
                 if (newEntries.length > 0) {
-                    setEntries(prev => [...prev, ...newEntries]);
+                    setEntries(prev => {
+                        const existingIds = new Set(prev.map(e => e._id));
+                        const uniqueNewEntries = newEntries.filter(e => !existingIds.has(e._id));
+                        return [...prev, ...uniqueNewEntries];
+                    });
                     setHasMore(moreAvailable);
                 } else {
                     setHasMore(false);

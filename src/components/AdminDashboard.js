@@ -424,6 +424,7 @@ export default function AdminDashboard() {
                                 key={entry._id.toString()}
                                 entry={entry}
                                 isAdmin={true}
+                                from="dashboard"
                             />
                         ))}
                     </div>

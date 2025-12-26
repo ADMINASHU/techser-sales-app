@@ -7,11 +7,12 @@ import { format } from "date-fns";
 import DurationDisplay from "@/components/DurationDisplay";
 import DeleteEntryButton from "@/components/DeleteEntryButton";
 
-export default function EntryCard({ entry, isAdmin }) {
+export default function EntryCard({ entry, isAdmin, from }) {
     const router = useRouter();
 
     const handleCardClick = () => {
-        router.push(`/entries/${entry._id}`);
+        const url = from ? `/entries/${entry._id}?from=${from}` : `/entries/${entry._id}`;
+        router.push(url);
     };
 
     return (
@@ -91,7 +92,7 @@ export default function EntryCard({ entry, isAdmin }) {
 
                         {/* Delete Button (Only if not admin) */}
                         {!isAdmin && (
-                            <div className="opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => {
+                            <div className="opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity" onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
                             }}>

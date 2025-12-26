@@ -159,7 +159,7 @@ export default function Navbar() {
                                         key={link.href}
                                         href={link.href}
                                         className={clsx(
-                                            "block px-4 py-3 rounded-xl text-base font-medium transition-all border border-transparent",
+                                            "block px-4 py-4 rounded-xl text-base font-medium transition-all border border-transparent active:bg-white/10 active:scale-[0.98]",
                                             pathname === link.href
                                                 ? "bg-white/10 text-white border-white/5 shadow-inner"
                                                 : "text-gray-400 hover:bg-white/5 hover:text-white"
@@ -174,7 +174,7 @@ export default function Navbar() {
                             <Link
                                 href="/profile"
                                 onClick={() => setIsOpen(false)}
-                                className="flex items-center gap-3 active:opacity-80 transition-opacity"
+                                className="flex items-center gap-3 active:opacity-60 transition-opacity p-2 -ml-2 rounded-lg active:bg-white/5"
                             >
                                 <Avatar className="h-10 w-10 ring-2 ring-white/10">
                                     <AvatarImage src={session?.user?.image} />
@@ -185,7 +185,7 @@ export default function Navbar() {
                                     <div className="text-sm text-gray-400">{session?.user?.email}</div>
                                 </div>
                             </Link>
-                            <Button variant="ghost" size="icon" onClick={() => signOut()} className="text-red-400 hover:bg-red-500/10 hover:text-red-300">
+                            <Button variant="ghost" size="icon" onClick={() => signOut()} className="text-red-400 hover:bg-red-500/10 hover:text-red-300 h-10 w-10 active:scale-90 transition-transform">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" x2="9" y1="12" y2="12" /></svg>
                             </Button>
                         </div>

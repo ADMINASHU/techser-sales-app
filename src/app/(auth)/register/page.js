@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useFormStatus } from "react-dom";
 import { register } from "@/app/actions/authActions";
-import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/LoadingButton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
@@ -15,13 +15,13 @@ import Image from "next/image";
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <Button
+        <LoadingButton
             type="submit"
             className="w-full h-11 text-base glass-btn-primary"
-            disabled={pending}
+            loading={pending}
         >
-            {pending ? "Creating Account..." : "Register →"}
-        </Button>
+            Register →
+        </LoadingButton>
     );
 }
 

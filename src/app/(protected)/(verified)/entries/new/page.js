@@ -7,18 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import LocationPicker from "@/components/LocationPicker";
+import { LoadingButton } from "@/components/ui/LoadingButton";
 import { X } from "lucide-react";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
+
 
 export default function NewEntryPage() {
     const { data: session } = useSession();
@@ -35,6 +30,8 @@ export default function NewEntryPage() {
     const [pincode, setPincode] = useState("");
     const [contactPerson, setContactPerson] = useState("");
     const [contactNumber, setContactNumber] = useState("");
+    const [customerName, setCustomerName] = useState("");
+    const [purpose, setPurpose] = useState("");
     const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
     const [entryDate, setEntryDate] = useState(new Date().toISOString().split("T")[0]);
 
@@ -46,36 +43,41 @@ export default function NewEntryPage() {
         setCoordinates({ lat: data.lat, lng: data.lng });
     };
 
-    async function clientAction(formData) {
+    async function handleSubmit(e) {
+        e.preventDefault();
+
         if (isSubmitting.current) return;
+
+        if (contactNumber.length !== 10) {
+            toast.error("Contact number must be exactly 10 digits");
+            return;
+        }
+
         isSubmitting.current = true;
         setLoading(true);
 
+        const formData = new FormData();
         formData.append("entryDate", entryDate);
-
-        // Append controlled inputs
-        formData.set("customerAddress", customerAddress);
+        formData.append("customerName", customerName);
+        formData.append("customerAddress", customerAddress);
         formData.append("district", district);
         formData.append("state", state);
         formData.append("pincode", pincode);
-        formData.set("contactPerson", contactPerson);
-        formData.set("contactNumber", contactNumber);
-        if (coordinates.lat) {
-            formData.append("lat", coordinates.lat);
-        }
-        if (coordinates.lng) {
-            formData.append("lng", coordinates.lng);
-        }
+        formData.append("contactPerson", contactPerson);
+        formData.append("contactNumber", contactNumber);
+        formData.append("purpose", purpose);
+
+        if (coordinates.lat) formData.append("lat", coordinates.lat);
+        if (coordinates.lng) formData.append("lng", coordinates.lng);
 
         const res = await createEntry(formData);
 
         if (res?.error) {
             isSubmitting.current = false;
-            setLoading(false); // Only re-enable on error
+            setLoading(false);
             toast.error(res.error);
         } else {
             toast.success("Entry created!");
-            router.refresh();
             router.push(callbackUrl);
         }
     }
@@ -93,7 +95,7 @@ export default function NewEntryPage() {
                     </Button>
                 </CardHeader>
                 <CardContent className="pt-4 sm:pt-6">
-                    <form action={clientAction}>
+                    <form onSubmit={handleSubmit}>
                         <div className="space-y-4 sm:space-y-5">
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -114,6 +116,8 @@ export default function NewEntryPage() {
                                     <Input
                                         id="customerName"
                                         name="customerName"
+                                        value={customerName}
+                                        onChange={(e) => setCustomerName(e.target.value)}
                                         className="bg-[#1e293b]/80 border-white/10 text-white placeholder:text-gray-500 focus-visible:ring-fuchsia-500/50"
                                         placeholder="e.g. Techser Inc."
                                         required
@@ -184,16 +188,19 @@ export default function NewEntryPage() {
                                         onChange={(e) => setContactPerson(e.target.value)}
                                         className="bg-[#1e293b]/80 border-white/10 text-white placeholder:text-gray-500 focus-visible:ring-fuchsia-500/50"
                                         placeholder="Name of contact"
+                                        required
                                     />
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="contactNumber" className="text-gray-300">Contact Number</Label>
                                     <Input
                                         id="contactNumber"
+                                        type="number"
                                         value={contactNumber}
                                         onChange={(e) => setContactNumber(e.target.value)}
-                                        className="bg-[#1e293b]/80 border-white/10 text-white placeholder:text-gray-500 focus-visible:ring-fuchsia-500/50"
+                                        className="bg-[#1e293b]/80 border-white/10 text-white placeholder:text-gray-500 focus-visible:ring-fuchsia-500/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                         placeholder="Phone number"
+                                        required
                                     />
                                 </div>
                             </div>
@@ -203,6 +210,8 @@ export default function NewEntryPage() {
                                 <Textarea
                                     id="purpose"
                                     name="purpose"
+                                    value={purpose}
+                                    onChange={(e) => setPurpose(e.target.value)}
                                     className="bg-[#1e293b]/80 border-white/10 text-white placeholder:text-gray-500 focus-visible:ring-fuchsia-500/50 min-h-[100px]"
                                     placeholder="Enter visitation details..."
                                     required
@@ -218,13 +227,13 @@ export default function NewEntryPage() {
                                 >
                                     Cancel
                                 </Button>
-                                <Button
+                                <LoadingButton
                                     type="submit"
                                     className="bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 text-white border-0 shadow-lg shadow-fuchsia-500/20 px-8"
-                                    disabled={loading}
+                                    loading={loading}
                                 >
-                                    {loading ? "Saving..." : "Save Entry"}
-                                </Button>
+                                    Save Entry
+                                </LoadingButton>
                             </div>
                         </div>
                     </form>

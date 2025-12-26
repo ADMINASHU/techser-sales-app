@@ -226,7 +226,7 @@ export async function stampIn(entryId, location) {
                 entryData.userName = updatedEntry.userId?.name || session.user.name;
                 entryData.userRegion = updatedEntry.userId?.region || session.user.region;
                 entryData.userBranch = updatedEntry.userId?.branch || session.user.branch;
-                
+
                 await updateEntryInSheet(entryData);
             }
         }
@@ -271,7 +271,7 @@ export async function stampOut(entryId, location) {
                 entryData.userName = updatedEntry.userId?.name || session.user.name;
                 entryData.userRegion = updatedEntry.userId?.region || session.user.region;
                 entryData.userBranch = updatedEntry.userId?.branch || session.user.branch;
-                
+
                 await updateEntryInSheet(entryData);
             }
         }
@@ -373,7 +373,7 @@ export async function fetchEntries({ page = 1, limit = 30, filters = {}, skip: c
 
         // Fetch Entries
         const entries = await Entry.find(query)
-            .sort({ createdAt: 1 }) // Ascending order
+            .sort({ createdAt: -1 }) // Descending order
             .skip(skip)
             .limit(limit)
             .populate("userId", "name email region branch")

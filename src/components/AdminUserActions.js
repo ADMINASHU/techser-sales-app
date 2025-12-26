@@ -11,6 +11,7 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { verifyUser, declineUser, deleteUser } from "@/app/actions/adminActions";
+import { LoadingButton } from "@/components/ui/LoadingButton";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Check, X, Trash2 } from "lucide-react";
@@ -77,17 +78,19 @@ export default function AdminUserActions({ user }) {
             <div className="flex justify-end gap-2">
                 {user.status === "pending" && (
                     <>
-                        <Button size="icon" variant="outline" onClick={() => triggerConfirm("verify", user._id)} disabled={loading} className="text-green-600 hover:text-green-700">
-                            <Check className="h-4 w-4" />
-                        </Button>
-                        <Button size="icon" variant="outline" onClick={() => triggerConfirm("decline", user._id)} disabled={loading} className="text-red-500 hover:text-red-600">
-                            <X className="h-4 w-4" />
-                        </Button>
+                        <>
+                            <LoadingButton size="icon" variant="outline" onClick={() => triggerConfirm("verify", user._id)} loading={loading && pendingAction?.action === 'verify' && pendingAction?.id === user._id} disabled={loading} className="text-green-600 hover:text-green-700">
+                                {!loading && <Check className="h-4 w-4" />}
+                            </LoadingButton>
+                            <LoadingButton size="icon" variant="outline" onClick={() => triggerConfirm("decline", user._id)} loading={loading && pendingAction?.action === 'decline' && pendingAction?.id === user._id} disabled={loading} className="text-red-500 hover:text-red-600">
+                                {!loading && <X className="h-4 w-4" />}
+                            </LoadingButton>
+                        </>
                     </>
                 )}
-                <Button size="icon" variant="ghost" onClick={() => triggerConfirm("delete", user._id)} disabled={loading} className="text-gray-500 hover:text-red-600">
-                    <Trash2 className="h-4 w-4" />
-                </Button>
+                <LoadingButton size="icon" variant="ghost" onClick={() => triggerConfirm("delete", user._id)} loading={loading && pendingAction?.action === 'delete' && pendingAction?.id === user._id} disabled={loading} className="text-gray-500 hover:text-red-600">
+                    {!loading && <Trash2 className="h-4 w-4" />}
+                </LoadingButton>
             </div>
         </>
     );

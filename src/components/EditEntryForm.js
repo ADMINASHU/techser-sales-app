@@ -1,6 +1,7 @@
 "use client";
 
 import { updateEntry } from "@/app/actions/entryActions";
+import { LoadingButton } from "@/components/ui/LoadingButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -208,13 +209,13 @@ export default function EditEntryForm({ entry }) {
                                 >
                                     Cancel
                                 </Button>
-                                <Button
+                                <LoadingButton
                                     type="submit"
                                     className="bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 text-white border-0 shadow-lg shadow-fuchsia-500/20 px-8"
-                                    disabled={loading}
+                                    loading={loading}
                                 >
-                                    {loading ? "Saving..." : "Update Entry"}
-                                </Button>
+                                    Update Entry
+                                </LoadingButton>
                             </div>
                         </div>
                     </form>

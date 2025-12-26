@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useFormStatus } from "react-dom";
 import { authenticate, googleLogin } from "@/app/actions/authActions";
+import { LoadingButton } from "@/components/ui/LoadingButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,13 +16,13 @@ import Image from "next/image";
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <Button
+        <LoadingButton
             type="submit"
             className="w-full h-11 text-base bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 shadow-lg shadow-fuchsia-500/20 border-0"
-            disabled={pending}
+            loading={pending}
         >
-            {pending ? "Signing in..." : "Login →"}
-        </Button>
+            Login →
+        </LoadingButton>
     );
 }
 

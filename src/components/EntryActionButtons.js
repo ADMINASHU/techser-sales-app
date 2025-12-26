@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { stampIn, stampOut } from "@/app/actions/entryActions";
+import { LoadingButton } from "@/components/ui/LoadingButton";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -58,19 +59,19 @@ export default function EntryActionButtons({ entry, role }) {
 
     if (entry.status === "Not Started") {
         return (
-            <Button onClick={() => handleAction("in")} disabled={loading} className="w-full bg-green-600 hover:bg-green-700">
+            <LoadingButton onClick={() => handleAction("in")} loading={loading} className="w-full bg-green-600 hover:bg-green-700">
                 <MapPin className="mr-2 h-4 w-4" />
-                {loading ? "Stamping In..." : "Stamp In"}
-            </Button>
+                Stamp In
+            </LoadingButton>
         );
     }
 
     if (entry.status === "In Process") {
         return (
-            <Button onClick={() => handleAction("out")} disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700">
+            <LoadingButton onClick={() => handleAction("out")} loading={loading} className="w-full bg-blue-600 hover:bg-blue-700">
                 <MapPin className="mr-2 h-4 w-4" />
-                {loading ? "Stamping Out..." : "Stamp Out"}
-            </Button>
+                Stamp Out
+            </LoadingButton>
         );
     }
 

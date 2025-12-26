@@ -1,7 +1,7 @@
 "use client";
 
 import { requestPasswordReset } from "@/app/actions/passwordActions";
-import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/LoadingButton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
@@ -62,13 +62,13 @@ export default function ForgotPasswordPage() {
                         </div>
                     </div>
 
-                    <Button
+                    <LoadingButton
                         type="submit"
-                        disabled={loading}
+                        loading={loading}
                         className="w-full h-11 text-base bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 shadow-lg shadow-fuchsia-500/20 border-0"
                     >
-                        {loading ? "Sending..." : "Send Reset Link"}
-                    </Button>
+                        Send Reset Link
+                    </LoadingButton>
                 </form>
 
                 <div className="mt-6 text-center text-sm">

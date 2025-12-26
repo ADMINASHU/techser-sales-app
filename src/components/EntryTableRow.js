@@ -43,10 +43,10 @@ export default function EntryTableRow({ entry, isAdmin }) {
             </td>
             <td className="px-6 py-4">
                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${entry.status === 'Completed'
-                        ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                        : entry.status === 'In Process'
-                            ? "bg-yellow-500/10 text-yellow-400 border-yellow-500/20"
-                            : "bg-blue-500/10 text-blue-400 border-blue-500/20"
+                    ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                    : entry.status === 'In Process'
+                        ? "bg-yellow-500/10 text-yellow-400 border-yellow-500/20"
+                        : "bg-blue-500/10 text-blue-400 border-blue-500/20"
                     }`}>
                     <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${entry.status === 'Completed' ? "bg-emerald-400" : entry.status === 'In Process' ? "bg-yellow-400" : "bg-blue-400"
                         }`}></span>
@@ -65,18 +65,18 @@ export default function EntryTableRow({ entry, isAdmin }) {
             </td>
             <td className="px-6 py-4 text-right">
                 <div className="flex justify-end items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                    {/* Explicit View Button (optional since row is clickable, but keeps UI clear) */}
+                    {/* Explicit View Button */}
                     <Button
                         variant="ghost"
                         size="sm"
-                        className="h-8 w-8 p-0 rounded-full hover:bg-white/10 hover:text-white opacity-50 group-hover:opacity-100 transition-opacity"
+                        className="h-8 w-8 p-0 rounded-full hover:bg-white/10 hover:text-white opacity-100 lg:opacity-50 lg:group-hover:opacity-100 transition-opacity"
                         onClick={handleRowClick}
                     >
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
                     </Button>
 
                     {!isAdmin && (
-                        <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
                             <DeleteEntryButton entryId={entry._id.toString()} />
                         </div>
                     )}

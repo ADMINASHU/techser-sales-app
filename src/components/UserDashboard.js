@@ -73,6 +73,7 @@ export default function UserDashboard({ totalEntries, completedEntries, recentEn
                                 key={entry._id.toString()}
                                 entry={JSON.parse(JSON.stringify(entry))}
                                 isAdmin={false}
+                                from="dashboard"
                             />
                         ))}
                     </div>
