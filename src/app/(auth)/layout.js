@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 export default function AuthLayout({ children }) {
+        const currentYear = new Date().getFullYear();
     return (
         <div className="min-h-screen w-full flex flex-col bg-[#0b0f19] text-white">
             <div className="flex-1 flex items-center justify-center p-4">
@@ -20,12 +21,12 @@ export default function AuthLayout({ children }) {
                             className="h-5 w-auto object-contain opacity-80"
                             unoptimized
                         />
-                        {/* <span className="font-semibold text-gray-300">Techser</span> */}
-                        {/* <span className="hidden md:inline">•</span> */}
-                        <span>© 2025 All rights reserved.</span>
+                        <span className="hidden md:inline text-gray-600">|</span>
+                        <span>&copy; {currentYear} Techser. All rights reserved.</span>
                     </div>
 
                     <div className="flex items-center gap-6">
+                        <Link href="/releases" className="hover:text-white transition-colors">beta v{process.env.NEXT_PUBLIC_APP_VERSION}</Link>
                         <Link href="/privacy" className="hover:text-gray-300 transition-colors">Privacy Policy</Link>
                         <Link href="/terms" className="hover:text-gray-300 transition-colors">Terms of Service</Link>
                     </div>

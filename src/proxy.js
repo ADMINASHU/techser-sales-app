@@ -18,6 +18,7 @@ export function proxy(req) {
         pathname.startsWith("/reset-password");
 
     const isPublicPage = pathname === "/" ||
+        pathname.startsWith("/releases") ||
         pathname.startsWith("/privacy") ||
         pathname.startsWith("/terms") ||
         pathname.startsWith("/support");
