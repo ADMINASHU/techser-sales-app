@@ -6,6 +6,26 @@ import Entry from "@/models/Entry";
 import User from "@/models/User";
 import Location from "@/models/Location";
 
+// Helper: Calculate distance between two coordinates in km (Haversine formula)
+function calculateDistance(loc1, loc2) {
+    if (!loc1?.lat || !loc1?.lng || !loc2?.lat || !loc2?.lng) return "";
+    
+    const R = 6371; // Radius of the earth in km
+    const dLat = deg2rad(loc2.lat - loc1.lat);
+    const dLon = deg2rad(loc2.lng - loc1.lng);
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(deg2rad(loc1.lat)) * Math.cos(deg2rad(loc2.lat)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const d = R * c; // Distance in km
+    return d.toFixed(2); // Return as string with 2 decimals
+}
+
+function deg2rad(deg) {
+    return deg * (Math.PI / 180);
+}
+
 export async function getReportData({ startDate, endDate, userId, region, branch }) {
     const session = await auth();
     if (!session || session.user.role !== "admin") {
@@ -29,20 +49,31 @@ export async function getReportData({ startDate, endDate, userId, region, branch
 
     const entries = await Entry.find(query).populate("userId", "name email region branch");
 
-    // Format for Excel
-    const data = entries.map(e => ({
-        Date: new Date(e.createdAt).toLocaleDateString(),
-        User: e.userId?.name || "Unknown",
-        // Email: e.userId?.email || "Unknown", // Removed as per request
-        Region: e.userId?.region || e.region || "", // Prioritize User's region
-        Branch: e.userId?.branch || e.branch || "", // Prioritize User's branch
-        Customer: e.customerName,
-        Address: e.customerAddress,
-        Purpose: e.purpose,
-        Status: e.status,
-        StampIn: e.stampIn?.time ? new Date(e.stampIn.time).toLocaleString() : "",
-        StampOut: e.stampOut?.time ? new Date(e.stampOut.time).toLocaleString() : "",
-    }));
+    // Format for Excel - Match Google Sheets column order exactly
+    // Columns: Date | Status | Region | Branch | User Name | Customer Name | 
+    // Customer Address | Contact Person & Number | Purpose | StampIn Time | 
+    // StampOut Time | StampIn Distance | StampOut Distance | ID
+    const data = entries.map(e => {
+        const customerLoc = e.location; // { lat, lng }
+        const stampInLoc = e.stampIn?.location;
+        const stampOutLoc = e.stampOut?.location;
+
+        return {
+            "Date": e.entryDate ? new Date(e.entryDate).toISOString() : new Date(e.createdAt).toISOString(),
+            "Status": e.status || "Not Started",
+            "Region": e.userRegion || e.userId?.region || "",
+            "Branch": e.userBranch || e.userId?.branch || "",
+            "User Name": e.userName || e.userId?.name || "",
+            "Customer Name": e.customerName || "",
+            "Customer Address": e.customerAddress || "",
+            "Contact Person & Number": `${e.contactPerson || ""} ${e.contactNumber || ""}`.trim(),
+            "Purpose": e.purpose || "",
+            "StampIn Time": e.stampIn?.time ? new Date(e.stampIn.time).toISOString() : "",
+            "StampOut Time": e.stampOut?.time ? new Date(e.stampOut.time).toISOString() : "",
+            "StampIn Distance (km)": calculateDistance(customerLoc, stampInLoc),
+            "StampOut Distance (km)": calculateDistance(customerLoc, stampOutLoc)
+        };
+    });
 
     return data;
 }
