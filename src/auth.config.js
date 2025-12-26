@@ -1,4 +1,5 @@
 
+
 export const authConfig = {
     pages: {
         signIn: "/login",
@@ -13,4 +14,5 @@ export const authConfig = {
         },
     },
     secret: process.env.AUTH_SECRET,
+    trustHost: true, // Allow NextAuth to trust proxy headers (required for Vercel)
 };
