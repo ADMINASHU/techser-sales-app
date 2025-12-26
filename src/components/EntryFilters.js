@@ -99,7 +99,7 @@ export default function EntryFilters({ users = [], locations = [], isAdmin, show
     ];
 
     const statuses = ["Not Started", "In Process", "Completed"];
-    const years = Array.from({ length: 5 }, (_, i) => (currentDate.getFullYear() - i).toString());
+    const years = ["2025", "2026", "2027", "2028", "2029", "2030"];
 
     if (!mounted) {
         return (

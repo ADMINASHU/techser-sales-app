@@ -376,6 +376,7 @@ export async function fetchEntries({ page = 1, limit = 30, filters = {}, skip: c
             .sort({ createdAt: -1 }) // Descending order
             .skip(skip)
             .limit(limit)
+            .select("customerName customerAddress district state pincode location contactPerson contactNumber purpose entryDate status createdAt updatedAt userId stampIn stampOut googleSheetRowId")
             .populate("userId", "name email region branch")
             .lean();
 

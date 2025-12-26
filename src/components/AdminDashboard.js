@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import useSWR from "swr";
 import { getReportData, getFilters, getRawEntries, getSystemStats } from "@/app/actions/reportActions";
 import { Button } from "@/components/ui/button";
@@ -63,7 +63,7 @@ export default function AdminDashboard() {
     }, []);
 
     // Derived branches based on selected region
-    const getAvailableBranches = () => {
+    const availableBranches = useMemo(() => {
         if (selectedRegion === "all") {
             // Flatten all branches
             const allBranches = new Set();
@@ -75,9 +75,7 @@ export default function AdminDashboard() {
             const region = filters.locations.find(l => l.name === selectedRegion);
             return region ? region.branches.sort() : [];
         }
-    };
-
-    const availableBranches = getAvailableBranches();
+    }, [selectedRegion, filters.locations]);
 
     // Reset branch when region changes if current branch is not valid for new region
     useEffect(() => {
@@ -105,7 +103,7 @@ export default function AdminDashboard() {
         { value: "11", label: "December" },
     ];
 
-    const years = Array.from({ length: 5 }, (_, i) => (currentDate.getFullYear() - i).toString());
+    const years = ["2025", "2026", "2027", "2028", "2029", "2030"];
 
     // Compute Date Range from Month/Year - Needed for Download logic
     const getDateRange = useCallback(() => {
