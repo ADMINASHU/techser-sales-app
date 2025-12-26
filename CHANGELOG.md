@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.2.0](https://github.com/ADMINASHU/techser-sales-app/compare/v0.1.1...v0.2.0) (2025-12-26)
+
+
+### ⚠ BREAKING CHANGES
+
+* update footer version display
+
+### Features
+
+* update footer version display ([03343e5](https://github.com/ADMINASHU/techser-sales-app/commit/03343e5da9785f42a6132cd54acf608834508608))
+
 ### 0.1.1 (2025-12-26)
 
 
