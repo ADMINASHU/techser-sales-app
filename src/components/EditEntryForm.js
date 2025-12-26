@@ -53,8 +53,8 @@ export default function EditEntryForm({ entry }) {
         formData.append("district", district);
         formData.append("state", state);
         formData.append("pincode", pincode);
-        formData.append("contactPerson", contactPerson);
-        formData.append("contactNumber", contactNumber);
+        formData.set("contactPerson", contactPerson);
+        formData.set("contactNumber", contactNumber);
         formData.set("purpose", purpose);
         if (coordinates.lat) formData.append("lat", coordinates.lat);
         if (coordinates.lng) formData.append("lng", coordinates.lng);

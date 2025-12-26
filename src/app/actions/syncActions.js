@@ -3,7 +3,7 @@
 import { auth } from "@/auth";
 import dbConnect from "@/lib/db";
 import Entry from "@/models/Entry";
-import { appendEntryToSheet } from "@/lib/googleSheets";
+import { appendEntryToSheet, clearSheet } from "@/lib/googleSheets";
 
 export async function syncOldEntries() {
     const session = await auth();
@@ -14,6 +14,9 @@ export async function syncOldEntries() {
     try {
         await dbConnect();
         
+        // 1. Clear Sheet first
+        await clearSheet();
+
         // Fetch all entries with populated user details
         const entries = await Entry.find({})
             .sort({ createdAt: 1 }) // Oldest first

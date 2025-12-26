@@ -58,8 +58,8 @@ export default function NewEntryPage() {
         formData.append("district", district);
         formData.append("state", state);
         formData.append("pincode", pincode);
-        formData.append("contactPerson", contactPerson);
-        formData.append("contactNumber", contactNumber);
+        formData.set("contactPerson", contactPerson);
+        formData.set("contactNumber", contactNumber);
         if (coordinates.lat) {
             formData.append("lat", coordinates.lat);
         }
@@ -180,7 +180,6 @@ export default function NewEntryPage() {
                                     <Label htmlFor="contactPerson" className="text-gray-300">Contact Person</Label>
                                     <Input
                                         id="contactPerson"
-                                        name="contactPerson"
                                         value={contactPerson}
                                         onChange={(e) => setContactPerson(e.target.value)}
                                         className="bg-[#1e293b]/80 border-white/10 text-white placeholder:text-gray-500 focus-visible:ring-fuchsia-500/50"
@@ -191,7 +190,6 @@ export default function NewEntryPage() {
                                     <Label htmlFor="contactNumber" className="text-gray-300">Contact Number</Label>
                                     <Input
                                         id="contactNumber"
-                                        name="contactNumber"
                                         value={contactNumber}
                                         onChange={(e) => setContactNumber(e.target.value)}
                                         className="bg-[#1e293b]/80 border-white/10 text-white placeholder:text-gray-500 focus-visible:ring-fuchsia-500/50"

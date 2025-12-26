@@ -373,7 +373,7 @@ export async function fetchEntries({ page = 1, limit = 30, filters = {}, skip: c
 
         // Fetch Entries
         const entries = await Entry.find(query)
-            .sort({ createdAt: -1 })
+            .sort({ createdAt: 1 }) // Ascending order
             .skip(skip)
             .limit(limit)
             .populate("userId", "name email region branch")

@@ -169,3 +169,28 @@ export async function updateEntryInSheet(entry) {
         return null;
     }
 }
+
+export async function clearSheet() {
+    const auth = await getAuth();
+    if (!auth) return null;
+
+    const sheets = google.sheets({ version: "v4", auth });
+    const spreadsheetId = process.env.GOOGLE_SHEET_ID;
+
+    if (!spreadsheetId) return null;
+
+    try {
+        // Clear everything starting from A2 (keep headers)
+        const range = "Entries!A2:N";
+        
+        const response = await sheets.spreadsheets.values.clear({
+            spreadsheetId,
+            range,
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error("Sheet Clear Error", error);
+        return null;
+    }
+}
