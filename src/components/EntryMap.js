@@ -123,7 +123,7 @@ function MapInterface({ location, destinationName, stampInLocation, stampOutLoca
 
     return (
         <div className="space-y-3 h-full flex flex-col">
-            <div className={cn("rounded-md overflow-hidden relative border h-[300px] w-full flex-grow", className)}>
+            <div className={cn("rounded-md overflow-hidden relative border h-[300px] w-full grow", className)}>
                 {/* Distance Legend Overlay */}
                 {(distances.in !== null || distances.out !== null) && (
                     <div className="absolute bottom-2 left-2 bg-white p-2.5 rounded-md shadow-lg text-xs space-y-2 z-10 border border-gray-200 min-w-[140px]">

@@ -14,7 +14,7 @@ export default function TermsOfService() {
                 </Link>
 
                 <div className="space-y-4">
-                    <h1 className="text-4xl font-bold bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
+                    <h1 className="text-4xl font-bold bg-linear-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
                         Terms of Service
                     </h1>
                     <p className="text-gray-400">Last updated: December 14, 2025</p>

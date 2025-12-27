@@ -18,7 +18,7 @@ function SubmitButton() {
     return (
         <LoadingButton
             type="submit"
-            className="w-full h-11 text-base bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 shadow-lg shadow-fuchsia-500/20 border-0"
+            className="w-full h-11 text-base bg-linear-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 shadow-lg shadow-fuchsia-500/20 border-0"
             loading={pending}
         >
             Login →

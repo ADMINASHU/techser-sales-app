@@ -104,7 +104,7 @@ export default function LocationManager({ initialLocations }) {
             {/* Left Column: Regions List */}
             <div className="glass-panel border-white/5 rounded-xl flex flex-col overflow-hidden shadow-2xl">
                 {/* Header */}
-                <div className="p-4 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+                        <div className="p-4 border-b border-white/5 flex items-center justify-between bg-white/2">
                     <div className="flex items-center gap-2">
                         <Map className="w-5 h-5 text-violet-400" />
                         <h3 className="font-semibold text-white">Regions</h3>
@@ -184,7 +184,7 @@ export default function LocationManager({ initialLocations }) {
                 ) : (
                     <>
                         {/* Header */}
-                        <div className="p-4 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+                                <div className="p-4 border-b border-white/5 flex items-center justify-between bg-white/2">
                             <div className="flex items-center gap-2">
                                 <span className="px-2 py-0.5 rounded text-xs font-medium bg-violet-500/20 text-violet-300 border border-violet-500/20 uppercase tracking-widest">
                                     Region

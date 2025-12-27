@@ -167,7 +167,7 @@ export default function AdminDashboard() {
                     size="sm"
                     onClick={handleDownload}
                     disabled={loading || fetchLoading || statsEntries.length === 0}
-                    className="bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 text-white shadow-lg shadow-fuchsia-500/20 border-0 h-8 text-xs px-3"
+                    className="bg-linear-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 text-white shadow-lg shadow-fuchsia-500/20 border-0 h-8 text-xs px-3"
                 >
                     <Download className="mr-2 h-3.5 w-3.5" />
                     {loading ? "Generating..." : "Export"}

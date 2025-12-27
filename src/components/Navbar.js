@@ -53,7 +53,7 @@ export default function Navbar() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-20">
                     {/* Logo */}
-                    <Link href="/dashboard" className="flex-shrink-0 flex items-center group">
+                    <Link href="/dashboard" className="shrink-0 flex items-center group">
                         <div className="mr-3 transition-transform group-hover:scale-105">
                             <Image
                                 src="/logo.png"
@@ -84,7 +84,7 @@ export default function Navbar() {
                                         )}
                                     >
                                         {pathname === link.href && (
-                                            <div className="absolute inset-0 bg-gradient-to-r from-violet-500/80 to-fuchsia-500/80 rounded-full shadow-lg shadow-fuchsia-500/20 -z-10" />
+                                            <div className="absolute inset-0 bg-linear-to-r from-violet-500/80 to-fuchsia-500/80 rounded-full shadow-lg shadow-fuchsia-500/20 -z-10" />
                                         )}
                                         {link.label}
                                     </Link>

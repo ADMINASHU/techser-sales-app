@@ -258,7 +258,7 @@ export default function EditProfileDialog({ user, trigger }) {
                         <LoadingButton
                             type="submit"
                             loading={loading}
-                            className="bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 text-white border-0 shadow-lg shadow-fuchsia-500/20"
+                            className="bg-linear-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 text-white border-0 shadow-lg shadow-fuchsia-500/20"
                         >
                             Save changes
                         </LoadingButton>

@@ -15,7 +15,7 @@ export default function Support() {
                 </Link>
 
                 <div className="space-y-4">
-                    <h1 className="text-4xl font-bold bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
+                    <h1 className="text-4xl font-bold bg-linear-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
                         Support
                     </h1>
                     <p className="text-gray-400">Need help? We&apos;re here for you.</p>
@@ -52,7 +52,7 @@ export default function Support() {
                                     Chat with our support team on WhatsApp for quick assistance.
                                 </p>
                             </div>
-                            <Button asChild className="w-full bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 border-0">
+                            <Button asChild className="w-full bg-linear-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 border-0">
                                 <a href="https://wa.me/919448992154" target="_blank" rel="noopener noreferrer">
                                     Start Chat with WhatsApp
                                 </a>
