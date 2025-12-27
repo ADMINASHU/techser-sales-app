@@ -8,8 +8,9 @@ import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import UserDashboard from "@/components/UserDashboard";
 import dynamicImport from "next/dynamic";
+import DashboardSkeleton from "@/components/skeletons/DashboardSkeleton";
 const AdminDashboard = dynamicImport(() => import("@/components/AdminDashboard"), {
-    loading: () => <div className="p-8 text-center text-gray-500">Loading Admin Dashboard...</div>,
+    loading: () => <DashboardSkeleton />,
 });
 
 export const dynamic = 'force-dynamic';

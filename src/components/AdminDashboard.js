@@ -11,6 +11,7 @@ import { Download, Loader2, ArrowRight, ShieldCheck, Users, MapPin } from "lucid
 import { toast } from "sonner";
 import EntryCard from "@/components/EntryCard";
 import Link from "next/link";
+import DashboardSkeleton from "@/components/skeletons/DashboardSkeleton";
 
 export default function AdminDashboard() {
     const [filters, setFilters] = useState({ users: [], locations: [] }); // locations: [{name, branches:[]}]
@@ -150,8 +151,10 @@ export default function AdminDashboard() {
         setLoading(false);
     };
 
+
+
     if (filtersLoading) {
-        return <div className="flex items-center justify-center p-8"><Loader2 className="animate-spin h-8 w-8" /></div>;
+        return <DashboardSkeleton />;
     }
 
     // Calculations
