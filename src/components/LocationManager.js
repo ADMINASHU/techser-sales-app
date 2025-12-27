@@ -9,7 +9,12 @@ import { addRegion, removeRegion, addBranch, removeBranch } from "@/app/actions/
 
 export default function LocationManager({ initialLocations }) {
     const [locations, setLocations] = useState(initialLocations);
-    const [selectedRegion, setSelectedRegion] = useState(locations.length > 0 ? locations[0] : null);
+    const [selectedRegionId, setSelectedRegionId] = useState(locations.length > 0 ? locations[0]._id : null);
+
+    // Derived selected region
+    const selectedRegion = locations.find(l => l._id === selectedRegionId) || (locations.length > 0 ? locations[0] : null);
+
+
 
     // Add Mode States
     const [isAddingRegion, setIsAddingRegion] = useState(false);
@@ -20,18 +25,6 @@ export default function LocationManager({ initialLocations }) {
     const [newBranchName, setNewBranchName] = useState("");
 
     const [loading, setLoading] = useState(false);
-
-    // Update selected region when locations change (e.g. after adding a branch)
-    useEffect(() => {
-        if (selectedRegion) {
-            const updated = locations.find(l => l._id === selectedRegion._id);
-            if (updated) setSelectedRegion(updated);
-            else if (locations.length > 0) setSelectedRegion(locations[0]);
-            else setSelectedRegion(null);
-        } else if (locations.length > 0) {
-            setSelectedRegion(locations[0]);
-        }
-    }, [locations]);
 
     const handleAddRegion = async () => {
         if (!newRegionName.trim()) return;

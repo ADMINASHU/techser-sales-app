@@ -18,7 +18,7 @@ export default function Support() {
                     <h1 className="text-4xl font-bold bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
                         Support
                     </h1>
-                    <p className="text-gray-400">Need help? We're here for you.</p>
+                    <p className="text-gray-400">Need help? We&apos;re here for you.</p>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-6">
@@ -30,7 +30,7 @@ export default function Support() {
                             <div>
                                 <h3 className="text-lg font-semibold text-white">Email Support</h3>
                                 <p className="text-sm text-gray-400 mt-1">
-                                    Send us an email and we'll get back to you within 24 hours.
+                                    Send us an email and we&apos;ll get back to you within 24 hours.
                                 </p>
                             </div>
                             <Button asChild variant="outline" className="w-full border-white/10 hover:bg-white/5 text-white">

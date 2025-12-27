@@ -10,22 +10,11 @@ export default function NotificationFeed() {
     const notifButtonRef = useRef(null);
     
     // Safely check if we're inside the provider
-    let useFeedStore = null;
-    let feedClient = null;
-    
-    try {
-        const knockFeed = useKnockFeed();
-        useFeedStore = knockFeed.useFeedStore;
-        feedClient = knockFeed.feedClient;
-    } catch (error) {
-        // Not inside provider - don't render the component
-        console.warn("NotificationFeed: Not inside KnockFeedProvider, skipping render");
-        return null;
-    }
-    
-    if (!useFeedStore) {
-        return null;
-    }
+    // Note: useKnockFeed will throw if not in provider. 
+    // We assume this component is used within KnockFeedProvider.
+    const knockFeed = useKnockFeed();
+    const useFeedStore = knockFeed.useFeedStore;
+    const feedClient = knockFeed.feedClient;
     
     const meta = useFeedStore((state) => state.metadata);
 

@@ -21,21 +21,20 @@ export default function ProfileSetupPage() {
     const [locations, setLocations] = useState([]);
     const [region, setRegion] = useState("");
     const [branch, setBranch] = useState("");
-    const [availableBranches, setAvailableBranches] = useState([]);
+
 
     useEffect(() => {
         getLocations().then(data => setLocations(data));
     }, []);
 
-    useEffect(() => {
-        if (region) {
-            const loc = locations.find(l => l.name === region);
-            setAvailableBranches(loc ? loc.branches.sort() : []);
-            setBranch(""); // Reset branch when region changes
-        } else {
-            setAvailableBranches([]);
-        }
-    }, [region, locations]);
+    // Derived state for branches
+    const availableBranches = locations.find(l => l.name === region)?.branches.sort() || [];
+
+    // Handle region change to reset branch
+    const handleRegionChange = (newRegion) => {
+        setRegion(newRegion);
+        setBranch("");
+    };
 
     async function clientAction(formData) {
         setLoading(true);
@@ -78,7 +77,7 @@ export default function ProfileSetupPage() {
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="flex flex-col space-y-1.5">
                                     <Label htmlFor="region">Region</Label>
-                                    <Select value={region} onValueChange={setRegion} required>
+                                    <Select value={region} onValueChange={handleRegionChange} required>
                                         <SelectTrigger className="w-full">
                                             <SelectValue placeholder="Select Region" />
                                         </SelectTrigger>

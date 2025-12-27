@@ -85,7 +85,7 @@ export default function AdminDashboard() {
                 setSelectedBranch("all");
             }
         }
-    }, [selectedRegion, filters.locations]);
+    }, [selectedRegion, selectedBranch, filters.locations]);
 
 
     const months = [

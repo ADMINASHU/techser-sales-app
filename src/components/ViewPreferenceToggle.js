@@ -1,31 +1,29 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { LayoutList, LayoutGrid } from "lucide-react";
 import { clsx } from "clsx";
-
 import { updateViewPreference } from "@/app/actions/userActions";
 import { useSession } from "next-auth/react";
+import { useState } from "react";
 
-export default function ViewToggle() {
-    const router = useRouter();
-    const pathname = usePathname();
-    const searchParams = useSearchParams();
+export default function ViewPreferenceToggle() {
     const { data: session, update } = useSession();
+    const [loading, setLoading] = useState(false);
     
-    // Priority: URL param > Session Preference > Default "grid"
-    const currentView = searchParams.get("view") || session?.user?.viewPreference || "grid";
+    const currentView = session?.user?.viewPreference || "grid";
 
     const setView = async (view) => {
-        // Optimistic update via URL for immediate feedback
-        const params = new URLSearchParams(searchParams);
-        params.set("view", view);
-        router.replace(`${pathname}?${params.toString()}`);
-
-        // Persist to DB and update session
-        await updateViewPreference(view);
-        await update({ viewPreference: view });
+        if (loading) return;
+        setLoading(true);
+        try {
+            await updateViewPreference(view);
+            await update({ viewPreference: view });
+        } catch (error) {
+            console.error("Failed to update view preference", error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -34,6 +32,7 @@ export default function ViewToggle() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setView("list")}
+                disabled={loading}
                 className={clsx(
                     "h-8 w-8 p-0 rounded-md transition-all",
                     currentView === "list"
@@ -48,6 +47,7 @@ export default function ViewToggle() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setView("grid")}
+                disabled={loading}
                 className={clsx(
                     "h-8 w-8 p-0 rounded-md transition-all",
                     currentView === "grid"

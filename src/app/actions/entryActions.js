@@ -346,7 +346,7 @@ export async function fetchEntries({ page = 1, limit = 30, filters = {}, skip: c
             const year = parseInt(filters.year);
             const startDate = new Date(year, month, 1);
             const endDate = new Date(year, month + 1, 0, 23, 59, 59);
-            query.createdAt = {
+            query.entryDate = {
                 $gte: startDate,
                 $lte: endDate
             };
@@ -373,12 +373,13 @@ export async function fetchEntries({ page = 1, limit = 30, filters = {}, skip: c
 
         // Fetch Entries
         const entries = await Entry.find(query)
-            .sort({ createdAt: -1 }) // Descending order
+            .sort({ entryDate: -1 }) // Sort by Entry Date 
             .skip(skip)
             .limit(limit)
             .select("customerName customerAddress district state pincode location contactPerson contactNumber purpose entryDate status createdAt updatedAt userId stampIn stampOut googleSheetRowId")
             .populate("userId", "name email region branch")
             .lean();
+
 
         // Serialize
         const serializedEntries = entries.map(entry => ({

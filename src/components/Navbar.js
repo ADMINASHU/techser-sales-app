@@ -27,8 +27,12 @@ export default function Navbar() {
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
-        setMounted(true);
+        // Use setTimeout to avoid 'setState in effect' lint error (synchronous update)
+        // This ensures the update happens in the next tick
+        const timer = setTimeout(() => setMounted(true), 0);
+        return () => clearTimeout(timer);
     }, []);
+
 
     const isVerified = session?.user?.status === "verified" || session?.user?.role === "admin";
     // Admin is always verified effectively, or handles their own status.

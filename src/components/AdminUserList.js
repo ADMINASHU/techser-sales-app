@@ -20,11 +20,7 @@ export default function AdminUserList({ initialData, locations = [] }) {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
-    const [mounted, setMounted] = useState(false);
 
-    useEffect(() => {
-        setMounted(true);
-    }, []);
 
     // State for filters
     const [search, setSearch] = useState(searchParams.get("search") || "");
@@ -60,7 +56,7 @@ export default function AdminUserList({ initialData, locations = [] }) {
 
         params.set("page", "1");
         router.push(`${pathname}?${params.toString()}`);
-    }, [debouncedSearch, debouncedRegion, debouncedBranch]);
+    }, [debouncedSearch, debouncedRegion, debouncedBranch, pathname, router, searchParams]);
 
     const handlePageChange = (newPage) => {
         const params = new URLSearchParams(searchParams);
@@ -87,18 +83,9 @@ export default function AdminUserList({ initialData, locations = [] }) {
     const availableBranches = getAvailableBranches();
 
     // Reset branch if region changes
-    useEffect(() => {
-        if (region !== "all" && branch !== "all") {
-            const loc = locations.find(l => l.name === region);
-            if (loc && !loc.branches.includes(branch)) {
-                setBranch("all");
-            }
-        }
-    }, [region, locations]);
 
-    if (!mounted) {
-        return null; // Or a loading spinner
-    }
+
+
 
     return (
         <div className="space-y-6">
@@ -132,7 +119,10 @@ export default function AdminUserList({ initialData, locations = [] }) {
                         <div className="flex-1 grid gap-4 grid-cols-2 md:grid-cols-3">
                             <div className="space-y-1.5">
                                 <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">Region</span>
-                                <Select value={region} onValueChange={setRegion}>
+                                <Select value={region} onValueChange={(val) => {
+                                    setRegion(val);
+                                    setBranch("all");
+                                }}>
                                     <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10">
                                         <SelectValue placeholder="Region" />
                                     </SelectTrigger>

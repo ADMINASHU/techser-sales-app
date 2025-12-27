@@ -2,7 +2,7 @@
 
 import { useLoadScript, GoogleMap, MarkerF } from "@react-google-maps/api";
 import usePlacesAutocomplete, { getGeocode, getLatLng, getZipCode, getDetails } from "use-places-autocomplete";
-import { useMemo, useState, useEffect, useRef } from "react";
+import { useMemo, useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,7 +26,7 @@ export default function LocationPicker({ onLocationSelect }) {
                 <p>{loadError.message}</p>
                 <p className="mt-2 text-xs opacity-80">
                     If you are the developer, check your API key restrictions in Google Cloud Console.
-                    Allow: <code>{window.location.origin}/*</code>
+                    Allow: <code>{window.location.origin}{"/*"}</code>
                 </p>
             </div>
         );
@@ -61,6 +61,57 @@ function MapInterface({ onLocationSelect }) {
     const mapRef = useRef();
     const onLoad = (map) => (mapRef.current = map);
 
+    // Use ref to hold the latest callback to avoid unstable dependencies
+    const onLocationSelectRef = useRef(onLocationSelect);
+    useEffect(() => {
+        onLocationSelectRef.current = onLocationSelect;
+    }, [onLocationSelect]);
+
+    const processAddressComponents = useCallback((result, pos) => {
+        const addressComponents = result.address_components;
+        let district = "";
+        let state = "";
+        let pincode = "";
+        // Simplified address extraction
+        addressComponents.forEach(component => {
+            const types = component.types;
+            if (types.includes("administrative_area_level_2") || types.includes("locality")) {
+                district = component.long_name;
+            }
+            if (types.includes("administrative_area_level_1")) {
+                state = component.long_name;
+            }
+            if (types.includes("postal_code")) {
+                pincode = component.long_name;
+            }
+        });
+
+        setSelectedAddress(result.formatted_address);
+
+        if (onLocationSelectRef.current) {
+            onLocationSelectRef.current({
+                address: result.formatted_address,
+                district,
+                state,
+                pincode,
+                lat: pos.lat,
+                lng: pos.lng
+            });
+        }
+    }, []) // Dependencies removed as we use ref
+
+    const handleReverseGeocode = useCallback(async (pos) => {
+        try {
+            const results = await getGeocode({ location: pos });
+            if (results[0]) {
+                setValue(results[0].formatted_address, false);
+                processAddressComponents(results[0], pos);
+            }
+        } catch (error) {
+            console.error("Geocoding error: ", error);
+        }
+    }, [setValue, processAddressComponents]);
+
     // Initial load - Get current location
     useEffect(() => {
         if (navigator.geolocation) {
@@ -75,12 +126,14 @@ function MapInterface({ onLocationSelect }) {
                     setZoom(15);
                     handleReverseGeocode(pos);
                 },
-                () => {
+                (error) => {
+                    console.log("Geolocation error:", error);
                     // toast.error("Could not fetch location");
-                }
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
             );
         }
-    }, []);
+    }, [handleReverseGeocode]);
 
     const handleSelect = async (address) => {
         setValue(address, false);
@@ -112,51 +165,10 @@ function MapInterface({ onLocationSelect }) {
         handleReverseGeocode(pos);
     };
 
-    const handleReverseGeocode = async (pos) => {
-        try {
-            const results = await getGeocode({ location: pos });
-            if (results[0]) {
-                setValue(results[0].formatted_address, false);
-                processAddressComponents(results[0], pos);
-            }
-        } catch (error) {
-            console.error("Geocoding error: ", error);
-        }
-    };
-
-    const processAddressComponents = (result, pos) => {
-        const addressComponents = result.address_components;
-        let district = "";
-        let state = "";
-        let pincode = "";
-        // Simplified address extraction
-        addressComponents.forEach(component => {
-            const types = component.types;
-            if (types.includes("administrative_area_level_2") || types.includes("locality")) {
-                district = component.long_name;
-            }
-            if (types.includes("administrative_area_level_1")) {
-                state = component.long_name;
-            }
-            if (types.includes("postal_code")) {
-                pincode = component.long_name;
-            }
-        });
-
-        setSelectedAddress(result.formatted_address);
-
-        onLocationSelect({
-            address: result.formatted_address,
-            district,
-            state,
-            pincode,
-            lat: pos.lat,
-            lng: pos.lng
-        });
-    };
 
     const getCurrentLocation = () => {
         if (navigator.geolocation) {
+            toast.info("Fetching your location...");
             navigator.geolocation.getCurrentPosition(
                 (position) => {
                     const pos = {
@@ -167,8 +179,16 @@ function MapInterface({ onLocationSelect }) {
                     setMarkerPosition(pos);
                     setZoom(17);
                     handleReverseGeocode(pos);
-                }
+                    toast.success("Location updated");
+                },
+                (error) => {
+                    console.error("Error fetching location:", error);
+                    toast.error("Could not fetch location. Please ensure permissions are enabled.");
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
             );
+        } else {
+            toast.error("Geolocation is not supported by your browser");
         }
     };
 

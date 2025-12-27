@@ -60,6 +60,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                         status: user.status,
                         region: user.region,
                         branch: user.branch,
+                        viewPreference: user.viewPreference,
                     };
                 } catch (error) {
                     console.error("Auth error:", error);
@@ -75,6 +76,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             if (trigger === "update" && session) {
                 if (session.status) token.status = session.status;
                 if (session.role) token.role = session.role;
+                if (session.viewPreference) token.viewPreference = session.viewPreference;
                 // Add other updateable fields here
             }
 
@@ -107,6 +109,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                         token.status = dbUser.status;
                         token.region = dbUser.region;
                         token.branch = dbUser.branch;
+                        token.viewPreference = dbUser.viewPreference;
                     } catch (error) {
                         console.error("Error in JWT Google callback:", error);
                     }
@@ -117,6 +120,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     token.status = user.status;
                     token.region = user.region;
                     token.branch = user.branch;
+                    token.viewPreference = user.viewPreference;
                 }
             }
             return token;
@@ -128,6 +132,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 session.user.status = token.status;
                 session.user.region = token.region;
                 session.user.branch = token.branch;
+                session.user.viewPreference = token.viewPreference;
                 // Inherit default fields from token/adapter usually, but ensure they are mapped
                 // session.user.name & email usually persist from initial
             }

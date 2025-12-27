@@ -37,37 +37,34 @@ export default function EntryMap({ location, destinationName, stampInLocation, s
 }
 
 function MapInterface({ location, destinationName, stampInLocation, stampOutLocation, className }) {
-    // If no valid location data, show placeholder
-    if (!location?.lat || !location?.lng) {
-        return (
-            <div className={cn("bg-muted/30 rounded-md border border-dashed flex flex-col items-center justify-center text-muted-foreground p-4 h-[200px] w-full", className)}>
-                <MapPin className="w-8 h-8 mb-2 opacity-20" />
-                <p className="text-sm">Location coordinates not available for this entry.</p>
-            </div>
-        );
-    }
+    const destination = useMemo(() => {
+        if (!location?.lat || !location?.lng) return null;
+        return {
+            lat: location.lat,
+            lng: location.lng
+        };
+    }, [location]);
 
-    const destination = useMemo(() => ({
-        lat: location.lat,
-        lng: location.lng
-    }), [location]);
+    const stampIn = useMemo(() => {
+        return stampInLocation?.lat && stampInLocation?.lng ? {
+            lat: stampInLocation.lat,
+            lng: stampInLocation.lng
+        } : null;
+    }, [stampInLocation]);
 
-    const stampIn = useMemo(() => stampInLocation?.lat && stampInLocation?.lng ? {
-        lat: stampInLocation.lat,
-        lng: stampInLocation.lng
-    } : null, [stampInLocation]);
-
-    const stampOut = useMemo(() => stampOutLocation?.lat && stampOutLocation?.lng ? {
-        lat: stampOutLocation.lat,
-        lng: stampOutLocation.lng
-    } : null, [stampOutLocation]);
+    const stampOut = useMemo(() => {
+        return stampOutLocation?.lat && stampOutLocation?.lng ? {
+            lat: stampOutLocation.lat,
+            lng: stampOutLocation.lng
+        } : null;
+    }, [stampOutLocation]);
 
     const [userLocation, setUserLocation] = useState(null);
-    const [mapCenter, setMapCenter] = useState(destination);
+
 
     // Calculate Distances and Radius
     const distances = useMemo(() => {
-        if (!window.google) return { radius: 0, in: null, out: null };
+        if (!window.google || !destination) return { radius: 0, in: null, out: null };
 
         const destLatLng = new window.google.maps.LatLng(destination);
         let maxDist = 0;
@@ -109,6 +106,16 @@ function MapInterface({ location, destinationName, stampInLocation, stampOutLoca
         }
     }, []);
 
+    // If no valid location data, show placeholder
+    if (!destination) {
+        return (
+            <div className={cn("bg-muted/30 rounded-md border border-dashed flex flex-col items-center justify-center text-muted-foreground p-4 h-[200px] w-full", className)}>
+                <MapPin className="w-8 h-8 mb-2 opacity-20" />
+                <p className="text-sm">Location coordinates not available for this entry.</p>
+            </div>
+        );
+    }
+
     const handleGetDirections = () => {
         const url = `https://www.google.com/maps/dir/?api=1&destination=${location.lat},${location.lng}`;
         window.open(url, "_blank");
@@ -143,8 +150,9 @@ function MapInterface({ location, destinationName, stampInLocation, stampOutLoca
                 )}
 
                 <GoogleMap
+                    key={`${destination.lat}-${destination.lng}`}
                     zoom={15}
-                    center={mapCenter}
+                    center={destination}
                     mapContainerClassName="w-full h-full"
                     options={{
                         disableDefaultUI: false,

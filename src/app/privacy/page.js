@@ -25,7 +25,7 @@ export default function PrivacyPolicy() {
                         <section className="space-y-2">
                             <h2 className="text-xl font-semibold text-white">1. Introduction</h2>
                             <p>
-                                Welcome to Techser Sales Management ("we," "our," or "us"). We respect your privacy and are committed to protecting your personal data. This privacy policy will inform you as to how we look after your personal data when you visit our website and tell you about your privacy rights and how the law protects you.
+                                Welcome to Techser Sales Management (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;). We respect your privacy and are committed to protecting your personal data. This privacy policy will inform you as to how we look after your personal data when you visit our website and tell you about your privacy rights and how the law protects you.
                             </p>
                         </section>
 

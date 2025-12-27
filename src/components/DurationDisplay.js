@@ -2,16 +2,11 @@
 
 import { useEffect, useState } from "react";
 
-export default function DurationDisplay({ startTime, endTime, status }) {
+export default function DurationDisplay({ startTime, endTime, status, hideLabel = false }) {
     // If not started, show nothing or placeholder
-    if (status === "Not Started" || !startTime) return null;
+
 
     const [now, setNow] = useState(new Date());
-    const [mounted, setMounted] = useState(false);
-
-    useEffect(() => {
-        setMounted(true);
-    }, []);
 
     useEffect(() => {
         if (status === "In Process") {
@@ -20,10 +15,9 @@ export default function DurationDisplay({ startTime, endTime, status }) {
         }
     }, [status]);
 
-    if (!mounted) return null;
-
     const start = new Date(startTime);
     const end = status === "Completed" && endTime ? new Date(endTime) : now;
+
 
     // If end is before start (sanity check), use start
     const safeEnd = end < start ? start : end;
@@ -42,9 +36,12 @@ export default function DurationDisplay({ startTime, endTime, status }) {
     // Always show seconds if other parts exist, or if seconds > 0, or if total is 0 (fallback)
     if (seconds > 0 || parts.length === 0) parts.push(`${format(seconds)} secs`);
 
+    // If not started, show nothing or placeholder
+    if (status === "Not Started" || !startTime) return null;
+
     return (
-        <span className="text-xs">
-            <span className="font-semibold text-muted-foreground mr-1">Duration:</span>
+        <span className="text-xs" suppressHydrationWarning>
+            {!hideLabel && <span className="font-semibold text-muted-foreground mr-1">Duration:</span>}
             <span className="font-mono">
                 {parts.join(" ")}
             </span>

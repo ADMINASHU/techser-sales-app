@@ -45,8 +45,19 @@ const UserSchema = new mongoose.Schema(
             type: [String], // Array to support multiple devices
             default: [],
         },
+        viewPreference: {
+            type: String,
+            enum: ["grid", "list"],
+            default: "grid",
+        },
     },
     { timestamps: true }
 );
+
+if (process.env.NODE_ENV === "development") {
+    if (mongoose.models.User) {
+        delete mongoose.models.User;
+    }
+}
 
 export default mongoose.models.User || mongoose.model("User", UserSchema);

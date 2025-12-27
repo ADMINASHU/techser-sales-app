@@ -25,11 +25,7 @@ export default function EntryFilters({ users = [], locations = [], isAdmin, show
     const [selectedYear, setSelectedYear] = useState(searchParams.get("year") || currentDate.getFullYear().toString());
 
     const [debouncedSearch] = useDebounce(search, 500);
-    const [mounted, setMounted] = useState(false);
 
-    useEffect(() => {
-        setMounted(true);
-    }, []);
 
     // Derived branches based on selected region
     const availableBranches = selectedRegion === "all"
@@ -37,14 +33,7 @@ export default function EntryFilters({ users = [], locations = [], isAdmin, show
         : (locations.find(l => l.name === selectedRegion)?.branches.sort() || []);
 
     // Reset branch if region changes
-    useEffect(() => {
-        if (selectedRegion !== "all" && selectedBranch !== "all") {
-            const loc = locations.find(l => l.name === selectedRegion);
-            if (loc && !loc.branches.includes(selectedBranch)) {
-                setSelectedBranch("all");
-            }
-        }
-    }, [selectedRegion, locations]);
+
 
     // Update URL when filters change
     useEffect(() => {
@@ -101,13 +90,7 @@ export default function EntryFilters({ users = [], locations = [], isAdmin, show
     const statuses = ["Not Started", "In Process", "Completed"];
     const years = ["2025", "2026", "2027", "2028", "2029", "2030"];
 
-    if (!mounted) {
-        return (
-            <div className="glass-panel border-white/5 mb-8 rounded-xl shadow-2xl p-4">
-                <div className="h-10 bg-white/5 rounded animate-pulse w-full"></div>
-            </div>
-        );
-    }
+
 
     return (
         <div className="glass-panel border-white/5 mb-8 rounded-xl shadow-2xl">
@@ -172,7 +155,10 @@ export default function EntryFilters({ users = [], locations = [], isAdmin, show
 
                                 <div className="space-y-1.5">
                                     <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">Region</span>
-                                    <Select value={selectedRegion} onValueChange={setSelectedRegion}>
+                                    <Select value={selectedRegion} onValueChange={(val) => {
+                                        setSelectedRegion(val);
+                                        setSelectedBranch("all");
+                                    }}>
                                         <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
                                             <SelectValue placeholder="Region" />
                                         </SelectTrigger>

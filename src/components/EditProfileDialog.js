@@ -61,7 +61,7 @@ export default function EditProfileDialog({ user, trigger }) {
         } else {
             setAvailableBranches([]);
         }
-    }, [formData.region, locations]);
+    }, [formData.region, formData.branch, locations]);
 
     // Password State
     const [passwordData, setPasswordData] = useState({
@@ -124,7 +124,7 @@ export default function EditProfileDialog({ user, trigger }) {
                 <DialogHeader className="border-b border-white/5 pb-4">
                     <DialogTitle className="text-white">Edit Profile</DialogTitle>
                     <DialogDescription className="text-gray-400">
-                        Make changes to your profile here. Click save when you're done.
+                        Make changes to your profile here. Click save when you&apos;re done.
                     </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="grid gap-4 py-4">

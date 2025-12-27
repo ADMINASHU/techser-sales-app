@@ -32,14 +32,14 @@ export default function TermsOfService() {
                         <section className="space-y-2">
                             <h2 className="text-xl font-semibold text-white">2. Use License</h2>
                             <p>
-                                Permission is granted to temporarily download one copy of the materials (information or software) on Techser Sales Management's website for personal, non-commercial transitory viewing only. This is the grant of a license, not a transfer of title.
+                                Permission is granted to temporarily download one copy of the materials (information or software) on Techser Sales Management&apos;s website for personal, non-commercial transitory viewing only. This is the grant of a license, not a transfer of title.
                             </p>
                         </section>
 
                         <section className="space-y-2">
                             <h2 className="text-xl font-semibold text-white">3. Disclaimer</h2>
                             <p>
-                                The materials on Techser Sales Management's website are provided on an 'as is' basis. We make no warranties, expressed or implied, and hereby disclaim and negate all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.
+                                The materials on Techser Sales Management&apos;s website are provided on an &apos;as is&apos; basis. We make no warranties, expressed or implied, and hereby disclaim and negate all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.
                             </p>
                         </section>
 

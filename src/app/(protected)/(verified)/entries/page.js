@@ -19,7 +19,8 @@ export default async function EntriesPage({ searchParams }) {
 
     const params = await searchParams;
     const page = parseInt(params.page) || 1;
-    const view = params.view || "grid"; // Default view
+    // Default to URL param -> User Preference -> "grid"
+    const view = params.view || session?.user?.viewPreference || "grid"; 
     const limit = 18; // Default to Desktop limit (18) for initial render
     const skip = (page - 1) * limit;
 
