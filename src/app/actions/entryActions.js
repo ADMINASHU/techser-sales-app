@@ -115,55 +115,15 @@ export async function updateEntry(id, formData) {
 import { updateEntryInSheet } from "@/lib/googleSheets";
 import { triggerNotification } from "@/lib/knock";
 import User from "@/models/User";
-import admin from "@/lib/firebaseAdmin";
+// import admin from "@/lib/firebaseAdmin";
 
 // Helper specifically for Direct Firebase Push (Backend -> FCM -> Device)
+// Firebase Push Validation Removed
+/*
 async function sendFirebasePush(title, body) {
-    try {
-        if (!admin) {
-            console.error("Firebase Admin not initialized, skipping push.");
-            return;
-        }
-
-        // 1. Get all admins with FCM tokens
-        const admins = await User.find({ role: "admin" }).select("fcmTokens");
-
-        // Flatten tokens
-        const tokens = [];
-        admins.forEach(admin => {
-            if (admin.fcmTokens && admin.fcmTokens.length > 0) {
-                tokens.push(...admin.fcmTokens);
-            }
-        });
-
-        if (tokens.length === 0) {
-            console.log("No admin FCM tokens found.");
-            return;
-        }
-
-        // 2. Send Multicast Message (Data-Only for reliable SW handling)
-        console.log(`Sending Push '${title}' to ${tokens.length} devices...`);
-
-        const message = {
-            data: {
-                title: title,
-                body: body,
-            },
-            webpush: {
-                headers: {
-                    Urgency: "high"
-                }
-            },
-            tokens: tokens,
-        };
-
-        const response = await admin.messaging().sendEachForMulticast(message);
-        console.log("FCM Send Response:", response.successCount + " success, " + response.failureCount + " fail");
-
-    } catch (error) {
-        console.error("Firebase Push Error:", error);
-    }
+   // Function removed by request
 }
+*/
 
 // Helper for notifications (Knock for In-App + Firebase for Push)
 async function notifyAdmins(action, entry, actor) {
@@ -192,7 +152,8 @@ async function notifyAdmins(action, entry, actor) {
         const body = `${actor.name} ${action} for ${entry.customerName}`;
 
         // Fire and forget (don't await strictly if we don't want to block)
-        await sendFirebasePush(title, body);
+        // Fire and forget (don't await strictly if we don't want to block)
+        // await sendFirebasePush(title, body); // DISABLED by user request
 
     } catch (error) {
         console.error("Failed to send notification:", error);

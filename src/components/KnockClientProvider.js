@@ -92,7 +92,7 @@ function KnockProviderContent({ children }) {
                 }}
             >
                 {children}
-                <PushNotificationManager />
+                {/* <PushNotificationManager /> DISABLED by user request */}
             </KnockFeedProvider>
         </KnockProvider>
     );

@@ -67,7 +67,7 @@ export default async function EntriesPage({ searchParams }) {
 
     // Fetch Entries with populated User for Admins
     const entries = await Entry.find(query)
-        .sort({ createdAt: -1 }) // Descending order
+        .sort({ entryDate: -1 }) // Descending order
         .skip(skip)
         .limit(limit)
         .populate("userId", "name email region branch");
