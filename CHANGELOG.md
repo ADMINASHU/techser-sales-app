@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.7](https://github.com/ADMINASHU/techser-sales-app/compare/v0.2.6...v0.2.7) (2025-12-27)
+
+
+### Bug Fixes
+
+* remove firebase, resolve duplicate entries and layout duplication ([62eda49](https://github.com/ADMINASHU/techser-sales-app/commit/62eda492b8a68f0b47c0dded9d4640fab5081339))
+
 ### [0.2.6](https://github.com/ADMINASHU/techser-sales-app/compare/v0.2.5...v0.2.6) (2025-12-27)
 
 
