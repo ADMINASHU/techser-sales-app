@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.8](https://github.com/ADMINASHU/techser-sales-app/compare/v0.2.7...v0.2.8) (2025-12-27)
+
+
+### Performance Improvements
+
+* implement streaming for entries and skeleton loaders for dashboard ([d14c9a5](https://github.com/ADMINASHU/techser-sales-app/commit/d14c9a5e86c17d4e7798faa04167265f75c255f5))
+
 ### [0.2.7](https://github.com/ADMINASHU/techser-sales-app/compare/v0.2.6...v0.2.7) (2025-12-27)
 
 
