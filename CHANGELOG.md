@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.6](https://github.com/ADMINASHU/techser-sales-app/compare/v0.2.5...v0.2.6) (2025-12-27)
+
+
+### Bug Fixes
+
+* resolve lint errors, fix LocationPicker input, fix Navbar hydration, and add Knock provider ([a5d3744](https://github.com/ADMINASHU/techser-sales-app/commit/a5d374479c33f2942ade835e4887b0999a932199))
+
 ### [0.2.5](https://github.com/ADMINASHU/techser-sales-app/compare/v0.2.4...v0.2.5) (2025-12-26)
 
 
