@@ -19,7 +19,7 @@ export async function verifyUser(userId) {
     try {
         const adminSession = await checkAdmin();
         await dbConnect();
-        
+
         // Atomically update ONLY if not already verified
         // This prevents race conditions where parallel requests both see "pending"
         const user = await User.findOneAndUpdate(
@@ -33,7 +33,7 @@ export async function verifyUser(userId) {
             console.log(`[Verify] User ${userId} already verified or not found. Skipping notification.`);
             return { success: true };
         }
-        
+
         revalidatePath("/users");
 
         // Notify User
@@ -81,7 +81,7 @@ export async function deleteUser(userId) {
     try {
         const adminSession = await checkAdmin();
         await dbConnect();
-        
+
         const user = await User.findById(userId);
         if (!user) return { error: "User not found" };
 
@@ -153,13 +153,14 @@ export async function getUsers({ page = 1, limit = 10, search = "", region = "",
 
         const skip = (page - 1) * limit;
 
-        const users = await User.find(query)
-            .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(limit)
-            .lean(); // Use lean for better performance and plain objects
-
-        const totalUsers = await User.countDocuments(query);
+        const [users, totalUsers] = await Promise.all([
+            User.find(query)
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit)
+                .lean(),
+            User.countDocuments(query)
+        ]);
         const totalPages = Math.ceil(totalUsers / limit);
 
         // Convert _id and dates to string to be passed to client components

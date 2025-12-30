@@ -12,8 +12,10 @@ export default async function UsersPage(props) {
     const region = searchParams?.region || "";
     const branch = searchParams?.branch || "";
 
-    const data = await getUsers({ page, search, region, branch });
-    const locations = await getLocations();
+    const [data, locations] = await Promise.all([
+        getUsers({ page, search, region, branch }),
+        getLocations()
+    ]);
 
     if (data.error) {
         return <div className="p-8 text-red-500">Error loading users: {data.error}</div>;

@@ -64,12 +64,12 @@ function KnockProviderContent({ children }) {
     const apiKey = process.env.NEXT_PUBLIC_KNOCK_PUBLIC_API_KEY;
     const feedId = process.env.NEXT_PUBLIC_KNOCK_FEED_ID;
 
-    console.log("Knock Config Check:", {
-        hasApiKey: !!apiKey,
-        apiKeyPrefix: apiKey?.substring(0, 8),
-        hasFeedId: !!feedId,
-        userId: session.user.id
-    });
+    // console.log("Knock Config Check:", {
+    //     hasApiKey: !!apiKey,
+    //     apiKeyPrefix: apiKey?.substring(0, 8),
+    //     hasFeedId: !!feedId,
+    //     userId: session.user.id
+    // });
 
     // Only render providers if we have the required configuration
     if (!apiKey || !feedId) {

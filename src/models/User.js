@@ -54,6 +54,9 @@ const UserSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
+// Add index for faster sorting by creation date
+UserSchema.index({ createdAt: -1 });
+
 if (process.env.NODE_ENV === "development") {
     if (mongoose.models.User) {
         delete mongoose.models.User;
