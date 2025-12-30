@@ -63,7 +63,6 @@ export default function Navbar() {
                                 sizes="100vw"
                                 className="h-10 w-auto object-contain"
                                 priority
-                                unoptimized
                             />
                         </div>
                     </Link>
@@ -117,12 +116,12 @@ export default function Navbar() {
                                     <div className="flex items-center gap-3 p-3 bg-white/5 rounded-lg mb-2 border border-white/5">
                                         <Avatar className="h-10 w-10 border border-white/10">
                                             <AvatarImage src={session?.user?.image} />
-                                        <AvatarFallback className="bg-linear-to-br from-violet-500 to-fuchsia-500 text-white font-bold">
-                                            {session?.user?.name
-                                                ? session.user.name.split(" ").map(n => n[0]).join("").slice(0, 2)
-                                                : "U"
-                                            }
-                                        </AvatarFallback>
+                                            <AvatarFallback className="bg-linear-to-br from-violet-500 to-fuchsia-500 text-white font-bold">
+                                                {session?.user?.name
+                                                    ? session.user.name.split(" ").map(n => n[0]).join("").slice(0, 2)
+                                                    : "U"
+                                                }
+                                            </AvatarFallback>
                                         </Avatar>
                                         <div className="flex flex-col space-y-0.5">
                                             <p className="text-sm font-semibold text-white">{session?.user?.name}</p>
@@ -156,11 +155,6 @@ export default function Navbar() {
                         </Button>
                     </div>
                 </div>
-
-                {/* Debug Panel - Temporary - Removed */}
-                {/* <div className="hidden md:block absolute top-20 right-4 w-64 z-50">
-                    <PushDebug />
-                </div> */}
 
                 {/* Mobile Menu */}
                 {isOpen && (

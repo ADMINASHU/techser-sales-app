@@ -19,7 +19,7 @@ function PushNotificationManager() {
                     return;
                 }
 
-                console.log("Requesting notification permission...");
+                // console.log("Requesting notification permission...");
                 const permission = await Notification.requestPermission();
                 if (permission !== "granted") {
                     console.warn("Notification permission denied");
@@ -27,14 +27,14 @@ function PushNotificationManager() {
                     return;
                 }
 
-                console.log("Permission granted. Registering service worker...");
+                // console.log("Permission granted. Registering service worker...");
                 const registration = await navigator.serviceWorker.register("/service-worker.js");
-                console.log("Service Worker registered:", registration);
+                // console.log("Service Worker registered:", registration);
 
                 if (knock?.push) {
-                    console.log("Registering push with Knock channel:", channelId);
+                    // console.log("Registering push with Knock channel:", channelId);
                     await knock.push.register(channelId); // Check if this requires specific options
-                    console.log("Knock Push Registered Successfully");
+                    // console.log("Knock Push Registered Successfully");
                     // toast.success("Push Notifications Enabled!"); // Too noisy for every login
                 }
             } catch (e) {

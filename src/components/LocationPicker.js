@@ -127,7 +127,7 @@ function MapInterface({ onLocationSelect }) {
                     handleReverseGeocode(pos);
                 },
                 (error) => {
-                    console.log("Geolocation error:", error);
+                    // console.log("Geolocation error:", error);
                     // toast.error("Could not fetch location");
                 },
                 { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }

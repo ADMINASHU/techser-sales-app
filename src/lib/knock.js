@@ -15,7 +15,7 @@ export async function triggerNotification(key, { recipients, actor, data }) {
             actor,
             data,
         });
-        console.log(`[Knock] Notification '${key}' triggered for ${recipients.length} recipients.`);
+        // console.log(`[Knock] Notification '${key}' triggered for ${recipients.length} recipients.`);
         return { success: true };
     } catch (error) {
         console.error("[Knock] Error triggering workflow:", error);

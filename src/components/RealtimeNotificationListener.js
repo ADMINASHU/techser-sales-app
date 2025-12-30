@@ -22,12 +22,12 @@ export default function RealtimeNotificationListener() {
         if (!feedClient || isAuthPage) return;
 
         const onNotificationsReceived = async ({ items }) => {
-            console.log("[RealtimeListener] New items received:", items);
+            // console.log("[RealtimeListener] New items received:", items);
 
             for (const item of items) {
                 // Deduplication Logic
                 if (processedIds.has(item.id)) {
-                    console.log(`[RealtimeListener] Skipping duplicate notification: ${item.id}`);
+                    // console.log(`[RealtimeListener] Skipping duplicate notification: ${item.id}`);
                     continue;
                 }
 
@@ -48,7 +48,7 @@ export default function RealtimeNotificationListener() {
 
                 // 1. Check for Deletion (Immediate Action)
                 if (workflowKey === "user-deleted" || notificationContent.includes("account has been removed")) {
-                    console.log("[RealtimeListener] User account deleted. Logging out...");
+                    // console.log("[RealtimeListener] User account deleted. Logging out...");
                     toast.error("Your account has been removed. Logging out...", { duration: 2000 });
 
                     setTimeout(async () => {
@@ -68,7 +68,7 @@ export default function RealtimeNotificationListener() {
                     notificationContent.includes("account has been declined");
 
                 if (isCriticalUpdate) {
-                    console.log(`[RealtimeListener] Critical update: ${workflowKey}`);
+                    // console.log(`[RealtimeListener] Critical update: ${workflowKey}`);
                     try {
                         const freshUser = await getCurrentUser();
                         if (freshUser) {
