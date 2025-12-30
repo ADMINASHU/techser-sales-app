@@ -90,6 +90,7 @@ export default function ProfileSetupPage() {
 
     async function handleSubmit(e) {
         e.preventDefault();
+        if (loading) return;
         setLoading(true);
 
         const formData = new FormData();

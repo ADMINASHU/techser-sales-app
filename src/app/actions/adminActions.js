@@ -17,18 +17,32 @@ import { triggerNotification } from "@/lib/knock";
 
 export async function verifyUser(userId) {
     try {
-        const session = await checkAdmin();
+        const adminSession = await checkAdmin();
         await dbConnect();
-        const user = await User.findByIdAndUpdate(userId, { status: "verified" });
+        
+        // Atomically update ONLY if not already verified
+        // This prevents race conditions where parallel requests both see "pending"
+        const user = await User.findOneAndUpdate(
+            { _id: userId, status: { $ne: "verified" } },
+            { status: "verified" },
+            { new: true }
+        );
+
+        // If no user found or user was already verified, user will be null
+        if (!user) {
+            console.log(`[Verify] User ${userId} already verified or not found. Skipping notification.`);
+            return { success: true };
+        }
+        
         revalidatePath("/users");
 
         // Notify User
         await triggerNotification("user-verified", {
-            actor: { id: session.user.id, name: session.user.name || "Admin", email: session.user.email },
+            actor: { id: adminSession.user.id, name: adminSession.user.name || "Admin", email: adminSession.user.email },
             recipients: [{ id: userId, name: user.name, email: user.email }],
             data: {
                 name: user.name,
-                admin_name: session.user.name || "Admin",
+                admin_name: adminSession.user.name || "Admin",
             },
         });
 

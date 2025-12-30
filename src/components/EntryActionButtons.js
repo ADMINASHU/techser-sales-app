@@ -16,6 +16,7 @@ export default function EntryActionButtons({ entry, role }) {
     if (role === 'admin') return null;
 
     const handleAction = async (actionType) => {
+        if (loading) return;
         setLoading(true);
 
         if (!navigator.geolocation) {

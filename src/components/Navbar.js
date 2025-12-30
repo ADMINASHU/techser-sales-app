@@ -68,10 +68,9 @@ export default function Navbar() {
                         </div>
                     </Link>
 
-                    {/* Desktop Center Pill Navigation */}
                     <div className="hidden md:flex items-center justify-center">
                         <div className="bg-white/5 border border-white/5 rounded-full px-1.5 py-1.5 flex space-x-1 shadow-inner backdrop-blur-md">
-                            {isVerified &&
+                            {session?.user &&
                                 links.map((link) => (
                                     <Link
                                         key={link.href}
@@ -84,7 +83,7 @@ export default function Navbar() {
                                         )}
                                     >
                                         {pathname === link.href && (
-                                            <div className="absolute inset-0 bg-linear-to-r from-violet-500/80 to-fuchsia-500/80 rounded-full shadow-lg shadow-fuchsia-500/20 -z-10" />
+                                            <div className="absolute inset-x-0 bottom-0 top-0 bg-linear-to-r from-violet-500/80 to-fuchsia-500/80 rounded-full shadow-lg shadow-fuchsia-500/20 -z-10" />
                                         )}
                                         {link.label}
                                     </Link>
@@ -167,7 +166,7 @@ export default function Navbar() {
                 {isOpen && (
                     <div className="sm:hidden bg-[#0f1117] border-b border-white/10 absolute left-0 right-0 top-20 shadow-2xl z-50 p-4 border-t-0 rounded-b-2xl animate-in slide-in-from-top-2 duration-300">
                         <div className="space-y-1">
-                            {isVerified &&
+                            {session?.user &&
                                 links.map((link) => (
                                     <Link
                                         key={link.href}
@@ -192,7 +191,12 @@ export default function Navbar() {
                             >
                                 <Avatar className="h-10 w-10 ring-2 ring-white/10">
                                     <AvatarImage src={session?.user?.image} />
-                                    <AvatarFallback>{session?.user?.name?.charAt(0)}</AvatarFallback>
+                                    <AvatarFallback className="bg-linear-to-br from-violet-500 to-fuchsia-500 text-white font-bold">
+                                        {session?.user?.name
+                                            ? session.user.name.split(" ").map(n => n[0]).join("").slice(0, 2)
+                                            : "U"
+                                        }
+                                    </AvatarFallback>
                                 </Avatar>
                                 <div>
                                     <div className="font-medium text-white">{session?.user?.name}</div>

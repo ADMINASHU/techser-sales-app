@@ -25,6 +25,7 @@ export default function AdminUserCard({ user }) {
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
     const handleAction = async (e, actionFn, ...args) => {
+        if (isLoading) return; // Immediate guard
         if (e && e.stopPropagation) e.stopPropagation();
         setIsLoading(true);
         try {

@@ -39,6 +39,11 @@ export async function updateProfile(formData) {
 
     try {
         await dbConnect();
+        const user = await User.findById(session.user.id);
+        if (!user) return { error: "User not found" };
+
+        const isFirstTimeSetup = user.status === "pending" && (!user.contactNumber || !user.address);
+
         await User.findByIdAndUpdate(session.user.id, {
             contactNumber,
             address,
@@ -47,20 +52,23 @@ export async function updateProfile(formData) {
             designation,
         });
 
-        // Trigger Verification Request Notification to Admins
-        // Fetch admins to notify
-        const admins = await User.find({ role: "admin" }).select("_id email name");
-        const adminIds = admins.map(a => a._id.toString());
+        // Trigger Verification Request Notification to Admins ONLY if it's the first relevant setup
+        // or if they are still pending verification.
+        if (user.status === "pending") {
+            // Fetch admins to notify
+            const admins = await User.find({ role: "admin" }).select("_id email name");
+            const adminIds = admins.map(a => a._id.toString());
 
-        if (adminIds.length > 0) {
-            await triggerNotification("verification-request", {
-                actor: { id: session.user.id, name: session.user.name, email: session.user.email },
-                recipients: adminIds,
-                data: {
-                    name: session.user.name,
-                    email: session.user.email,
-                }
-            });
+            if (adminIds.length > 0) {
+                await triggerNotification("verification-request", {
+                    actor: { id: session.user.id, name: session.user.name, email: session.user.email },
+                    recipients: adminIds,
+                    data: {
+                        name: session.user.name,
+                        email: session.user.email,
+                    }
+                });
+            }
         }
 
         revalidatePath("/profile");
