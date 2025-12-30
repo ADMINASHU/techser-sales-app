@@ -12,7 +12,7 @@ import { User, Mail, MapPin, Phone, Shield, Briefcase, Activity, Check, X, Loade
 import { verifyUser, declineUser, updateUserRole } from "@/app/actions/adminActions";
 import { toast } from "sonner";
 
-export default function UserProfileModal({ user, open, onOpenChange }) {
+export default function UserProfileModal({ user, open, onOpenChange, showActions = true }) {
     const [isLoading, setIsLoading] = useState(false);
 
     if (!user) return null;
@@ -78,19 +78,19 @@ export default function UserProfileModal({ user, open, onOpenChange }) {
                                     {user.designation}
                                 </div>
                             )}
-                            <p className="text-xs text-gray-500 uppercase tracking-widest pt-2 pb-3">
-                                {user.role}
-                            </p>
-
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-7 text-xs bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white border border-white/5"
-                                onClick={() => handleAction(updateUserRole, user._id, user.role === "admin" ? "user" : "admin")}
-                                disabled={isLoading}
-                            >
-                                Make {user.role === "admin" ? "User" : "Admin"}
-                            </Button>
+                            {showActions && (
+                                <div className="pt-2">
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-7 text-xs bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white border border-white/5"
+                                        onClick={() => handleAction(updateUserRole, user._id, user.role === "admin" ? "user" : "admin")}
+                                        disabled={isLoading}
+                                    >
+                                        Make {user.role === "admin" ? "User" : "Admin"}
+                                    </Button>
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -106,7 +106,25 @@ export default function UserProfileModal({ user, open, onOpenChange }) {
 
                         <div className="p-6 flex-1 overflow-y-auto">
                             <div className="grid grid-cols-2 gap-x-6 gap-y-6">
-                                <DetailItem label="Email Address" value={user.email} icon={Mail} fullWidth />
+                                <DetailItem label="Email Address" value={user.email} icon={Mail} />
+
+                                <div className="col-span-1 space-y-1.5">
+                                    <div className="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                        <Shield className="w-3.5 h-3.5" /> Account Type
+                                    </div>
+                                    <div className="pl-5.5">
+                                        <Badge 
+                                            variant="outline"
+                                            className={`uppercase tracking-wider text-[10px] px-2 py-0.5 border shadow-sm ${
+                                                user.role === "admin" 
+                                                ? "bg-violet-500/20 text-violet-300 border-violet-500/30" 
+                                                : "bg-blue-500/20 text-blue-300 border-blue-500/30"
+                                            }`}
+                                        >
+                                            {user.role}
+                                        </Badge>
+                                    </div>
+                                </div>
 
                                 <div className="col-span-1 space-y-1.5">
                                     <div className="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
@@ -115,15 +133,15 @@ export default function UserProfileModal({ user, open, onOpenChange }) {
                                     <div className="pl-5.5">
                                         <Badge
                                             variant="outline"
-                                            className={
+                                            className={`uppercase tracking-wider text-[10px] px-2 py-0.5 border shadow-sm ${
                                                 user.status === "verified"
-                                                    ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                                                    ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
                                                     : user.status === "declined"
-                                                        ? "bg-red-500/10 text-red-400 border-red-500/20"
-                                                        : "bg-yellow-500/10 text-yellow-400 border-yellow-500/20"
-                                            }
+                                                        ? "bg-red-500/20 text-red-400 border-red-500/30"
+                                                        : "bg-yellow-400/20 text-yellow-400 border-yellow-400/30"
+                                            }`}
                                         >
-                                            {user.status}
+                                            {user.status || "Pending"}
                                         </Badge>
                                     </div>
                                 </div>
@@ -145,29 +163,31 @@ export default function UserProfileModal({ user, open, onOpenChange }) {
                         </div>
 
                         {/* Action Buttons Footer */}
-                        <div className="p-6 pt-2 mt-auto border-t border-white/5 flex gap-3 justify-end">
-                            {(user.status === "pending" || user.status === "declined") && (
-                                <Button
-                                    onClick={() => handleAction(verifyUser, user._id)}
-                                    disabled={isLoading}
-                                    className="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20"
-                                >
-                                    {isLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Check className="w-4 h-4 mr-2" />}
-                                    Verify User
-                                </Button>
-                            )}
+                        {showActions && (
+                            <div className="p-6 pt-2 mt-auto border-t border-white/5 flex gap-3 justify-end">
+                                {(user.status === "pending" || user.status === "declined") && (
+                                    <Button
+                                        onClick={() => handleAction(verifyUser, user._id)}
+                                        disabled={isLoading}
+                                        className="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20"
+                                    >
+                                        {isLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Check className="w-4 h-4 mr-2" />}
+                                        Verify User
+                                    </Button>
+                                )}
 
-                            {(user.status === "pending" || user.status === "verified") && (
-                                <Button
-                                    onClick={() => handleAction(declineUser, user._id)}
-                                    disabled={isLoading}
-                                    className="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20"
-                                >
-                                    {isLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <X className="w-4 h-4 mr-2" />}
-                                    Decline User
-                                </Button>
-                            )}
-                        </div>
+                                {(user.status === "pending" || user.status === "verified") && (
+                                    <Button
+                                        onClick={() => handleAction(declineUser, user._id)}
+                                        disabled={isLoading}
+                                        className="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20"
+                                    >
+                                        {isLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <X className="w-4 h-4 mr-2" />}
+                                        Decline User
+                                    </Button>
+                                )}
+                            </div>
+                        )}
                     </div>
 
                 </div>

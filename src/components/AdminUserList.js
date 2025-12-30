@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import AdminUserRow from "./AdminUserRow";
+import AdminUserCard from "./AdminUserCard";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function AdminUserList({ initialData, locations = [] }) {
@@ -168,7 +169,8 @@ export default function AdminUserList({ initialData, locations = [] }) {
                 </div>
             </div>
 
-            <div className="rounded-xl overflow-hidden glass-panel border border-white/5 shadow-2xl">
+            {/* Desktop View */}
+            <div className="hidden md:block rounded-xl overflow-hidden glass-panel border border-white/5 shadow-2xl">
                 <Table>
                     <TableHeader className="bg-white/5 border-b border-white/5">
                         <TableRow className="hover:bg-transparent border-white/5">
@@ -200,6 +202,19 @@ export default function AdminUserList({ initialData, locations = [] }) {
                         )}
                     </TableBody>
                 </Table>
+            </div>
+
+            {/* Mobile View */}
+            <div className="md:hidden space-y-4">
+                {initialData.users.length === 0 ? (
+                    <div className="text-center py-12 glass-panel rounded-xl border border-white/5">
+                        <p className="text-gray-400">No users found.</p>
+                    </div>
+                ) : (
+                    initialData.users.map((user) => (
+                        <AdminUserCard key={user._id} user={user} />
+                    ))
+                )}
             </div>
 
             <div className="flex items-center justify-end space-x-2 pt-2">

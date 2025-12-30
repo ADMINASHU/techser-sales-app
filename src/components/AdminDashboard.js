@@ -36,12 +36,25 @@ export default function AdminDashboard() {
 
     // SWR: Main Stats
     const statsFetcher = useCallback(async ([_, u, r, b, m, y]) => {
-        const year = parseInt(y);
-        const month = parseInt(m);
-        if (isNaN(year) || isNaN(month)) return [];
-
-        const startDate = new Date(year, month, 1);
-        const endDate = new Date(year, month + 1, 0, 23, 59, 59);
+        let startDate, endDate;
+        
+        if (y !== "all") {
+            const year = parseInt(y);
+            if (!isNaN(year)) {
+                if (m !== "all") {
+                    const month = parseInt(m);
+                    if (!isNaN(month)) {
+                        startDate = new Date(year, month, 1);
+                        endDate = new Date(year, month + 1, 0, 23, 59, 59);
+                    }
+                } else {
+                    // All months for a specific year
+                    startDate = new Date(year, 0, 1);
+                    endDate = new Date(year, 11, 31, 23, 59, 59);
+                }
+            }
+        }
+        
         return await getRawEntries({ userId: u, region: r, branch: b, startDate, endDate });
     }, []);
 
@@ -90,6 +103,7 @@ export default function AdminDashboard() {
 
 
     const months = [
+        { value: "all", label: "All Months" },
         { value: "0", label: "January" },
         { value: "1", label: "February" },
         { value: "2", label: "March" },
@@ -104,17 +118,27 @@ export default function AdminDashboard() {
         { value: "11", label: "December" },
     ];
 
-    const years = ["2025", "2026", "2027", "2028", "2029", "2030"];
+    const years = ["all", "2024", "2025", "2026", "2027", "2028", "2029", "2030"];
 
     // Compute Date Range from Month/Year - Needed for Download logic
     const getDateRange = useCallback(() => {
-        if (selectedMonth === "all" || selectedYear === "all") return { startDate: null, endDate: null };
+        if (selectedYear === "all") return { startDate: null, endDate: null };
+        
         const year = parseInt(selectedYear);
+        if (isNaN(year)) return { startDate: null, endDate: null };
+
+        if (selectedMonth === "all") {
+            return {
+                startDate: new Date(year, 0, 1),
+                endDate: new Date(year, 11, 31, 23, 59, 59)
+            };
+        }
+
         const month = parseInt(selectedMonth);
-        if (isNaN(year) || isNaN(month)) return { startDate: null, endDate: null };
+        if (isNaN(month)) return { startDate: null, endDate: null };
 
         const startDate = new Date(year, month, 1);
-        const endDate = new Date(year, month + 1, 0, 23, 59, 59); // Last day of month
+        const endDate = new Date(year, month + 1, 0, 23, 59, 59);
         return { startDate, endDate };
     }, [selectedMonth, selectedYear]);
 

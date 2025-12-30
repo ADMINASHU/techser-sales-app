@@ -37,12 +37,18 @@ export async function getReportData({ startDate, endDate, userId, region, branch
 
     let query = {};
 
-    if (userId && userId !== "all") query.userId = userId;
-    if (region && region !== "all") query.region = region;
-    if (branch && branch !== "all") query.branch = branch;
+    if (userId && userId !== "all") {
+        query.userId = userId;
+    } else if ((region && region !== "all") || (branch && branch !== "all")) {
+        let userQuery = {};
+        if (region && region !== "all") userQuery.region = region;
+        if (branch && branch !== "all") userQuery.branch = branch;
+        const matchingUsers = await User.find(userQuery, "_id").lean();
+        query.userId = { $in: matchingUsers.map(u => u._id) };
+    }
 
     if (startDate && endDate) {
-        query.createdAt = {
+        query.entryDate = {
             $gte: new Date(startDate),
             $lte: new Date(endDate)
         };
@@ -89,12 +95,18 @@ export async function getRawEntries({ startDate, endDate, userId, region, branch
 
     let query = {};
 
-    if (userId && userId !== "all") query.userId = userId;
-    if (region && region !== "all") query.region = region;
-    if (branch && branch !== "all") query.branch = branch;
+    if (userId && userId !== "all") {
+        query.userId = userId;
+    } else if ((region && region !== "all") || (branch && branch !== "all")) {
+        let userQuery = {};
+        if (region && region !== "all") userQuery.region = region;
+        if (branch && branch !== "all") userQuery.branch = branch;
+        const matchingUsers = await User.find(userQuery, "_id").lean();
+        query.userId = { $in: matchingUsers.map(u => u._id) };
+    }
 
     if (startDate && endDate) {
-        query.createdAt = {
+        query.entryDate = {
             $gte: new Date(startDate),
             $lte: new Date(endDate)
         };

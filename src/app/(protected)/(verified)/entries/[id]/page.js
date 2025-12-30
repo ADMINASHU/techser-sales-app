@@ -3,6 +3,7 @@ import dbConnect from "@/lib/db";
 import Entry from "@/models/Entry";
 import EntryActionButtons from "@/components/EntryActionButtons";
 import EntryMap from "@/components/EntryMap";
+import EntryUserCard from "@/components/EntryUserCard";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { redirect } from "next/navigation";
@@ -18,8 +19,7 @@ export default async function EntryDetailPage({ params, searchParams }) {
     if (!session) redirect("/login");
 
     await dbConnect();
-    // await dbConnect(); // duplicate removed
-    const entryDoc = await Entry.findById(id).populate("userId", "name email");
+    const entryDoc = await Entry.findById(id).populate("userId", "name email image role designation region branch status");
 
     if (!entryDoc) {
         return <div>Entry not found</div>;
@@ -78,13 +78,13 @@ export default async function EntryDetailPage({ params, searchParams }) {
                         </CardHeader>
                         <CardContent className="space-y-4 mt-4">
                             <div className="space-y-4">
+                                 <div>
+                                    <Label className="text-muted-foreground mb-2">Visited By</Label>
+                                    <EntryUserCard user={entry.userId} />
+                                </div>
                                 <div>
                                     <Label className="text-muted-foreground">Customer</Label>
                                     <div className="font-medium">{entry.customerName}</div>
-                                </div>
-                                <div>
-                                    <Label className="text-muted-foreground">Visited By</Label>
-                                    <div className="font-medium">{entry.userId?.name} ({entry.userId?.email})</div>
                                 </div>
                                 <div>
                                     <Label className="text-muted-foreground">Address</Label>
@@ -135,9 +135,11 @@ export default async function EntryDetailPage({ params, searchParams }) {
                             {new Date().toDateString() === new Date(entry.entryDate || entry.createdAt).toDateString() ? (
                                 <EntryActionButtons entry={entry} role={session.user.role} />
                             ) : (
-                                <div className="w-full p-4 bg-yellow-50 text-yellow-800 rounded-md text-sm text-center">
-                                    Action allowed only on {format(new Date(entry.entryDate || entry.createdAt), "PP")}
-                                </div>
+                                session.user.role !== 'admin' && (
+                                    <div className="w-full p-4 bg-yellow-50 text-yellow-800 rounded-md text-sm text-center">
+                                        Action allowed only on {format(new Date(entry.entryDate || entry.createdAt), "PP")}
+                                    </div>
+                                )
                             )}
                         </CardFooter>
                     </Card>

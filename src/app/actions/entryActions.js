@@ -302,15 +302,29 @@ export async function fetchEntries({ page = 1, limit = 30, filters = {}, skip: c
         }
 
         // 2. Date Filter
-        if (filters.month !== undefined && filters.year !== undefined && filters.month !== "all" && filters.year !== "all") {
-            const month = parseInt(filters.month);
+        if (filters.year && filters.year !== "all") {
             const year = parseInt(filters.year);
-            const startDate = new Date(year, month, 1);
-            const endDate = new Date(year, month + 1, 0, 23, 59, 59);
-            query.entryDate = {
-                $gte: startDate,
-                $lte: endDate
-            };
+            if (!isNaN(year)) {
+                let startDate, endDate;
+                if (filters.month && filters.month !== "all") {
+                    const month = parseInt(filters.month);
+                    if (!isNaN(month)) {
+                        startDate = new Date(year, month, 1);
+                        endDate = new Date(year, month + 1, 0, 23, 59, 59);
+                    }
+                } else {
+                    // Entire Year
+                    startDate = new Date(year, 0, 1);
+                    endDate = new Date(year, 11, 31, 23, 59, 59);
+                }
+
+                if (startDate && endDate) {
+                    query.entryDate = {
+                        $gte: startDate,
+                        $lte: endDate
+                    };
+                }
+            }
         }
 
         // 3. Status Filter
@@ -320,16 +334,20 @@ export async function fetchEntries({ page = 1, limit = 30, filters = {}, skip: c
 
         // 4. Search Filter
         if (filters.search) {
-            query.customerName = { $regex: filters.search, $options: "i" };
+            const searchRegex = { $regex: filters.search, $options: "i" };
+            query.$or = [
+                { customerName: searchRegex },
+                { customerAddress: searchRegex }
+            ];
         }
 
         // 5. Region & Branch Filters
-        if (filters.region && filters.region !== "all") {
-            query.region = filters.region;
-        }
-
-        if (filters.branch && filters.branch !== "all") {
-            query.branch = filters.branch;
+        if (!query.userId && ((filters.region && filters.region !== "all") || (filters.branch && filters.branch !== "all"))) {
+            let userQuery = {};
+            if (filters.region && filters.region !== "all") userQuery.region = filters.region;
+            if (filters.branch && filters.branch !== "all") userQuery.branch = filters.branch;
+            const matchingUsers = await User.find(userQuery, "_id").lean();
+            query.userId = { $in: matchingUsers.map(u => u._id) };
         }
 
         // Fetch Entries

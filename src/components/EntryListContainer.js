@@ -24,17 +24,29 @@ export default async function EntryListContainer({ searchParams, session, view }
         }
     }
 
-    if (params.month !== undefined && params.year !== undefined) {
-        const month = parseInt(params.month);
+    // 2. Date Filter
+    if (params.year && params.year !== "all") {
         const year = parseInt(params.year);
-        // Validate month and year
-        if (!isNaN(month) && !isNaN(year)) {
-             const startDate = new Date(year, month, 1);
-            const endDate = new Date(year, month + 1, 0, 23, 59, 59);
-            query.createdAt = {
-                $gte: startDate,
-                $lte: endDate
-            };
+        if (!isNaN(year)) {
+            let startDate, endDate;
+            if (params.month && params.month !== "all") {
+                const month = parseInt(params.month);
+                if (!isNaN(month)) {
+                    startDate = new Date(year, month, 1);
+                    endDate = new Date(year, month + 1, 0, 23, 59, 59);
+                }
+            } else {
+                // Entire Year
+                startDate = new Date(year, 0, 1);
+                endDate = new Date(year, 11, 31, 23, 59, 59);
+            }
+
+            if (startDate && endDate) {
+                query.entryDate = {
+                    $gte: startDate,
+                    $lte: endDate
+                };
+            }
         }
     }
 
@@ -43,15 +55,21 @@ export default async function EntryListContainer({ searchParams, session, view }
     }
 
     if (params.search) {
-        query.customerName = { $regex: params.search, $options: "i" };
+        const searchRegex = { $regex: params.search, $options: "i" };
+        query.$or = [
+            { customerName: searchRegex },
+            { customerAddress: searchRegex }
+        ];
     }
 
-    if (params.region && params.region !== "all") {
-        query.region = params.region;
-    }
-
-    if (params.branch && params.branch !== "all") {
-        query.branch = params.branch;
+    // 5. Region & Branch Filters
+    if (!query.userId && ((params.region && params.region !== "all") || (params.branch && params.branch !== "all"))) {
+        const User = (await import("@/models/User")).default;
+        let userQuery = {};
+        if (params.region && params.region !== "all") userQuery.region = params.region;
+        if (params.branch && params.branch !== "all") userQuery.branch = params.branch;
+        const matchingUsers = await User.find(userQuery, "_id").lean();
+        query.userId = { $in: matchingUsers.map(u => u._id) };
     }
 
     // Fetch Entries
