@@ -52,6 +52,8 @@ function PushNotificationManager() {
     return null;
 }
 
+import RealtimeNotificationListener from "./RealtimeNotificationListener";
+
 function KnockProviderContent({ children }) {
     const { data: session } = useSession();
 
@@ -92,6 +94,7 @@ function KnockProviderContent({ children }) {
                 }}
             >
                 {children}
+                <RealtimeNotificationListener />
                 {/* <PushNotificationManager /> DISABLED by user request */}
             </KnockFeedProvider>
         </KnockProvider>

@@ -79,12 +79,27 @@ export async function declineUser(userId) {
 
 export async function deleteUser(userId) {
     try {
-        await checkAdmin();
+        const adminSession = await checkAdmin();
         await dbConnect();
+        
+        const user = await User.findById(userId);
+        if (!user) return { error: "User not found" };
+
+        // Notify User BEFORE deleting from DB
+        await triggerNotification("user-deleted", {
+            actor: { id: adminSession.user.id, name: adminSession.user.name || "Admin", email: adminSession.user.email },
+            recipients: [{ id: userId, name: user.name, email: user.email }],
+            data: {
+                name: user.name,
+                admin_name: adminSession.user.name || "Admin",
+            },
+        });
+
         await User.findByIdAndDelete(userId);
         revalidatePath("/users");
         return { success: true };
     } catch (error) {
+        console.error("Delete User Error", error);
         return { error: "Failed to delete user" };
     }
 }
