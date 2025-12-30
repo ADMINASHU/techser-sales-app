@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.9](https://github.com/ADMINASHU/techser-sales-app/compare/v0.2.8...v0.2.9) (2025-12-30)
+
+
+### Features
+
+* Add Knock notification system with client provider, UI feed component, and real-time listener for toast notifications and session updates. ([f85dbd3](https://github.com/ADMINASHU/techser-sales-app/commit/f85dbd3c783c65a981fc772e9140bc1f14793533))
+* Add RealtimeNotificationListener component to process real-time notifications from KnockFeed, managing user sessions and status updates. ([a11a603](https://github.com/ADMINASHU/techser-sales-app/commit/a11a60346608f0a23d89a00bc87b0d08aa0c4a92))
+* Implement admin user management with Knock notification integration and a new User model. ([e3e1257](https://github.com/ADMINASHU/techser-sales-app/commit/e3e1257ce1f08999f43b665ad3703fd0232a1f4b))
+* Implement admin user management, real-time notifications with session updates, and new server actions for user and entry data. ([87594f3](https://github.com/ADMINASHU/techser-sales-app/commit/87594f3a574d678a34d19a08769d14f9f71cfb34))
+* implement entry management server actions including CRUD and stamping, and add a real-time notification listener. ([7a2f4bd](https://github.com/ADMINASHU/techser-sales-app/commit/7a2f4bdbd35595197757fd0919820b4c714bccca))
+* Implement initial user profile setup, avatar upload, and account verification flow with new user-related components and actions. ([7f3b969](https://github.com/ADMINASHU/techser-sales-app/commit/7f3b9691de2b56bbe37f7b453eec2bf42ebef279))
+* Introduce `RealtimeNotificationListener` component to process real-time notifications, update user sessions, and manage logout. ([af3ee8f](https://github.com/ADMINASHU/techser-sales-app/commit/af3ee8f1a9538ed27052a451b54d997e501e6775))
+* Introduce admin dashboard with reporting, user management, and entry detail views. ([3e35bff](https://github.com/ADMINASHU/techser-sales-app/commit/3e35bff88ecf9b18b794a8eafa6f18c5164bf735))
+* introduce server actions for user administration and entry management, integrating Google Sheets and notification services. ([32c4228](https://github.com/ADMINASHU/techser-sales-app/commit/32c4228a048df2f589f1de8bf1a94a520455457b))
+
 ### [0.2.8](https://github.com/ADMINASHU/techser-sales-app/compare/v0.2.7...v0.2.8) (2025-12-27)
 
 
