@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.10](https://github.com/ADMINASHU/techser-sales-app/compare/v0.2.9...v0.2.10) (2025-12-30)
+
+
+### Features
+
+* Add email and Knock notification utilities, map components for entry and location picking, and real-time notification listener. ([b688ca7](https://github.com/ADMINASHU/techser-sales-app/commit/b688ca70d32a9b1065a6b837833928a3b4928348))
+* implement user onboarding flow with profile setup, avatar upload, real-time notifications, and authentication. ([a76ab70](https://github.com/ADMINASHU/techser-sales-app/commit/a76ab708f251d56edcba53cc79c55a532f8431dc))
+
 ### [0.2.9](https://github.com/ADMINASHU/techser-sales-app/compare/v0.2.8...v0.2.9) (2025-12-30)
 
 
