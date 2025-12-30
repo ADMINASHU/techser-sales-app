@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useKnockFeed } from "@knocklabs/react";
 import { toast } from "sonner";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { getCurrentUser } from "@/app/actions/userActions";
 
 export default function RealtimeNotificationListener() {
@@ -19,20 +19,28 @@ export default function RealtimeNotificationListener() {
             console.log("[RealtimeListener] New items received:", items);
             
             for (const item of items) {
-                // Prevent duplicate processing of the same notification ID in the same session tick
                 if (lastNotificationId.current === item.id) continue;
                 lastNotificationId.current = item.id;
 
-                // Show a single toast for the notification
                 toast.info("New Notification", {
                     description: <div dangerouslySetInnerHTML={{ __html: item.blocks[0].rendered }} />,
                     duration: 5000,
                 });
 
-                // Session Sync Logic
                 const workflowKey = item.source?.workflow_id || item.workflow || item.source?.workflow?.slug || item.key;
                 const notificationContent = item.blocks?.[0]?.rendered?.toLowerCase() || "";
                 
+                // 1. Check for Deletion (Immediate Action)
+                if (workflowKey === "user-deleted" || notificationContent.includes("account has been deleted")) {
+                    console.log("[RealtimeListener] User account deleted. Logging out...");
+                    toast.error("Your account has been removed. Logging out...", { duration: 3000 });
+                    setTimeout(() => {
+                        signOut({ callbackUrl: "/login" });
+                    }, 2000);
+                    return;
+                }
+
+                // 2. Check for Role/Status Updates
                 const isCriticalUpdate = 
                     workflowKey === "user-verified" || 
                     workflowKey === "user-role-updated" ||
