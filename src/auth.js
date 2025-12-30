@@ -73,16 +73,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         ...authConfig.callbacks,
         async jwt({ token, user, account, trigger, session }) {
             if (trigger === "update" && session) {
+                console.log("[Auth] JWT Update Triggered:", session);
                 if (session.status) token.status = session.status;
                 if (session.role) token.role = session.role;
                 if (session.viewPreference) token.viewPreference = session.viewPreference;
                 
-                // If the updated image is base64, store a reference instead of the actual data
                 if (session.image) {
                     token.image = session.image.startsWith("data:image") 
                         ? `/api/user/image?v=${Date.now()}` 
                         : session.image;
                 }
+                console.log("[Auth] New token role:", token.role);
             }
 
             if (user) {

@@ -154,3 +154,18 @@ export async function updateViewPreference(view) {
         return { success: false, error: error.message };
     }
 }
+
+export async function getCurrentUser() {
+    const session = await auth();
+    if (!session) return null;
+    try {
+        await dbConnect();
+        const user = await User.findById(session.user.id).select("role status");
+        return {
+            role: user.role,
+            status: user.status
+        };
+    } catch (error) {
+        return null;
+    }
+}

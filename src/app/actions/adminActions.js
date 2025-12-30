@@ -55,12 +55,24 @@ export async function verifyUser(userId) {
 
 export async function declineUser(userId) {
     try {
-        await checkAdmin();
+        const adminSession = await checkAdmin();
         await dbConnect();
-        await User.findByIdAndUpdate(userId, { status: "declined" });
+        const user = await User.findByIdAndUpdate(userId, { status: "declined" }, { new: true });
         revalidatePath("/users");
+
+        // Notify User
+        await triggerNotification("user-declined", {
+            actor: { id: adminSession.user.id, name: adminSession.user.name || "Admin", email: adminSession.user.email },
+            recipients: [{ id: userId, name: user.name, email: user.email }],
+            data: {
+                name: user.name,
+                admin_name: adminSession.user.name || "Admin",
+            },
+        });
+
         return { success: true };
     } catch (error) {
+        console.error("Decline User Error", error);
         return { error: "Failed to decline user" };
     }
 }
@@ -79,15 +91,27 @@ export async function deleteUser(userId) {
 
 export async function updateUserRole(userId, newRole) {
     try {
-        await checkAdmin();
+        const adminSession = await checkAdmin();
         await dbConnect();
 
         if (!["user", "admin"].includes(newRole)) {
             return { error: "Invalid role" };
         }
 
-        await User.findByIdAndUpdate(userId, { role: newRole });
+        const user = await User.findByIdAndUpdate(userId, { role: newRole }, { new: true });
         revalidatePath("/users");
+
+        // Notify User about role change
+        await triggerNotification("user-role-updated", {
+            actor: { id: adminSession.user.id, name: adminSession.user.name || "Admin", email: adminSession.user.email },
+            recipients: [{ id: userId, name: user.name, email: user.email }],
+            data: {
+                name: user.name,
+                new_role: newRole,
+                admin_name: adminSession.user.name || "Admin",
+            },
+        });
+
         return { success: true };
     } catch (error) {
         console.error("Update Role Error", error);

@@ -5,22 +5,36 @@ import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useSession } from "next-auth/react";
+import { getCurrentUser } from "@/app/actions/userActions";
 
 export default function RefreshStatusButton() {
+    const { update } = useSession();
     const [loading, setLoading] = useState(false);
     const router = useRouter();
 
     const handleRefresh = async () => {
         setLoading(true);
-        // router.refresh() will re-run the server component (VerificationPendingPage)
-        // which will then check the DB and redirect if verified.
-        router.refresh();
         
-        // Give it a moment to re-render
-        setTimeout(() => {
+        try {
+            // 1. Re-fetch server components
+            router.refresh();
+            
+            // 2. Explicitly update the client session
+            const freshUser = await getCurrentUser();
+            if (freshUser) {
+                await update({ 
+                    role: freshUser.role, 
+                    status: freshUser.status 
+                });
+            }
+            
+            toast.success("Status updated");
+        } catch (error) {
+            toast.error("Failed to refresh status");
+        } finally {
             setLoading(false);
-            toast.info("Status updated");
-        }, 1000);
+        }
     };
 
     return (

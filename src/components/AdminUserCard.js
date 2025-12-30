@@ -33,7 +33,7 @@ export default function AdminUserCard({ user }) {
             if (result.error) {
                 toast.error(result.error);
             } else {
-                toast.success("Action successful");
+                toast.success("Update successful! Notification sent.");
             }
         } catch (error) {
             toast.error("Something went wrong");

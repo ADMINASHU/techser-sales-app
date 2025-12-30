@@ -167,38 +167,37 @@ export async function stampIn(entryId, location) {
     try {
         await dbConnect();
         
-        // Find existing entry to check if already stamped in
-        const entry = await Entry.findById(entryId);
-        if (!entry) return { error: "Entry not found" };
+        // Use atomic update to prevent race conditions
+        const entry = await Entry.findOneAndUpdate(
+            { _id: entryId, $or: [{ "stampIn.time": { $exists: false } }, { "stampIn.time": null }] },
+            {
+                $set: {
+                    status: "In Process",
+                    stampIn: {
+                        time: new Date(),
+                        location: location,
+                    }
+                }
+            },
+            { new: true }
+        ).populate("userId", "name email region branch");
 
-        if (entry.stampIn && entry.stampIn.time) {
-            return { success: true, message: "Already stamped in" };
+        if (!entry) {
+            console.log(`[StampIn] Entry ${entryId} already stamped in. Skipping.`);
+            return { success: true };
         }
 
-        entry.stampIn = {
-            time: new Date(),
-            location: location,
-        };
-        entry.status = "In Process";
-        
-        await entry.save();
-        
-        // Populate for sheets/notifications
-        const updatedEntry = await Entry.findById(entryId).populate("userId", "name email region branch").lean();
-
         // Trigger Notification
-        if (updatedEntry) {
-            await notifyAdmins("Stamped In", updatedEntry, session.user);
+        await notifyAdmins("Stamped In", entry, session.user);
 
-            // Sync Update to Sheet
-            if (updatedEntry.googleSheetRowId) {
-                const entryData = { ...updatedEntry };
-                entryData.userName = updatedEntry.userId?.name || session.user.name;
-                entryData.userRegion = updatedEntry.userId?.region || session.user.region;
-                entryData.userBranch = updatedEntry.userId?.branch || session.user.branch;
+        // Sync Update to Sheet
+        if (entry.googleSheetRowId) {
+            const entryData = { ...entry.toObject() };
+            entryData.userName = entry.userId?.name || session.user.name;
+            entryData.userRegion = entry.userId?.region || session.user.region;
+            entryData.userBranch = entry.userId?.branch || session.user.branch;
 
-                await updateEntryInSheet(entryData);
-            }
+            await updateEntryInSheet(entryData);
         }
 
         revalidatePath(`/entries`);
@@ -217,37 +216,37 @@ export async function stampOut(entryId, location) {
     try {
         await dbConnect();
         
-        // Find existing entry to check if already stamped out
-        const entry = await Entry.findById(entryId);
-        if (!entry) return { error: "Entry not found" };
+        // Use atomic update to prevent race conditions
+        const entry = await Entry.findOneAndUpdate(
+            { _id: entryId, status: "In Process" },
+            {
+                $set: {
+                    status: "Completed",
+                    stampOut: {
+                        time: new Date(),
+                        location: location,
+                    }
+                }
+            },
+            { new: true }
+        ).populate("userId", "name email region branch");
 
-        if (entry.status === "Completed") {
-            return { success: true, message: "Already stamped out" };
+        if (!entry) {
+            console.log(`[StampOut] Entry ${entryId} already completed or not in process. Skipping.`);
+            return { success: true };
         }
 
-        entry.stampOut = {
-            time: new Date(),
-            location: location,
-        };
-        entry.status = "Completed";
-        
-        await entry.save();
-        
-        const updatedEntry = await Entry.findById(entryId).populate("userId", "name email region branch").lean();
-
         // Trigger Notification
-        if (updatedEntry) {
-            await notifyAdmins("Stamped Out", updatedEntry, session.user);
+        await notifyAdmins("Stamped Out", entry, session.user);
 
-            // Sync Update to Sheet
-            if (updatedEntry.googleSheetRowId) {
-                const entryData = { ...updatedEntry };
-                entryData.userName = updatedEntry.userId?.name || session.user.name;
-                entryData.userRegion = updatedEntry.userId?.region || session.user.region;
-                entryData.userBranch = updatedEntry.userId?.branch || session.user.branch;
+        // Sync Update to Sheet
+        if (entry.googleSheetRowId) {
+            const entryData = { ...entry.toObject() };
+            entryData.userName = entry.userId?.name || session.user.name;
+            entryData.userRegion = entry.userId?.region || session.user.region;
+            entryData.userBranch = entry.userId?.branch || session.user.branch;
 
-                await updateEntryInSheet(entryData);
-            }
+            await updateEntryInSheet(entryData);
         }
 
         revalidatePath(`/entries`);
