@@ -16,12 +16,10 @@ export default function RealtimeNotificationListener() {
     const knockFeed = useKnockFeed();
     const feedClient = knockFeed.feedClient;
     const pathname = usePathname();
-
-    // Don't listen/redirect if already on auth pages
-    if (pathname === "/login" || pathname === "/register") return null;
+    const isAuthPage = pathname === "/login" || pathname === "/register";
 
     useEffect(() => {
-        if (!feedClient) return;
+        if (!feedClient || isAuthPage) return;
 
         const onNotificationsReceived = async ({ items }) => {
             console.log("[RealtimeListener] New items received:", items);
@@ -99,7 +97,7 @@ export default function RealtimeNotificationListener() {
         return () => {
             feedClient.off("items.received.realtime", onNotificationsReceived);
         };
-    }, [feedClient, update]);
+    }, [feedClient, update, isAuthPage]);
 
     return null;
 }

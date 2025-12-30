@@ -37,12 +37,13 @@ export default function ProfileSetupPage() {
 
     useEffect(() => {
         getLocations().then(data => setLocations(data));
-        
+
         // Check if permissions were already granted
         if ("Notification" in window && Notification.permission === "granted") {
+            // eslint-disable-next-line
             setPermissions(prev => ({ ...prev, notifications: true }));
         }
-        
+
         if ("geolocation" in navigator) {
             navigator.permissions?.query({ name: 'geolocation' }).then(result => {
                 if (result.state === 'granted') {
@@ -118,11 +119,11 @@ export default function ProfileSetupPage() {
                     <div className="absolute top-0 inset-x-0 h-1" />
                     <CardHeader className="pt-5 pb-5 text-center">
                         <div className="mx-auto w-60 h-20 flex items-center justify-center mb-2 p-1">
-                            <Image 
-                                src="/logo.png" 
-                                alt="App Logo" 
-                                width={120} 
-                                height={120} 
+                            <Image
+                                src="/logo.png"
+                                alt="App Logo"
+                                width={120}
+                                height={120}
                                 className="object-contain"
                                 priority
                                 unoptimized
@@ -132,7 +133,7 @@ export default function ProfileSetupPage() {
                             Welcome !
                         </CardTitle>
                         <CardDescription className="text-gray-400 text-base max-w-sm mx-auto">
-                            We're excited to have you! Let's get your workspace ready with the necessary permissions.
+                            We&apos;re excited to have you! Let&apos;s get your workspace ready with the necessary permissions.
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-8 px-8 pb-10">
@@ -152,9 +153,9 @@ export default function ProfileSetupPage() {
                                     {permissions.location ? (
                                         <CheckCircle2 className="w-6 h-6 text-emerald-500" />
                                     ) : (
-                                        <Button 
-                                            variant="outline" 
-                                            size="sm" 
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
                                             onClick={requestLocation}
                                             className="h-8 text-xs bg-white/5 hover:bg-white/10 border-white/10 text-gray-300"
                                         >
@@ -179,9 +180,9 @@ export default function ProfileSetupPage() {
                                     {permissions.notifications ? (
                                         <CheckCircle2 className="w-6 h-6 text-emerald-500" />
                                     ) : (
-                                        <Button 
-                                            variant="outline" 
-                                            size="sm" 
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
                                             onClick={requestNotifications}
                                             className="h-8 text-xs bg-white/5 hover:bg-white/10 border-white/10 text-gray-300"
                                         >
@@ -192,7 +193,7 @@ export default function ProfileSetupPage() {
                             </div>
                         </div>
 
-                        <Button 
+                        <Button
                             className="w-full h-12 bg-linear-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 text-white font-semibold rounded-xl shadow-lg shadow-blue-500/20 border-0 group disabled:opacity-50 disabled:cursor-not-allowed disabled:grayscale-[0.5]"
                             onClick={() => setStep(1)}
                             disabled={!permissions.location || !permissions.notifications}
@@ -211,9 +212,9 @@ export default function ProfileSetupPage() {
             <Card className="w-full max-w-lg bg-[#0A0A0B] border-white/10 shadow-2xl">
                 <CardHeader>
                     <div className="flex items-center gap-3 mb-2">
-                        <Button 
-                            variant="ghost" 
-                            size="icon" 
+                        <Button
+                            variant="ghost"
+                            size="icon"
                             onClick={() => setStep(0)}
                             className="h-8 w-8 text-gray-400 hover:text-white hover:bg-white/5"
                         >
@@ -230,16 +231,16 @@ export default function ProfileSetupPage() {
                         <AvatarUploader user={session?.user || {}} className="h-24 w-24 ring-4 ring-white/10" />
                         <p className="text-xs text-gray-500 text-center mt-2 font-medium">Click to upload</p>
                     </div>
-                    
+
                     <form onSubmit={handleSubmit} className="w-full">
                         <div className="grid w-full items-center gap-6">
                             <div className="flex flex-col space-y-2">
                                 <Label htmlFor="contactNumber" className="text-gray-300 text-sm font-medium ml-1">Contact Number (10 Digits)</Label>
-                                <Input 
-                                    id="contactNumber" 
-                                    name="contactNumber" 
-                                    placeholder="e.g. 9876543210" 
-                                    required 
+                                <Input
+                                    id="contactNumber"
+                                    name="contactNumber"
+                                    placeholder="e.g. 9876543210"
+                                    required
                                     value={contactNumber}
                                     onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, "").slice(0, 10))}
                                     type="tel"
@@ -249,11 +250,11 @@ export default function ProfileSetupPage() {
                             </div>
                             <div className="flex flex-col space-y-2">
                                 <Label htmlFor="address" className="text-gray-300 text-sm font-medium ml-1">Full Address</Label>
-                                <Textarea 
-                                    id="address" 
-                                    name="address" 
-                                    placeholder="Enter your house no, street, city..." 
-                                    required 
+                                <Textarea
+                                    id="address"
+                                    name="address"
+                                    placeholder="Enter your house no, street, city..."
+                                    required
                                     value={address}
                                     onChange={(e) => setAddress(e.target.value)}
                                     className="min-h-[100px] bg-white/5 border-white/10 text-white placeholder:text-gray-600 focus:ring-blue-500/50 pt-3"
@@ -291,9 +292,9 @@ export default function ProfileSetupPage() {
                                     </Select>
                                 </div>
                             </div>
-                            <LoadingButton 
-                                type="submit" 
-                                loading={loading} 
+                            <LoadingButton
+                                type="submit"
+                                loading={loading}
                                 className="w-full h-12 mt-4 bg-linear-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 text-white font-semibold rounded-xl border-0 shadow-lg shadow-blue-500/20 transition-all duration-300 active:scale-[0.98]"
                             >
                                 Save & Continue

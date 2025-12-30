@@ -55,7 +55,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                         id: user._id.toString(),
                         name: user.name,
                         email: user.email,
-                        // image: user.image, // Removed to reduce cookie size
+                        image: user.image ? `/api/user/image?v=${user.updatedAt?.getTime() || Date.now()}` : null,
                         role: user.role,
                         status: user.status,
                         region: user.region,
@@ -77,10 +77,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 if (session.status) token.status = session.status;
                 if (session.role) token.role = session.role;
                 if (session.viewPreference) token.viewPreference = session.viewPreference;
-                
+
                 if (session.image) {
-                    token.image = session.image.startsWith("data:image") 
-                        ? `/api/user/image?v=${Date.now()}` 
+                    token.image = session.image.startsWith("data:image")
+                        ? `/api/user/image?v=${Date.now()}`
                         : session.image;
                 }
                 console.log("[Auth] New token role:", token.role);
@@ -109,7 +109,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                         token.region = dbUser.region;
                         token.branch = dbUser.branch;
                         token.viewPreference = dbUser.viewPreference;
-                        
+
                         // Handle large images from DB
                         token.image = dbUser.image?.startsWith("data:image")
                             ? `/api/user/image?v=${dbUser.updatedAt?.getTime() || Date.now()}`
@@ -124,7 +124,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     token.status = user.status;
                     token.branch = user.branch;
                     token.viewPreference = user.viewPreference;
-                    
+
                     // The 'user' object here comes from authorize()
                     // If it was base64, we should have already sanitized it or do it now
                     token.image = user.image?.startsWith("data:image")

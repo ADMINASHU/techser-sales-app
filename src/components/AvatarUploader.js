@@ -56,7 +56,7 @@ export default function AvatarUploader({ user, className }) {
     };
 
     return (
-        <div className="relative group cursor-pointer" onClick={handleClick}>
+        <div className="relative group cursor-pointer h-full w-full" onClick={handleClick}>
             <input
                 type="file"
                 ref={fileInputRef}
@@ -66,8 +66,8 @@ export default function AvatarUploader({ user, className }) {
                 disabled={loading}
             />
 
-            <div className="relative inline-block">
-                <Avatar className={`h-20 w-20 border-2 border-transparent group-hover:border-primary transition-all ${className}`}>
+            <div className="relative inline-block h-full w-full">
+                <Avatar className={`h-full w-full border-2 border-transparent group-hover:border-primary transition-all ${className}`}>
                     <AvatarImage src={user.image} alt={user.name} className={`object-cover ${loading ? "opacity-50" : ""}`} />
                     <AvatarFallback className="bg-linear-to-br from-violet-500 to-fuchsia-500 text-white font-bold text-xl uppercase">
                         {user.name

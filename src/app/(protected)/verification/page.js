@@ -30,7 +30,7 @@ export default async function VerificationPendingPage() {
                         Account Verification Pending
                     </CardTitle>
                     <CardDescription className="text-gray-400 text-lg">
-                        We're reviewing your credentials
+                        We&apos;re reviewing your credentials
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="px-10 pb-10 space-y-6">
