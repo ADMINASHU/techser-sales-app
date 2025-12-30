@@ -72,36 +72,34 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     callbacks: {
         ...authConfig.callbacks,
         async jwt({ token, user, account, trigger, session }) {
-            // Handle updates (e.g. valid -> verified) if triggered client side
             if (trigger === "update" && session) {
                 if (session.status) token.status = session.status;
                 if (session.role) token.role = session.role;
                 if (session.viewPreference) token.viewPreference = session.viewPreference;
-                // Add other updateable fields here
+                
+                // If the updated image is base64, store a reference instead of the actual data
+                if (session.image) {
+                    token.image = session.image.startsWith("data:image") 
+                        ? `/api/user/image?v=${Date.now()}` 
+                        : session.image;
+                }
             }
 
             if (user) {
-                // Initial sign in
                 if (account?.provider === "google") {
                     try {
                         await dbConnect();
                         let dbUser = await User.findOne({ email: user.email });
 
                         if (!dbUser) {
-                            console.log("Creating new Google user");
                             dbUser = await User.create({
                                 name: user.name,
                                 email: user.email,
                                 image: user.image,
                                 provider: "google",
                                 status: "pending",
-                                role: "user" // Default role
+                                role: "user"
                             });
-                        } else if (!dbUser.provider) {
-                            // Link existing user to Google if email matches and no provider
-                            // Optional consistency check
-                            dbUser.provider = "google";
-                            await dbUser.save();
                         }
 
                         token.id = dbUser._id.toString();
@@ -110,17 +108,27 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                         token.region = dbUser.region;
                         token.branch = dbUser.branch;
                         token.viewPreference = dbUser.viewPreference;
+                        
+                        // Handle large images from DB
+                        token.image = dbUser.image?.startsWith("data:image")
+                            ? `/api/user/image?v=${dbUser.updatedAt?.getTime() || Date.now()}`
+                            : dbUser.image;
+
                     } catch (error) {
                         console.error("Error in JWT Google callback:", error);
                     }
                 } else {
-                    // Credentials login - user object comes from authorize() return
                     token.id = user.id;
                     token.role = user.role;
                     token.status = user.status;
-                    token.region = user.region;
                     token.branch = user.branch;
                     token.viewPreference = user.viewPreference;
+                    
+                    // The 'user' object here comes from authorize()
+                    // If it was base64, we should have already sanitized it or do it now
+                    token.image = user.image?.startsWith("data:image")
+                        ? `/api/user/image?v=${Date.now()}`
+                        : user.image;
                 }
             }
             return token;
@@ -133,8 +141,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 session.user.region = token.region;
                 session.user.branch = token.branch;
                 session.user.viewPreference = token.viewPreference;
-                // Inherit default fields from token/adapter usually, but ensure they are mapped
-                // session.user.name & email usually persist from initial
+                session.user.image = token.image;
             }
             return session;
         },

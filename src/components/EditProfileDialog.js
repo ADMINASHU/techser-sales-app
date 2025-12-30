@@ -129,12 +129,18 @@ export default function EditProfileDialog({ user, trigger }) {
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="grid gap-4 py-4">
                     <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="contactNumber" className="text-right text-gray-300">Contact</Label>
+                        <Label htmlFor="contactNumber" className="text-right text-gray-300">Contact (10 Digits)</Label>
                         <Input
                             id="contactNumber"
                             name="contactNumber"
                             value={formData.contactNumber}
-                            onChange={handleProfileChange}
+                            onChange={(e) => {
+                                const val = e.target.value.replace(/\D/g, "").slice(0, 10);
+                                setFormData(prev => ({ ...prev, contactNumber: val }));
+                            }}
+                            type="tel"
+                            maxLength={10}
+                            pattern="[0-9]{10}"
                             className="col-span-3 bg-[#1e293b]/50 border-white/10 text-white placeholder:text-gray-500 focus-visible:ring-fuchsia-500/50"
                         />
                     </div>

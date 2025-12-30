@@ -25,7 +25,7 @@ export default function AdminUserCard({ user }) {
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
     const handleAction = async (e, actionFn, ...args) => {
-        e.stopPropagation();
+        if (e && e.stopPropagation) e.stopPropagation();
         setIsLoading(true);
         try {
             const result = await actionFn(...args);
@@ -115,8 +115,8 @@ export default function AdminUserCard({ user }) {
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel className="bg-white/5 border-white/10 hover:bg-white/10 text-white">Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => {
-                            handleAction(deleteUser, user._id);
+                        <AlertDialogAction onClick={(e) => {
+                            handleAction(e, deleteUser, user._id);
                             setShowDeleteConfirm(false);
                         }} className="bg-red-600 hover:bg-red-700 text-white border-none">
                             Delete

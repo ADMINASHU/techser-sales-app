@@ -105,7 +105,12 @@ export default function Navbar() {
                                     <Button variant="ghost" className="relative h-10 w-10 rounded-full ring-2 ring-white/10 hover:ring-white/30 transition-all p-0 overflow-hidden">
                                         <Avatar className="h-full w-full">
                                             <AvatarImage src={session?.user?.image} alt={session?.user?.name} />
-                                            <AvatarFallback className="bg-violet-500/20 text-violet-300">{session?.user?.name?.charAt(0) || "U"}</AvatarFallback>
+                                            <AvatarFallback className="bg-linear-to-br from-violet-500 to-fuchsia-500 text-white font-bold">
+                                                {session?.user?.name
+                                                    ? session.user.name.split(" ").map(n => n[0]).join("").slice(0, 2)
+                                                    : "U"
+                                                }
+                                            </AvatarFallback>
                                         </Avatar>
                                     </Button>
                                 </DropdownMenuTrigger>
@@ -113,7 +118,12 @@ export default function Navbar() {
                                     <div className="flex items-center gap-3 p-3 bg-white/5 rounded-lg mb-2 border border-white/5">
                                         <Avatar className="h-10 w-10 border border-white/10">
                                             <AvatarImage src={session?.user?.image} />
-                                            <AvatarFallback>{session?.user?.name?.charAt(0)}</AvatarFallback>
+                                        <AvatarFallback className="bg-linear-to-br from-violet-500 to-fuchsia-500 text-white font-bold">
+                                            {session?.user?.name
+                                                ? session.user.name.split(" ").map(n => n[0]).join("").slice(0, 2)
+                                                : "U"
+                                            }
+                                        </AvatarFallback>
                                         </Avatar>
                                         <div className="flex flex-col space-y-0.5">
                                             <p className="text-sm font-semibold text-white">{session?.user?.name}</p>

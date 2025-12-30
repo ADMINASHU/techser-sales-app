@@ -31,6 +31,12 @@ export async function updateProfile(formData) {
         return { error: "All fields are required" };
     }
 
+    // Phone number validation (10 digits)
+    const phoneRegex = /^\d{10}$/;
+    if (!phoneRegex.test(contactNumber)) {
+        return { error: "Contact number must be exactly 10 digits" };
+    }
+
     try {
         await dbConnect();
         await User.findByIdAndUpdate(session.user.id, {

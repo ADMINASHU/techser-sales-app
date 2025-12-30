@@ -20,7 +20,7 @@ export default function UserCard({ user, onClick, className = "", actions }) {
             <div className="flex flex-col items-center gap-2 min-w-[70px]">
                 <Avatar className="h-14 w-14 ring-2 ring-white/10 shadow-xl group-hover:ring-violet-500/30 transition-all">
                     <AvatarImage src={user.image} alt={user.name} className="object-cover" />
-                    <AvatarFallback className="bg-gradient-to-br from-violet-600 to-indigo-700 text-white text-lg font-bold">
+                    <AvatarFallback className="bg-linear-to-br from-violet-600 to-indigo-700 text-white text-lg font-bold">
                         {initials}
                     </AvatarFallback>
                 </Avatar>

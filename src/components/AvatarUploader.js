@@ -45,7 +45,7 @@ export default function AvatarUploader({ user, className }) {
                 }
 
                 toast.success("Avatar updated successfully");
-                await update(); // Force session refresh
+                await update({ image: base64data }); // Force session refresh with new image
                 router.refresh();
             };
         } catch (error) {
@@ -69,7 +69,12 @@ export default function AvatarUploader({ user, className }) {
             <div className="relative inline-block">
                 <Avatar className={`h-20 w-20 border-2 border-transparent group-hover:border-primary transition-all ${className}`}>
                     <AvatarImage src={user.image} alt={user.name} className={`object-cover ${loading ? "opacity-50" : ""}`} />
-                    <AvatarFallback>{user.name?.charAt(0) || "U"}</AvatarFallback>
+                    <AvatarFallback className="bg-linear-to-br from-violet-500 to-fuchsia-500 text-white font-bold text-xl uppercase">
+                        {user.name
+                            ? user.name.split(" ").map(n => n[0]).join("").slice(0, 2)
+                            : "U"
+                        }
+                    </AvatarFallback>
                 </Avatar>
 
                 {/* Overlay on Hover */}
