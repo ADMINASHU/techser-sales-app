@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import { useSession, signOut } from "next-auth/react";
 import { getCurrentUser } from "@/app/actions/userActions";
 
+import { usePathname } from "next/navigation";
+
 const processedIds = new Set();
 // Global set to track processed IDs across component remounts
 
@@ -13,6 +15,10 @@ export default function RealtimeNotificationListener() {
     const { update } = useSession();
     const knockFeed = useKnockFeed();
     const feedClient = knockFeed.feedClient;
+    const pathname = usePathname();
+
+    // Don't listen/redirect if already on auth pages
+    if (pathname === "/login" || pathname === "/register") return null;
 
     useEffect(() => {
         if (!feedClient) return;
@@ -43,7 +49,7 @@ export default function RealtimeNotificationListener() {
                 const notificationContent = item.blocks?.[0]?.rendered?.toLowerCase() || "";
 
                 // 1. Check for Deletion (Immediate Action)
-                if (workflowKey === "user-deleted" || notificationContent.includes("account has been deleted")) {
+                if (workflowKey === "user-deleted" || notificationContent.includes("account has been removed")) {
                     console.log("[RealtimeListener] User account deleted. Logging out...");
                     toast.error("Your account has been removed. Logging out...", { duration: 2000 });
 

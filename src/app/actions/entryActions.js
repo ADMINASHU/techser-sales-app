@@ -51,7 +51,7 @@ export async function createEntry(formData) {
         await notifyAdmins("Created Entry", entry, session.user);
 
         revalidatePath("/entries");
-        revalidatePath("/dashboard");
+        // revalidatePath("/dashboard"); // Removed to prevent Observer refresh in dev mode
         return { success: true, id: entry._id.toString() };
     } catch (error) {
         console.error("Create Entry Error:", error);
@@ -166,7 +166,7 @@ export async function stampIn(entryId, location) {
 
     try {
         await dbConnect();
-        
+
         // Use atomic update to prevent race conditions
         const entry = await Entry.findOneAndUpdate(
             { _id: entryId, $or: [{ "stampIn.time": { $exists: false } }, { "stampIn.time": null }] },
@@ -201,7 +201,7 @@ export async function stampIn(entryId, location) {
         }
 
         revalidatePath(`/entries`);
-        revalidatePath("/dashboard");
+        // revalidatePath("/dashboard");
         return { success: true };
     } catch (error) {
         console.error("Stamp In Error:", error);
@@ -215,7 +215,7 @@ export async function stampOut(entryId, location) {
 
     try {
         await dbConnect();
-        
+
         // Use atomic update to prevent race conditions
         const entry = await Entry.findOneAndUpdate(
             { _id: entryId, status: "In Process" },
@@ -250,7 +250,7 @@ export async function stampOut(entryId, location) {
         }
 
         revalidatePath(`/entries`);
-        revalidatePath("/dashboard");
+        // revalidatePath("/dashboard");
         return { success: true };
     } catch (error) {
         console.error("Stamp Out Error:", error);
