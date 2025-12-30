@@ -45,9 +45,11 @@ export default function RealtimeNotificationListener() {
                 // 1. Check for Deletion (Immediate Action)
                 if (workflowKey === "user-deleted" || notificationContent.includes("account has been deleted")) {
                     console.log("[RealtimeListener] User account deleted. Logging out...");
-                    toast.error("Your account has been removed. Logging out...", { duration: 3000 });
-                    setTimeout(() => {
-                        signOut({ callbackUrl: "/login" });
+                    toast.error("Your account has been removed. Logging out...", { duration: 2000 });
+
+                    setTimeout(async () => {
+                        await signOut({ redirect: false });
+                        window.location.href = "/login";
                     }, 2000);
                     return;
                 }
