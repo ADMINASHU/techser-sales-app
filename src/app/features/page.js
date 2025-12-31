@@ -135,14 +135,6 @@ export default function FeaturesPage() {
                 <p className="text-lg md:text-xl text-muted-foreground/80 max-w-2xl mx-auto">
                     A comprehensive look at the capabilities and technical architecture driving the Techser Sales Application.
                 </p>
-                <div className="flex flex-wrap justify-center gap-4 pt-4">
-                    <div className="flex items-center gap-2 px-4 py-2 rounded-full glass-panel border-white/10 text-xs font-medium uppercase tracking-widest text-primary">
-                        <CheckCircle2 className="w-4 h-4" /> v0.2.11 Release
-                    </div>
-                    <div className="flex items-center gap-2 px-4 py-2 rounded-full glass-panel border-white/10 text-xs font-medium uppercase tracking-widest text-secondary-foreground">
-                        <Clock className="w-4 h-4" /> Optimized for IST
-                    </div>
-                </div>
             </section>
 
             {/* Core Features Grid */}
