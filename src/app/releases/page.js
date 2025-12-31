@@ -89,12 +89,21 @@ export default function ReleasesPage() {
                     Back to Dashboard
                 </Button>
             </Link>
-          <h1 className="text-3xl font-bold bg-linear-to-r from-blue-400 to-violet-500 bg-clip-text text-transparent">
-            Release Notes
-          </h1>
-          <p className="text-gray-500 mt-2">
-            History of improvements, fixes, and updates.
-          </p>
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold bg-linear-to-r from-blue-400 to-violet-500 bg-clip-text text-transparent">
+                Release Notes
+              </h1>
+              <p className="text-gray-500 mt-2">
+                History of improvements, fixes, and updates.
+              </p>
+            </div>
+            <Link href="/features">
+              <Button className="glass-btn-primary rounded-full px-6">
+                View All Features
+              </Button>
+            </Link>
+          </div>
         </div>
 
         <div className="space-y-8">
@@ -110,7 +119,7 @@ export default function ReleasesPage() {
                 return (
                     <div key={idx} className="glass-panel rounded-xl border border-white/5 overflow-hidden">
                         {/* Header */}
-                        <div className="p-6 border-b border-white/5 bg-white/[0.02]">
+                        <div className="p-6 border-b border-white/5 bg-white/2">
                             <div className="flex items-center justify-between mb-1">
                                 <div className="flex items-center gap-3">
                                     <h2 className="text-xl font-bold text-white">v{release.version}</h2>
@@ -128,7 +137,7 @@ export default function ReleasesPage() {
                             <Accordion type="multiple" className="w-full">
                                 {/* Improvements (Features) */}
                                 <AccordionItem value="improvements" className="border-b-0">
-                                    <AccordionTrigger className="px-4 py-3 hover:bg-white/5 rounded-lg hover:no-underline [&[data-state=open]]:bg-white/5">
+                                    <AccordionTrigger className="px-4 py-3 hover:bg-white/5 rounded-lg hover:no-underline data-[state=open]:bg-white/5">
                                         <div className="flex items-center justify-between flex-1 mr-4">
                                             <span className="text-gray-300 font-medium">Improvements</span>
                                             <span className="text-gray-500 text-sm">({improvements.length})</span>
@@ -151,7 +160,7 @@ export default function ReleasesPage() {
 
                                 {/* Fixes */}
                                 <AccordionItem value="fixes" className="border-b-0">
-                                    <AccordionTrigger className="px-4 py-3 hover:bg-white/5 rounded-lg hover:no-underline [&[data-state=open]]:bg-white/5">
+                                    <AccordionTrigger className="px-4 py-3 hover:bg-white/5 rounded-lg hover:no-underline data-[state=open]:bg-white/5">
                                         <div className="flex items-center justify-between flex-1 mr-4">
                                             <span className="text-gray-300 font-medium">Fixes</span>
                                             <span className="text-gray-500 text-sm">({fixes.length})</span>
@@ -174,7 +183,7 @@ export default function ReleasesPage() {
 
                                 {/* Patches (Breaking + Others) */}
                                 <AccordionItem value="patches" className="border-b-0">
-                                    <AccordionTrigger className="px-4 py-3 hover:bg-white/5 rounded-lg hover:no-underline [&[data-state=open]]:bg-white/5">
+                                    <AccordionTrigger className="px-4 py-3 hover:bg-white/5 rounded-lg hover:no-underline data-[state=open]:bg-white/5">
                                         <div className="flex items-center justify-between flex-1 mr-4">
                                             <span className="text-gray-300 font-medium">Patches</span>
                                             <span className="text-gray-500 text-sm">({patches.length})</span>

@@ -19,6 +19,7 @@ export function proxy(req) {
 
     const isPublicPage = pathname === "/" ||
         pathname.startsWith("/releases") ||
+        pathname.startsWith("/features") ||
         pathname.startsWith("/privacy") ||
         pathname.startsWith("/terms") ||
         pathname.startsWith("/support");
