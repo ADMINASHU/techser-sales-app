@@ -14,18 +14,6 @@ All notable changes to this project will be documented in this file. See [standa
 * Add entry management with server actions for CRUD, stamping, Google Sheets integration, admin notifications, and new UI components. ([61beaec](https://github.com/ADMINASHU/techser-sales-app/commit/61beaecd8a22f5bf2ae4e581676bd3a374ebc23f))
 * redesign profile page UI with icons and skeleton loading ([3870a93](https://github.com/ADMINASHU/techser-sales-app/commit/3870a93a59e5ee1ef7d5f29eb05eace0f2ee0196))
 
-## [0.3.0](https://github.com/ADMINASHU/techser-sales-app/compare/v0.2.13...v0.3.0) (2025-12-31)
-
-
-### ⚠ BREAKING CHANGES
-
-* Profile page layout significantly redesigned
-
-### Features
-
-* Add entry management with server actions for CRUD, stamping, Google Sheets integration, admin notifications, and new UI components. ([61beaec](https://github.com/ADMINASHU/techser-sales-app/commit/61beaecd8a22f5bf2ae4e581676bd3a374ebc23f))
-* redesign profile page UI with icons and skeleton loading ([3870a93](https://github.com/ADMINASHU/techser-sales-app/commit/3870a93a59e5ee1ef7d5f29eb05eace0f2ee0196))
-
 ### [0.2.13](https://github.com/ADMINASHU/techser-sales-app/compare/v0.2.12...v0.2.13) (2025-12-31)
 
 
