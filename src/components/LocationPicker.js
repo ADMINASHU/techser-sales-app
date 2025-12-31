@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, MapPin, Navigation } from "lucide-react";
+import { Loader2, MapPin, Navigation, X } from "lucide-react";
 import { toast } from "sonner";
 
 const libraries = ["places", "geometry"];
@@ -196,13 +196,24 @@ function MapInterface({ onLocationSelect }) {
         <div className="space-y-4">
             {/* Search Bar */}
             <div className="relative z-10">
-                <Input
-                    value={value}
-                    onChange={(e) => setValue(e.target.value)}
-                    disabled={!ready}
-                    placeholder="Search for an area, locality..."
-                    className="w-full bg-white dark:bg-black"
-                />
+                <div className="relative">
+                    <Input
+                        value={value}
+                        onChange={(e) => setValue(e.target.value)}
+                        disabled={!ready}
+                        placeholder="Search for an area, locality..."
+                        className="w-full bg-white dark:bg-black pr-10"
+                    />
+                    {value && (
+                        <button
+                            type="button"
+                            onClick={() => setValue("")}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                        >
+                            <X className="w-4 h-4" />
+                        </button>
+                    )}
+                </div>
                 {status === "OK" && (
                     <ul className="absolute z-20 w-full bg-white dark:bg-black border rounded-md mt-1 max-h-60 overflow-auto shadow-lg">
                         {data.map(({ place_id, description }) => (

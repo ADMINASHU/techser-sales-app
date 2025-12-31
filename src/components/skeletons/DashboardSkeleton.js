@@ -35,7 +35,7 @@ export default function DashboardSkeleton() {
             {/* Stats Cards Skeleton */}
             <div className="grid gap-6 md:grid-cols-3">
                 {[...Array(3)].map((_, i) => (
-                    <Card key={i} className="bg-[#1a1f2e] border-white/5 shadow-lg relative overflow-hidden h-[120px]">
+                    <Card key={i} className="glass-card border-white/5 shadow-lg relative overflow-hidden h-[120px]">
                         <CardHeader className="pb-2">
                             <Skeleton className="h-4 w-24" />
                         </CardHeader>
@@ -50,7 +50,7 @@ export default function DashboardSkeleton() {
             {/* System Stats Overview Skeleton */}
             <div className="grid gap-6 md:grid-cols-3 mb-8">
                 {[...Array(3)].map((_, i) => (
-                    <Card key={i} className="bg-[#1a1f2e] border-white/5 shadow-lg relative overflow-hidden h-[120px]">
+                    <Card key={i} className="glass-card border-white/5 shadow-lg relative overflow-hidden h-[120px]">
                         <CardHeader className="pb-2">
                             <Skeleton className="h-4 w-24" />
                         </CardHeader>

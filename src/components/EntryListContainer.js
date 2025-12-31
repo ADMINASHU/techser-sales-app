@@ -77,8 +77,8 @@ export default async function EntryListContainer({ searchParams, session, view }
         .sort({ entryDate: -1 })
         .skip(skip)
         .limit(limit)
-        .populate("userId", "name email region branch")
-        .populate("customerId", "name customerAddress")
+        .populate("userId", "name email region branch role designation image status")
+        .populate("customerId", "name customerAddress contactPerson contactNumber")
         .lean(); // Use lean for performance since we serialize to JSON anyway
 
     // Serialize MongoDB IDs

@@ -68,7 +68,7 @@ export async function customerStampIn(customerId, location) {
                 location: location
             };
             await existingEntry.save();
-            
+
             await notifyAdmins("Stamped In", existingEntry, session.user);
             revalidatePath("/customer-log");
             return { success: true };
@@ -87,20 +87,22 @@ export async function customerStampIn(customerId, location) {
             }
         });
 
-        // Sync to Google Sheets
+        // Sync to Google Sheets & Notify in parallel
         const entryData = entry.toObject();
         entryData.userEmail = session.user.email;
         entryData.userName = session.user.name;
         entryData.userRegion = session.user.region;
         entryData.userBranch = session.user.branch;
-        
-        const sheetResponse = await appendEntryToSheet(entryData);
+
+        const [sheetResponse, _] = await Promise.all([
+            appendEntryToSheet(entryData),
+            notifyAdmins("Stamped In", entry, session.user)
+        ]);
+
         if (sheetResponse && sheetResponse.rowId) {
             entry.googleSheetRowId = sheetResponse.rowId;
             await entry.save();
         }
-
-        await notifyAdmins("Stamped In", entry, session.user);
 
         revalidatePath("/customer-log");
         revalidatePath("/entries");
@@ -120,10 +122,10 @@ export async function customerStampOut(customerId, location) {
 
         // Find the active entry
         const entry = await Entry.findOneAndUpdate(
-            { 
-                customerId, 
-                userId: session.user.id, 
-                status: "In Process" 
+            {
+                customerId,
+                userId: session.user.id,
+                status: "In Process"
             },
             {
                 $set: {
@@ -135,13 +137,13 @@ export async function customerStampOut(customerId, location) {
                 }
             },
             { new: true, sort: { createdAt: -1 } }
-        ).populate("userId", "name email region branch");
+        ).populate("userId", "name email region branch role designation image status");
 
         if (!entry) {
             return { error: "No active stamp-in found for this customer" };
         }
 
-        await notifyAdmins("Stamped Out", entry, session.user);
+        const tasks = [notifyAdmins("Stamped Out", entry, session.user)];
 
         // Sync Update to Sheet
         if (entry.googleSheetRowId) {
@@ -150,8 +152,10 @@ export async function customerStampOut(customerId, location) {
             entryData.userRegion = entry.userId?.region || session.user.region;
             entryData.userBranch = entry.userId?.branch || session.user.branch;
 
-            await updateEntryInSheet(entryData);
+            tasks.push(updateEntryInSheet(entryData));
         }
+
+        await Promise.all(tasks);
 
         revalidatePath("/customer-log");
         revalidatePath("/entries");

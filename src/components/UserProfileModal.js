@@ -56,7 +56,7 @@ export default function UserProfileModal({ user, open, onOpenChange, showActions
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="bg-[#0A0A0B] border-white/10 text-white sm:max-w-2xl p-0 overflow-hidden gap-0">
+            <DialogContent className="bg-card border-white/10 text-white sm:max-w-2xl p-0 overflow-hidden gap-0">
                 <div className="flex flex-col md:flex-row h-full">
 
                     {/* Left Sidebar: ID Card style */}
@@ -113,13 +113,12 @@ export default function UserProfileModal({ user, open, onOpenChange, showActions
                                         <Shield className="w-3.5 h-3.5" /> Account Type
                                     </div>
                                     <div className="pl-5.5">
-                                        <Badge 
+                                        <Badge
                                             variant="outline"
-                                            className={`uppercase tracking-wider text-[10px] px-2 py-0.5 border shadow-sm ${
-                                                user.role === "admin" 
-                                                ? "bg-violet-500/20 text-violet-300 border-violet-500/30" 
-                                                : "bg-blue-500/20 text-blue-300 border-blue-500/30"
-                                            }`}
+                                            className={`uppercase tracking-wider text-[10px] px-2 py-0.5 border shadow-sm ${user.role === "admin"
+                                                    ? "bg-violet-500/20 text-violet-300 border-violet-500/30"
+                                                    : "bg-blue-500/20 text-blue-300 border-blue-500/30"
+                                                }`}
                                         >
                                             {user.role}
                                         </Badge>
@@ -133,13 +132,12 @@ export default function UserProfileModal({ user, open, onOpenChange, showActions
                                     <div className="pl-5.5">
                                         <Badge
                                             variant="outline"
-                                            className={`uppercase tracking-wider text-[10px] px-2 py-0.5 border shadow-sm ${
-                                                user.status === "verified"
+                                            className={`uppercase tracking-wider text-[10px] px-2 py-0.5 border shadow-sm ${user.status === "verified"
                                                     ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
                                                     : user.status === "declined"
                                                         ? "bg-red-500/20 text-red-400 border-red-500/30"
                                                         : "bg-yellow-400/20 text-yellow-400 border-yellow-400/30"
-                                            }`}
+                                                }`}
                                         >
                                             {user.status || "Pending"}
                                         </Badge>

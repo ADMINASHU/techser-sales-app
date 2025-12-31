@@ -41,6 +41,7 @@ export default function EditProfileDialog({ user, trigger }) {
 
     // Profile State
     const [formData, setFormData] = useState({
+        name: user.name || "",
         contactNumber: user.contactNumber || "",
         address: user.address || "",
         region: user.region || "",
@@ -120,7 +121,7 @@ export default function EditProfileDialog({ user, trigger }) {
             <DialogTrigger asChild>
                 {trigger || <Button variant="outline">Edit Profile</Button>}
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto bg-[#1a1f2e] border-white/10 shadow-2xl">
+            <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto hide-scrollbar bg-[#1a1f2e] border-white/10 shadow-2xl">
                 <DialogHeader className="border-b border-white/5 pb-4">
                     <DialogTitle className="text-white">Edit Profile</DialogTitle>
                     <DialogDescription className="text-gray-400">
@@ -128,8 +129,20 @@ export default function EditProfileDialog({ user, trigger }) {
                     </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="contactNumber" className="text-right text-gray-300">Contact (10 Digits)</Label>
+                    <div className="grid gap-2">
+                        <Label htmlFor="name" className="text-gray-300">Display Name</Label>
+                        <Input
+                            id="name"
+                            name="name"
+                            value={formData.name}
+                            onChange={handleProfileChange}
+                            placeholder="Your Name"
+                            className="bg-[#1e293b]/50 border-white/10 text-white placeholder:text-gray-500 focus-visible:ring-fuchsia-500/50"
+                        />
+                    </div>
+
+                    <div className="grid gap-2">
+                        <Label htmlFor="contactNumber" className="text-gray-300">Contact Number (10 Digits)</Label>
                         <Input
                             id="contactNumber"
                             name="contactNumber"
@@ -141,26 +154,25 @@ export default function EditProfileDialog({ user, trigger }) {
                             type="tel"
                             maxLength={10}
                             pattern="[0-9]{10}"
-                            className="col-span-3 bg-[#1e293b]/50 border-white/10 text-white placeholder:text-gray-500 focus-visible:ring-fuchsia-500/50"
+                            className="bg-[#1e293b]/50 border-white/10 text-white placeholder:text-gray-500 focus-visible:ring-fuchsia-500/50"
                         />
                     </div>
 
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="designation" className="text-right text-gray-300">Designation</Label>
+                    <div className="grid gap-2">
+                        <Label htmlFor="designation" className="text-gray-300">Designation</Label>
                         <Input
                             id="designation"
                             name="designation"
                             value={formData.designation}
                             onChange={handleProfileChange}
                             placeholder="e.g. Sales Executive"
-                            className="col-span-3 bg-[#1e293b]/50 border-white/10 text-white placeholder:text-gray-500 focus-visible:ring-fuchsia-500/50"
+                            className="bg-[#1e293b]/50 border-white/10 text-white placeholder:text-gray-500 focus-visible:ring-fuchsia-500/50"
                         />
                     </div>
 
-                    {/* Region Select */}
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="region" className="text-right text-gray-300">Region</Label>
-                        <div className="col-span-3">
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="grid gap-2">
+                            <Label htmlFor="region" className="text-gray-300">Region</Label>
                             <Select
                                 value={formData.region}
                                 onValueChange={(val) => handleSelectChange("region", val)}
@@ -175,12 +187,9 @@ export default function EditProfileDialog({ user, trigger }) {
                                 </SelectContent>
                             </Select>
                         </div>
-                    </div>
 
-                    {/* Branch Select */}
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="branch" className="text-right text-gray-300">Branch</Label>
-                        <div className="col-span-3">
+                        <div className="grid gap-2">
+                            <Label htmlFor="branch" className="text-gray-300">Branch</Label>
                             <Select
                                 value={formData.branch}
                                 onValueChange={(val) => handleSelectChange("branch", val)}
@@ -198,14 +207,14 @@ export default function EditProfileDialog({ user, trigger }) {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="address" className="text-right text-gray-300">Address</Label>
+                    <div className="grid gap-2">
+                        <Label htmlFor="address" className="text-gray-300">Address</Label>
                         <Input
                             id="address"
                             name="address"
                             value={formData.address}
                             onChange={handleProfileChange}
-                            className="col-span-3 bg-[#1e293b]/50 border-white/10 text-white placeholder:text-gray-500 focus-visible:ring-fuchsia-500/50"
+                            className="bg-[#1e293b]/50 border-white/10 text-white placeholder:text-gray-500 focus-visible:ring-fuchsia-500/50"
                         />
                     </div>
 
@@ -220,7 +229,7 @@ export default function EditProfileDialog({ user, trigger }) {
                     </div>
 
                     {isPasswordSectionOpen && (
-                        <div className="grid gap-4 bg-white/5 border border-white/5 p-4 rounded-md">
+                        <>
                             <div className="grid gap-2">
                                 <Label htmlFor="currentPassword" className="text-gray-300">Current Password</Label>
                                 <Input
@@ -257,7 +266,7 @@ export default function EditProfileDialog({ user, trigger }) {
                                     className="bg-[#1e293b]/50 border-white/10 text-white focus-visible:ring-fuchsia-500/50"
                                 />
                             </div>
-                        </div>
+                        </>
                     )}
 
                     <DialogFooter>

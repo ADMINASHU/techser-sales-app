@@ -35,9 +35,6 @@ export default function CustomerPageClient({ initialCustomers, initialHasMore, l
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 {/* Desktop Title - Hidden on Mobile */}
                 <div className="hidden md:flex items-center gap-3 shrink-0">
-                    <div className="p-3 rounded-2xl bg-linear-to-br from-blue-500/20 to-fuchsia-500/20 border border-white/10">
-                        <Users className="w-6 h-6 text-blue-400" />
-                    </div>
                     <h1 className="text-2xl font-bold bg-linear-to-r from-white to-gray-400 bg-clip-text text-transparent">
                         Customers
                     </h1>
@@ -45,9 +42,9 @@ export default function CustomerPageClient({ initialCustomers, initialHasMore, l
 
                 {/* Search / Filters - Flex-1 to take middle space */}
                 <div className="flex-1 w-full order-3 md:order-2">
-                    <CustomerFilters 
-                        locations={locations} 
-                        isAdmin={isAdmin} 
+                    <CustomerFilters
+                        locations={locations}
+                        isAdmin={isAdmin}
                     />
                 </div>
 
@@ -63,18 +60,18 @@ export default function CustomerPageClient({ initialCustomers, initialHasMore, l
                                 <span className="whitespace-nowrap">Add New Customer</span>
                             </Button>
                         </DialogTrigger>
-                        <DialogContent className="glass-card border-white/10 max-w-3xl max-h-[90vh] overflow-y-auto">
+                        <DialogContent className="w-[calc(100%-2rem)] max-w-3xl max-h-[90vh] overflow-y-auto hide-scrollbar bg-card border-white/10 p-6 rounded-xl">
                             <DialogHeader>
                                 <DialogTitle className="text-2xl font-bold text-white">
                                     {editingCustomer ? "Edit Customer" : "Add New Customer"}
                                 </DialogTitle>
                                 <DialogDescription className="text-gray-400">
-                                    {editingCustomer 
-                                        ? "Update the details for this customer." 
+                                    {editingCustomer
+                                        ? "Update the details for this customer."
                                         : "Enter the details for the new customer."}
                                 </DialogDescription>
                             </DialogHeader>
-                            <CustomerForm 
+                            <CustomerForm
                                 initialData={editingCustomer}
                                 user={user}
                                 onSuccess={handleFormSuccess}
@@ -86,7 +83,7 @@ export default function CustomerPageClient({ initialCustomers, initialHasMore, l
             </div>
 
             {initialCustomers.length > 0 ? (
-                <InfiniteCustomerList 
+                <InfiniteCustomerList
                     initialCustomers={initialCustomers}
                     initialHasMore={initialHasMore}
                     searchParams={searchParams}
@@ -100,7 +97,7 @@ export default function CustomerPageClient({ initialCustomers, initialHasMore, l
                     </div>
                     <h3 className="text-xl font-semibold text-white mb-2">No customers found</h3>
                     <p className="text-gray-400 max-w-md mx-auto">
-                        We couldn't find any customers matching your current filters. Try adjusting them or add a new customer.
+                        We couldn&apos;t find any customers matching your current filters. Try adjusting them or add a new customer.
                     </p>
                 </div>
             )}

@@ -12,8 +12,8 @@ export default function UserCard({ user, onClick, className = "", actions }) {
         .slice(0, 2);
 
     return (
-        <div 
-            className={`flex items-start gap-4 p-4 glass-card cursor-pointer group ${className}`}
+        <div
+            className={`flex items-start gap-4 p-4 glass-card cursor-pointer group rounded-xl ${className}`}
             onClick={onClick}
         >
             {/* Left side: Image and Role */}
@@ -24,13 +24,12 @@ export default function UserCard({ user, onClick, className = "", actions }) {
                         {initials}
                     </AvatarFallback>
                 </Avatar>
-                <Badge 
-                    variant="outline" 
-                    className={`text-[10px] uppercase tracking-wider px-2 py-0 h-4 border-none shadow-sm ${
-                        user.role === "admin" 
-                        ? "bg-violet-500/20 text-violet-300" 
-                        : "bg-blue-500/20 text-blue-300"
-                    }`}
+                <Badge
+                    variant="outline"
+                    className={`text-[10px] uppercase tracking-wider px-2 py-0 h-4 border-none shadow-sm ${user.role === "admin"
+                            ? "bg-violet-500/20 text-violet-300"
+                            : "bg-blue-500/20 text-blue-300"
+                        }`}
                 >
                     {user.role}
                 </Badge>
@@ -43,13 +42,12 @@ export default function UserCard({ user, onClick, className = "", actions }) {
                     {user.status && (
                         <Badge
                             variant="outline"
-                            className={`text-[9px] h-4 px-1.5 border-none ${
-                                user.status === "verified"
+                            className={`text-[9px] h-4 px-1.5 border-none ${user.status === "verified"
                                     ? "bg-emerald-500/10 text-emerald-400"
                                     : user.status === "declined"
                                         ? "bg-red-500/10 text-red-400"
                                         : "bg-yellow-500/10 text-yellow-400"
-                            }`}
+                                }`}
                         >
                             {user.status}
                         </Badge>
@@ -58,7 +56,7 @@ export default function UserCard({ user, onClick, className = "", actions }) {
                 <p className="text-xs text-violet-400 font-semibold truncate uppercase tracking-wider min-h-4">
                     {user.designation || "\u00A0"}
                 </p>
-                
+
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-gray-500 mt-2 font-medium">
                     <div className="flex items-center gap-1.5 min-w-0">
                         <span className="w-1 h-1 rounded-full bg-blue-500 shrink-0" />

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { MapPin, Phone, User, Edit2, Trash2, Home } from "lucide-react";
+import { Phone, User, Trash2, Home, Navigation } from "lucide-react";
 import { deleteCustomer } from "@/app/actions/customerActions";
 import { toast } from "sonner";
 import {
@@ -36,7 +36,8 @@ export default function CustomerCard({ customer, isAdmin, onEdit }) {
 
     return (
         <>
-            <div 
+            <div
+                onClick={() => onEdit(customer)}
                 className="glass-card p-4 rounded-xl relative overflow-hidden group active:scale-[0.98] transition-all duration-300 transform-gpu h-full flex flex-col cursor-pointer"
             >
                 {/* Background Glow */}
@@ -47,7 +48,7 @@ export default function CustomerCard({ customer, isAdmin, onEdit }) {
                 <div className="flex items-start justify-between gap-4 mb-2 relative z-10">
                     <h3 className="text-lg font-semibold text-white truncate">{customer.name}</h3>
                     <div className="flex flex-col items-end gap-1 shrink-0">
-                         <Badge variant="outline" className="bg-blue-500/10 text-blue-400 border-blue-500/20 text-[9px] py-0 px-1.5 font-medium whitespace-nowrap h-4">
+                        <Badge variant="outline" className="bg-blue-500/10 text-blue-400 border-blue-500/20 text-[9px] py-0 px-1.5 font-medium whitespace-nowrap h-4">
                             {customer.region}
                         </Badge>
                         <Badge variant="outline" className="bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20 text-[9px] py-0 px-1.5 font-medium whitespace-nowrap h-4">
@@ -61,7 +62,7 @@ export default function CustomerCard({ customer, isAdmin, onEdit }) {
                         <Home className="w-4 h-4 mt-0.5 text-blue-500/50 shrink-0" />
                         <p className="line-clamp-2">{customer.customerAddress}</p>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1">
                         <div className="flex items-center gap-2 text-sm text-gray-400">
                             <User className="w-4 h-4 text-blue-500/50 shrink-0" />
@@ -76,20 +77,9 @@ export default function CustomerCard({ customer, isAdmin, onEdit }) {
 
                 <div className="pt-3 border-t border-white/5 flex justify-between items-center mt-auto relative z-10">
                     <div className="flex gap-2">
-                         <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onEdit(customer);
-                            }}
-                            className="h-8 w-8 p-0 text-gray-400 hover:text-white hover:bg-white/5"
-                        >
-                            <Edit2 className="w-4 h-4" />
-                        </Button>
-                        <Button 
-                            variant="ghost" 
-                            size="sm" 
+                        <Button
+                            variant="ghost"
+                            size="sm"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 setShowDeleteDialog(true);
@@ -99,17 +89,18 @@ export default function CustomerCard({ customer, isAdmin, onEdit }) {
                             <Trash2 className="w-4 h-4" />
                         </Button>
                     </div>
-                    
+
                     {customer.location?.lat && (
                         <a
-                            href={`https://www.google.com/maps/search/?api=1&query=${customer.location.lat},${customer.location.lng}`}
+                            href={`https://www.google.com/maps/dir/?api=1&destination=${customer.location.lat},${customer.location.lng}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-xs text-blue-400 hover:underline flex items-center gap-1"
                             onClick={(e) => e.stopPropagation()}
                         >
-                            <MapPin className="w-3 h-3" />
-                            View on Map
+                            <Button variant="secondary" size="sm" className="h-8 text-xs bg-white/10 hover:bg-white/20 border-white/10 text-blue-400">
+                                <Navigation className="w-3 h-3 mr-1.5" />
+                                Get Directions
+                            </Button>
                         </a>
                     )}
                 </div>
@@ -120,12 +111,12 @@ export default function CustomerCard({ customer, isAdmin, onEdit }) {
                     <AlertDialogHeader>
                         <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                         <AlertDialogDescription className="text-gray-400">
-                            This will permanently delete the customer "{customer.name}". This action cannot be undone.
+                            This will permanently delete the customer &quot;{customer.name}&quot;. This action cannot be undone.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel className="bg-white/5 border-white/10 text-white hover:bg-white/10">Cancel</AlertDialogCancel>
-                        <AlertDialogAction 
+                        <AlertDialogAction
                             onClick={handleDelete}
                             className="bg-red-600 hover:bg-red-700 text-white border-0"
                             disabled={isDeleting}

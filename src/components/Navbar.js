@@ -39,8 +39,10 @@ export default function Navbar() {
 
     const links = [
         ...(session?.user?.role === "admin" ? [{ href: "/dashboard", label: "Dashboard" }] : []),
-        { href: "/customer-log", label: "Check-In" },
-        { href: "/customers", label: "Customers" },
+        ...(session?.user?.role !== "admin" ? [
+            { href: "/customer-log", label: "Check-In" },
+            { href: "/customers", label: "Customers" }
+        ] : []),
         { href: "/entries", label: "Entry Log" },
     ];
 
@@ -53,7 +55,7 @@ export default function Navbar() {
     return (
         <nav className="sticky top-0 z-50 w-full glass-panel border-b border-white/5">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between items-center h-20">
+                <div className="flex justify-between items-center h-16 md:h-20">
                     {/* Logo */}
                     <Link href={session?.user?.role === "admin" ? "/dashboard" : "/customer-log"} className="shrink-0 flex items-center group">
                         <div className="mr-3 transition-transform group-hover:scale-105">
@@ -70,7 +72,7 @@ export default function Navbar() {
                     </Link>
 
                     {/* Mobile Page Title */}
-                    <div className="sm:hidden absolute left-1/2 -translate-x-1/2 flex items-center h-20">
+                    <div className="sm:hidden absolute left-1/2 -translate-x-1/2 flex items-center h-16">
                         <span className="text-lg font-bold bg-linear-to-r from-white to-gray-400 bg-clip-text text-transparent truncate max-w-[180px]">
                             {links.find(l => l.href === pathname)?.label ||
                                 (pathname === "/profile" ? "Profile" : "")}
@@ -168,7 +170,7 @@ export default function Navbar() {
 
                 {/* Mobile Menu */}
                 {isOpen && (
-                    <div className="sm:hidden bg-[#0f1117] border-b border-white/10 absolute left-0 right-0 top-20 shadow-2xl z-50 p-4 border-t-0 rounded-b-2xl animate-in slide-in-from-top-2 duration-300">
+                    <div className="sm:hidden bg-[#0f1117] border-b border-white/10 absolute left-0 right-0 top-16 shadow-2xl z-50 p-4 border-t-0 rounded-b-2xl animate-in slide-in-from-top-2 duration-300">
                         <div className="space-y-1">
                             {session?.user &&
                                 links.map((link) => (

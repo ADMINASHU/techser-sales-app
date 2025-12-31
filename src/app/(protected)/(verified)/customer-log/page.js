@@ -4,9 +4,13 @@ import { getFilters } from "@/app/actions/reportActions";
 import CustomerFilters from "@/components/CustomerFilters";
 import InfiniteCustomerLogList from "@/components/InfiniteCustomerLogList";
 import { ClipboardList, SearchX } from "lucide-react";
+import { redirect } from "next/navigation";
 
 export default async function CustomerLogPage({ searchParams }) {
     const session = await auth();
+    if (session?.user?.role === "admin") {
+        redirect("/dashboard");
+    }
     const params = await searchParams;
     const filtersData = await getFilters();
 
@@ -30,17 +34,17 @@ export default async function CustomerLogPage({ searchParams }) {
 
     return (
         <div className="space-y-6">
-            <div className="hidden sm:flex flex-row items-center justify-between gap-4">
-                <h1 className="text-3xl font-bold bg-linear-to-r from-white to-gray-400 bg-clip-text text-transparent">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <h1 className="text-3xl font-bold bg-linear-to-r from-white to-gray-400 bg-clip-text text-transparent hidden sm:block">
                     Check-In
                 </h1>
-            </div>
 
-            <div className="space-y-4">
-                <CustomerFilters
-                    locations={filtersData.locations}
-                    isAdmin={session.user.role === "admin"}
-                />
+                <div className="w-full sm:max-w-xs md:max-w-sm">
+                    <CustomerFilters
+                        locations={filtersData.locations}
+                        isAdmin={session.user.role === "admin"}
+                    />
+                </div>
             </div>
 
             {initialCustomersWithStatus.length > 0 ? (

@@ -46,7 +46,7 @@ export default function CustomerFilters({ locations = [], isAdmin = false }) {
     }, [selectedRegion, selectedBranch, debouncedSearch, router, pathname, searchParams]);
 
     return (
-        <div className="relative group w-full max-w-2xl mx-auto">
+        <div className="relative group w-full">
             <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-gray-500">
                 <Search className="w-4 h-4" />
             </div>
@@ -57,7 +57,7 @@ export default function CustomerFilters({ locations = [], isAdmin = false }) {
                 className="bg-white/5 border-white/10 text-gray-300 h-10 pl-9 pr-10 rounded-xl focus:ring-1 focus:ring-blue-500/50 transition-all hover:bg-white/10 shadow-lg"
             />
             {search && (
-                <button 
+                <button
                     onClick={() => setSearch("")}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
                 >

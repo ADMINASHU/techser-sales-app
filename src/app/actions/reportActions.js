@@ -10,7 +10,7 @@ import { formatInIST } from "@/lib/utils";
 // Helper: Calculate distance between two coordinates in km (Haversine formula)
 function calculateDistance(loc1, loc2) {
     if (!loc1?.lat || !loc1?.lng || !loc2?.lat || !loc2?.lng) return "";
-    
+
     const R = 6371; // Radius of the earth in km
     const dLat = deg2rad(loc2.lat - loc1.lat);
     const dLon = deg2rad(loc2.lng - loc1.lng);
@@ -115,7 +115,10 @@ export async function getRawEntries({ startDate, endDate, userId, region, branch
     }
 
     // We sort by createdAt -1 to get recent ones
-    let queryBuilder = Entry.find(query).populate("userId", "name email region branch").sort({ createdAt: -1 });
+    let queryBuilder = Entry.find(query)
+        .populate("userId", "name email region branch")
+        .populate("customerId")
+        .sort({ createdAt: -1 });
 
     if (limit) {
         queryBuilder = queryBuilder.limit(limit);

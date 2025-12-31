@@ -5,6 +5,7 @@ import { useInView } from "react-intersection-observer";
 import CustomerActionCard from "@/components/CustomerActionCard";
 import { getCustomersWithEntryCount, getCustomerActionStatus } from "@/app/actions/customerActions";
 import { Loader2 } from "lucide-react";
+import CustomerCardSkeleton from "@/components/skeletons/CustomerCardSkeleton";
 
 export default function InfiniteCustomerLogList({ initialCustomers, initialHasMore, searchParams, userId }) {
     const [customers, setCustomers] = useState(initialCustomers);
@@ -88,15 +89,15 @@ export default function InfiniteCustomerLogList({ initialCustomers, initialHasMo
             </div>
 
             {/* Loading Indicator / Observer Target */}
-            {hasMore && (
-                <div ref={ref} className="flex justify-center p-4">
-                    {loading ? (
-                        <Loader2 className="h-6 w-6 animate-spin text-blue-500" />
-                    ) : (
-                        <div className="h-4" /> // Invisible target
-                    )}
-                </div>
-            )}
+            <div ref={ref}>
+                {loading || hasMore ? (
+                    <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mt-6">
+                        {[1, 2, 3].map((i) => (
+                            <CustomerCardSkeleton key={i} />
+                        ))}
+                    </div>
+                ) : null}
+            </div>
 
             {!hasMore && customers.length > 0 && (
                 <p className="text-center text-xs text-gray-500 py-4">No more customers</p>

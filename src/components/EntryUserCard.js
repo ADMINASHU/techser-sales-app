@@ -15,15 +15,15 @@ export default function EntryUserCard({ user }) {
 
     return (
         <>
-            <UserCard 
-                user={user} 
-                className="bg-white/5 border-white/10 hover:bg-white/10 transition-colors cursor-pointer" 
+            <UserCard
+                user={user}
+                className="bg-white/5 border-white/10 hover:bg-white/10 transition-colors cursor-pointer rounded-xl"
                 onClick={() => setShowProfile(true)}
             />
-            <UserProfileModal 
-                user={user} 
-                open={showProfile} 
-                onOpenChange={setShowProfile} 
+            <UserProfileModal
+                user={user}
+                open={showProfile}
+                onOpenChange={setShowProfile}
                 showActions={false}
             />
         </>

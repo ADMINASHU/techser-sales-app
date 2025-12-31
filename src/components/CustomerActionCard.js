@@ -10,8 +10,10 @@ import { toast } from "sonner";
 import { LoadingButton } from "@/components/ui/LoadingButton";
 import DurationDisplay from "@/components/DurationDisplay";
 import { Timer } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function CustomerActionCard({ customer, activeEntry, userId, hasActiveStampIn }) {
+    const router = useRouter();
     const [loading, setLoading] = useState(false);
 
     const handleStamp = async (type) => {
@@ -44,7 +46,7 @@ export default function CustomerActionCard({ customer, activeEntry, userId, hasA
                     toast.error(res.error);
                 } else {
                     toast.success(type === "in" ? "Stamped In!" : "Stamped Out!");
-                    window.location.reload(); // Refresh to update status
+                    router.refresh();
                 }
             },
             (error) => {
@@ -76,7 +78,7 @@ export default function CustomerActionCard({ customer, activeEntry, userId, hasA
 
             {/* Status Indicator Bar */}
             <div className={`absolute left-0 top-0 bottom-0 w-1.5 z-20 ${isStampedIn ? "bg-yellow-500 shadow-[0_0_10px_rgba(234,179,8,0.5)]" :
-                    isCompleted ? "bg-emerald-500" : "bg-blue-500/20"
+                isCompleted ? "bg-emerald-500" : "bg-blue-500/20"
                 }`} />
 
             <div className="flex justify-between items-start mb-2 gap-4 relative z-10">
@@ -95,17 +97,6 @@ export default function CustomerActionCard({ customer, activeEntry, userId, hasA
                 <p className="">{customer.customerAddress}</p>
             </div>
 
-            {activeEntry && (isStampedIn || isCompleted) && (
-                <div className="flex items-center justify-center gap-1.5 mb-2 py-1.5 px-3 rounded-full bg-white/5 border border-white/5 text-xs font-medium animate-in fade-in slide-in-from-bottom-2 duration-500 w-fit mx-auto relative z-10">
-                    <Timer className={`w-3.5 h-3.5 ${isStampedIn ? "text-yellow-500 animate-pulse" : "text-emerald-400"}`} />
-                    <DurationDisplay
-                        startTime={activeEntry.stampIn?.time}
-                        endTime={activeEntry.stampOut?.time}
-                        status={activeEntry.status}
-                    />
-                </div>
-            )}
-
             <div className="flex gap-3 mt-auto relative z-10">
                 {!isStampedIn && !isCompleted && (
                     <div className="flex-1 relative group/tooltip">
@@ -114,9 +105,9 @@ export default function CustomerActionCard({ customer, activeEntry, userId, hasA
                             loading={loading}
                             disabled={!canStampIn}
                             className={`w-full ${canStampIn
-                                    ? "bg-emerald-600 hover:bg-emerald-700 text-white"
-                                    : "bg-gray-500/20 text-gray-500 cursor-not-allowed"
-                                } font-bold h-12 rounded-xl shadow-lg border-0`}
+                                ? "bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg shadow-emerald-500/20"
+                                : "bg-gray-500/20 text-gray-500 cursor-not-allowed"
+                                } font-bold h-12 rounded-xl border-0 transition-all duration-300 active:scale-[0.98]`}
                         >
                             <LogIn className="w-5 h-5 mr-2" />
                             Stamp In
@@ -134,10 +125,24 @@ export default function CustomerActionCard({ customer, activeEntry, userId, hasA
                     <LoadingButton
                         onClick={() => handleStamp("out")}
                         loading={loading}
-                        className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold h-12 rounded-xl shadow-lg border-0"
+                        className="flex-1 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-bold h-12 rounded-xl shadow-lg shadow-rose-500/20 border-0 transition-all duration-300 active:scale-[0.98] flex flex-row items-center justify-between px-4 group ring-1 ring-white/10"
                     >
-                        <LogOut className="w-5 h-5 mr-2" />
-                        Stamp Out
+                        <div className="flex items-center gap-2">
+                            <div className="p-1.5 bg-white/10 rounded-full">
+                                <LogOut className="w-4 h-4 text-white" />
+                            </div>
+                            <span className="text-base">Stamp Out</span>
+                        </div>
+
+                        <div className="flex items-center gap-2 pl-3 border-l border-white/10 h-6">
+                            <Timer className="w-4 h-4 text-white animate-pulse" />
+                            <DurationDisplay
+                                startTime={activeEntry.stampIn?.time}
+                                endTime={activeEntry.stampOut?.time}
+                                status={activeEntry.status}
+                                hideLabel={true}
+                            />
+                        </div>
                     </LoadingButton>
                 )}
 
