@@ -51,7 +51,7 @@ export default async function EntriesPage({ searchParams }) {
             </div>
 
             {/* Streamed Entry List */}
-            <Suspense fallback={<EntriesSkeleton />}>
+            <Suspense fallback={<EntriesSkeleton view={view} />}>
                 <EntryListContainer 
                     searchParams={params} 
                     session={session} 

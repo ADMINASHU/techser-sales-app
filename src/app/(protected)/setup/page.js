@@ -122,9 +122,10 @@ export default function ProfileSetupPage() {
                             <Image
                                 src="/logo.png"
                                 alt="App Logo"
-                                width={120}
-                                height={120}
-                                className="object-contain"
+                                width={300}
+                                height={80}
+                                className="h-20 w-auto object-contain"
+                                style={{ height: '80px', width: 'auto' }}
                                 priority
                                 unoptimized
                             />

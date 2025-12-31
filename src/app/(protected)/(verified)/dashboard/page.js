@@ -7,11 +7,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import UserDashboard from "@/components/UserDashboard";
-import dynamicImport from "next/dynamic";
-import DashboardSkeleton from "@/components/skeletons/DashboardSkeleton";
-const AdminDashboard = dynamicImport(() => import("@/components/AdminDashboard"), {
-    loading: () => <DashboardSkeleton />,
-});
+import AdminDashboard from "@/components/AdminDashboard";
+import { getSystemStats, getRawEntries, getFilters } from "@/app/actions/reportActions";
 
 export const dynamic = 'force-dynamic';
 
@@ -23,7 +20,23 @@ export default async function DashboardPage({ searchParams }) {
 
     // If Admin, show Admin Dashboard
     if (session.user.role === "admin") {
-        return <AdminDashboard />;
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+
+        const [systemStats, recentEntries, initialMonthlyEntries, filters] = await Promise.all([
+            getSystemStats(),
+            getRawEntries({ limit: 10 }),
+            getRawEntries({ startDate: startOfMonth, endDate: endOfMonth }),
+            getFilters()
+        ]);
+
+        return <AdminDashboard 
+            initialSystemStats={systemStats} 
+            initialRecentEntries={recentEntries}
+            initialMonthlyEntries={initialMonthlyEntries}
+            initialFilters={filters}
+        />;
     }
 
     // Default User Dashboard Logic

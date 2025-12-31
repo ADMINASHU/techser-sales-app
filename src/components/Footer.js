@@ -16,6 +16,7 @@ export default function Footer() {
                         width={120}
                         height={24}
                         className="h-6 w-auto object-contain opacity-80"
+                        style={{ width: 'auto' }}
                         unoptimized
                     />
                     {/* <span className="font-semibold text-gray-300">Techser Sales Management</span> */}

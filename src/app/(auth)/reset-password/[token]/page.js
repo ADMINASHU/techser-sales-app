@@ -39,11 +39,10 @@ export default function ResetPasswordPage({ params }) {
                     <Image
                         src="/logo.png"
                         alt="Techser Logo"
-                        width={0}
-                        height={0}
-                        sizes="100vw"
-                        className="w-auto object-contain"
-                        style={{ width: 'auto', height: '5rem' }}
+                        width={300}
+                        height={80}
+                        className="w-auto h-20 object-contain"
+                        style={{ height: '80px', width: 'auto' }}
                         priority
                         unoptimized
                     />
@@ -71,7 +70,7 @@ export default function ResetPasswordPage({ params }) {
                     <LoadingButton
                         type="submit"
                         loading={loading}
-                        className="w-full h-11 text-base bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 shadow-lg shadow-fuchsia-500/20 border-0"
+                        className="w-full h-11 text-base bg-linear-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 shadow-lg shadow-fuchsia-500/20 border-0"
                     >
                         Reset Password
                     </LoadingButton>

@@ -13,9 +13,14 @@ import EntryCard from "@/components/EntryCard";
 import Link from "next/link";
 import DashboardSkeleton from "@/components/skeletons/DashboardSkeleton";
 
-export default function AdminDashboard() {
-    const [filters, setFilters] = useState({ users: [], locations: [] }); // locations: [{name, branches:[]}]
-    const [filtersLoading, setFiltersLoading] = useState(true);
+export default function AdminDashboard({ 
+    initialSystemStats, 
+    initialRecentEntries, 
+    initialMonthlyEntries, 
+    initialFilters 
+}) {
+    const [filters, setFilters] = useState(initialFilters || { users: [], locations: [] }); // locations: [{name, branches:[]}]
+    const [filtersLoading, setFiltersLoading] = useState(!initialFilters);
 
     // Default to current Month/Year
     const currentDate = new Date();
@@ -29,10 +34,10 @@ export default function AdminDashboard() {
     const [loading, setLoading] = useState(false);
 
     // SWR: System Stats
-    const { data: systemStats } = useSWR('system-stats', getSystemStats);
+    const { data: systemStats } = useSWR('system-stats', getSystemStats, { fallbackData: initialSystemStats });
 
     // SWR: Recent Entries (Unfiltered)
-    const { data: recentEntries = [], isLoading: recentLoading } = useSWR('recent-entries', () => getRawEntries({ limit: 10 }));
+    const { data: recentEntries = [], isLoading: recentLoading } = useSWR('recent-entries', () => getRawEntries({ limit: 10 }), { fallbackData: initialRecentEntries });
 
     // SWR: Main Stats
     const statsFetcher = useCallback(async ([_, u, r, b, m, y]) => {
@@ -62,6 +67,7 @@ export default function AdminDashboard() {
         !filtersLoading ? ['dashboard-stats', selectedUser, selectedRegion, selectedBranch, selectedMonth, selectedYear] : null,
         statsFetcher,
         {
+            fallbackData: initialMonthlyEntries,
             keepPreviousData: true,
             revalidateOnFocus: false
         }
@@ -70,11 +76,13 @@ export default function AdminDashboard() {
     const fetchLoading = statsLoading;
 
     useEffect(() => {
-        getFilters().then(data => {
-            setFilters(data);
-            setFiltersLoading(false);
-        });
-    }, []);
+        if (!initialFilters) {
+            getFilters().then(data => {
+                setFilters(data);
+                setFiltersLoading(false);
+            });
+        }
+    }, [initialFilters]);
 
     // Derived branches based on selected region
     const availableBranches = useMemo(() => {
@@ -434,11 +442,7 @@ export default function AdminDashboard() {
                     </Link>
                 </div>
 
-                {recentLoading ? (
-                    <div className="flex items-center justify-center p-12 glass-panel rounded-xl">
-                        <Loader2 className="animate-spin h-8 w-8 text-gray-400" />
-                    </div>
-                ) : recentEntries.length === 0 ? (
+                {recentEntries.length === 0 && !recentLoading ? (
                     <div className="glass-panel p-6 rounded-xl text-center text-gray-400">
                         No entries found.
                     </div>

@@ -126,11 +126,10 @@ export async function getRawEntries({ startDate, endDate, userId, region, branch
 
 export async function getFilters() {
     await dbConnect();
-    // Exclude admins from the user dropdown as they likely don't have sales data
-    const users = await User.find({ role: "user" }, "name _id");
-
-    // Fetch Locations (Hierarchy)
-    const locations = await Location.find({}).sort({ name: 1 });
+    const [users, locations] = await Promise.all([
+        User.find({ role: "user" }, "name _id").lean(),
+        Location.find({}).sort({ name: 1 }).lean()
+    ]);
 
     return {
         users: JSON.parse(JSON.stringify(users)),
@@ -146,15 +145,14 @@ export async function getSystemStats() {
 
     await dbConnect();
 
-    // User Stats
-    const totalAdmins = await User.countDocuments({ role: "admin" });
-    const verifiedAdmins = await User.countDocuments({ role: "admin", status: "verified" });
+    const [totalAdmins, verifiedAdmins, totalUsers, verifiedUsers, locations] = await Promise.all([
+        User.countDocuments({ role: "admin" }),
+        User.countDocuments({ role: "admin", status: "verified" }),
+        User.countDocuments({ role: "user" }),
+        User.countDocuments({ role: "user", status: "verified" }),
+        Location.find({}).lean()
+    ]);
 
-    const totalUsers = await User.countDocuments({ role: "user" });
-    const verifiedUsers = await User.countDocuments({ role: "user", status: "verified" });
-
-    // Location Stats
-    const locations = await Location.find({}); // Need all to count branches
     const totalRegions = locations.length;
     const totalBranches = locations.reduce((acc, loc) => acc + (loc.branches?.length || 0), 0);
 

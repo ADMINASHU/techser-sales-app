@@ -48,11 +48,10 @@ export default function RegisterPage() {
                     <Image
                         src="/logo.png"
                         alt="Techser Logo"
-                        width={0}
-                        height={0}
-                        sizes="100vw"
-                        className="w-auto object-contain"
-                        style={{ width: 'auto', height: '5rem' }}
+                        width={300}
+                        height={80}
+                        className="w-auto h-20 object-contain"
+                        style={{ height: '80px', width: 'auto' }}
                         priority
                         unoptimized
                     />

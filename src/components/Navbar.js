@@ -58,10 +58,10 @@ export default function Navbar() {
                             <Image
                                 src="/logo.png"
                                 alt="Techser Logo"
-                                width={0}
-                                height={0}
-                                sizes="100vw"
+                                width={160}
+                                height={40}
                                 className="h-10 w-auto object-contain"
+                                style={{ width: 'auto' }}
                                 priority
                             />
                         </div>
