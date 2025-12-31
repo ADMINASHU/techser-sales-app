@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.1](https://github.com/ADMINASHU/techser-sales-app/compare/v1.0.0...v1.0.1) (2025-12-31)
+
+
+### Features
+
+* refine Admin Visit Details modal UI and fix map coordinates in Admin view ([cecc553](https://github.com/ADMINASHU/techser-sales-app/commit/cecc553331d3e0a2c0d725ebcdc937d35457788c))
+
 ## [1.0.0](https://github.com/ADMINASHU/techser-sales-app/compare/v0.2.13...v1.0.0) (2025-12-31)
 
 
