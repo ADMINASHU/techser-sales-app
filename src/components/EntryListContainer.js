@@ -7,7 +7,7 @@ export default async function EntryListContainer({ searchParams, session, view }
 
     const params = await searchParams;
     const page = parseInt(params.page) || 1;
-    const limit = 18; 
+    const limit = 18;
     const skip = (page - 1) * limit;
 
     const isAdmin = session.user.role === "admin";
@@ -78,6 +78,7 @@ export default async function EntryListContainer({ searchParams, session, view }
         .skip(skip)
         .limit(limit)
         .populate("userId", "name email region branch")
+        .populate("customerId", "name customerAddress")
         .lean(); // Use lean for performance since we serialize to JSON anyway
 
     // Serialize MongoDB IDs

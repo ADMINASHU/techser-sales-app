@@ -3,6 +3,7 @@
 import { auth } from "@/auth";
 import dbConnect from "@/lib/db";
 import Entry from "@/models/Entry";
+import Customer from "@/models/Customer"; // Ensure Customer model is registered
 import { revalidatePath } from "next/cache";
 import { appendEntryToSheet } from "@/lib/googleSheets";
 
@@ -367,7 +368,7 @@ export async function fetchEntries({ page = 1, limit = 30, filters = {}, skip: c
             .limit(limit)
             .select("customerName entryDate status createdAt updatedAt userId customerId stampIn stampOut googleSheetRowId")
             .populate("userId", "name email region branch")
-            .populate("customerId", "customerName customerAddress") // Populate specific customer details
+            .populate("customerId", "name customerAddress") // Populate specific customer details
             .lean();
 
 
