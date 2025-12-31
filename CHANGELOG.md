@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.12](https://github.com/ADMINASHU/techser-sales-app/compare/v0.2.11...v0.2.12) (2025-12-31)
+
+
+### Features
+
+* add comprehensive features and specifications page ([64c6d53](https://github.com/ADMINASHU/techser-sales-app/commit/64c6d5366bc499d50f1114c4fa667f8811b7aeb3))
+
+
+### Bug Fixes
+
+* optimize dashboard performance, fix layout shifts, and adjust logo sizing across auth pages ([25c24fd](https://github.com/ADMINASHU/techser-sales-app/commit/25c24fd295ed3c89530006cbcc269c78073c9065))
+
 ### [0.2.11](https://github.com/ADMINASHU/techser-sales-app/compare/v0.2.10...v0.2.11) (2025-12-31)
 
 
