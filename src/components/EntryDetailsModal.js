@@ -19,7 +19,8 @@ export default function EntryDetailsModal({ entry, isOpen, onClose, session }) {
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
-        setMounted(true);
+        const timer = setTimeout(() => setMounted(true), 0);
+        return () => clearTimeout(timer);
     }, []);
 
     if (!entry || !mounted) return null;

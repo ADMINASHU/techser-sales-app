@@ -9,9 +9,9 @@ export default async function CustomerLogPage({ searchParams }) {
     const session = await auth();
     const params = await searchParams;
     const filtersData = await getFilters();
-    
+
     // Get initial batch of customers sorted by entry count
-    const { customers, hasMore } = await getCustomersWithEntryCount({ 
+    const { customers, hasMore } = await getCustomersWithEntryCount({
         filters: params,
         skip: 0,
         limit: 15
@@ -32,19 +32,19 @@ export default async function CustomerLogPage({ searchParams }) {
         <div className="space-y-6">
             <div className="hidden sm:flex flex-row items-center justify-between gap-4">
                 <h1 className="text-3xl font-bold bg-linear-to-r from-white to-gray-400 bg-clip-text text-transparent">
-                    Customer Log
+                    Check-In
                 </h1>
             </div>
 
             <div className="space-y-4">
-                <CustomerFilters 
-                    locations={filtersData.locations} 
-                    isAdmin={session.user.role === "admin"} 
+                <CustomerFilters
+                    locations={filtersData.locations}
+                    isAdmin={session.user.role === "admin"}
                 />
             </div>
 
             {initialCustomersWithStatus.length > 0 ? (
-                <InfiniteCustomerLogList 
+                <InfiniteCustomerLogList
                     initialCustomers={initialCustomersWithStatus}
                     initialHasMore={hasMore}
                     searchParams={params}
@@ -57,7 +57,7 @@ export default async function CustomerLogPage({ searchParams }) {
                     </div>
                     <h3 className="text-xl font-semibold text-white mb-2">No customers found</h3>
                     <p className="text-gray-400 max-w-md mx-auto">
-                        Please add customers in the "Customers" tab first or adjust your search.
+                        Please add customers in the &quot;Customers&quot; tab first or adjust your search.
                     </p>
                 </div>
             )}

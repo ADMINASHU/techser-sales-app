@@ -10,11 +10,15 @@ export default function DurationDisplay({ startTime, endTime, status, hideLabel 
     const [now, setNow] = useState(new Date());
 
     useEffect(() => {
-        setMounted(true);
+        const timer = setTimeout(() => setMounted(true), 0);
         if (status === "In Process") {
             const interval = setInterval(() => setNow(new Date()), 1000);
-            return () => clearInterval(interval);
+            return () => {
+                clearInterval(interval);
+                clearTimeout(timer);
+            };
         }
+        return () => clearTimeout(timer);
     }, [status]);
 
     // Prevent hydration mismatch by only rendering once mounted

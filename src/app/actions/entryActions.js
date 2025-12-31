@@ -367,7 +367,7 @@ export async function fetchEntries({ page = 1, limit = 30, filters = {}, skip: c
             .limit(limit)
             .select("customerName entryDate status createdAt updatedAt userId customerId stampIn stampOut googleSheetRowId")
             .populate("userId", "name email region branch")
-            .populate("customerId") // Populate customer details
+            .populate("customerId", "customerName customerAddress") // Populate specific customer details
             .lean();
 
 

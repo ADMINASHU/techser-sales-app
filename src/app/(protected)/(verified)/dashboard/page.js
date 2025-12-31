@@ -18,6 +18,11 @@ export default async function DashboardPage({ searchParams }) {
 
     await dbConnect();
 
+    // Redirect non-admins to Customer Log
+    if (session.user.role !== "admin") {
+        redirect("/customer-log");
+    }
+
     // If Admin, show Admin Dashboard
     if (session.user.role === "admin") {
         const now = new Date();
@@ -31,8 +36,8 @@ export default async function DashboardPage({ searchParams }) {
             getFilters()
         ]);
 
-        return <AdminDashboard 
-            initialSystemStats={systemStats} 
+        return <AdminDashboard
+            initialSystemStats={systemStats}
             initialRecentEntries={recentEntries}
             initialMonthlyEntries={initialMonthlyEntries}
             initialFilters={filters}

@@ -38,8 +38,8 @@ export default function Navbar() {
     // Admin is always verified effectively, or handles their own status.
 
     const links = [
-        { href: "/dashboard", label: "Dashboard" },
-        { href: "/customer-log", label: "Log" },
+        ...(session?.user?.role === "admin" ? [{ href: "/dashboard", label: "Dashboard" }] : []),
+        { href: "/customer-log", label: "Check-In" },
         { href: "/customers", label: "Customers" },
         { href: "/entries", label: "Entry Log" },
     ];
@@ -55,7 +55,7 @@ export default function Navbar() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-20">
                     {/* Logo */}
-                    <Link href="/dashboard" className="shrink-0 flex items-center group">
+                    <Link href={session?.user?.role === "admin" ? "/dashboard" : "/customer-log"} className="shrink-0 flex items-center group">
                         <div className="mr-3 transition-transform group-hover:scale-105">
                             <Image
                                 src="/logo.png"
@@ -72,8 +72,8 @@ export default function Navbar() {
                     {/* Mobile Page Title */}
                     <div className="sm:hidden absolute left-1/2 -translate-x-1/2 flex items-center h-20">
                         <span className="text-lg font-bold bg-linear-to-r from-white to-gray-400 bg-clip-text text-transparent truncate max-w-[180px]">
-                            {links.find(l => l.href === pathname)?.label || 
-                             (pathname === "/profile" ? "Profile" : "")}
+                            {links.find(l => l.href === pathname)?.label ||
+                                (pathname === "/profile" ? "Profile" : "")}
                         </span>
                     </div>
 
