@@ -1,5 +1,5 @@
 import { google } from "googleapis";
-import { format } from "date-fns";
+import { formatInIST } from "./utils";
 
 const SCOPES = ["https://www.googleapis.com/auth/spreadsheets"];
 
@@ -70,7 +70,7 @@ export async function appendEntryToSheet(entry) {
 
         const values = [
             [
-                entry.entryDate ? format(new Date(entry.entryDate), "dd/MM/yyyy HH:mm:ss") : format(new Date(), "dd/MM/yyyy HH:mm:ss"), // A: Date
+                entry.entryDate ? formatInIST(entry.entryDate, "dd/MM/yyyy HH:mm:ss") : formatInIST(new Date(), "dd/MM/yyyy HH:mm:ss"), // A: Date
                 entry.status || "Not Started", // B: Status
                 entry.userRegion || "", // C: Region
                 entry.userBranch || "", // D: Branch
@@ -79,8 +79,8 @@ export async function appendEntryToSheet(entry) {
                 entry.customerAddress || "", // G: Customer Address
                 `${entry.contactPerson || ""} ${entry.contactNumber || ""}`.trim(), // H: Contact Person & Number
                 entry.purpose || "", // I: Purpose
-                entry.stampIn?.time ? format(new Date(entry.stampIn.time), "dd/MM/yyyy HH:mm:ss") : "", // J: StampIn Time
-                entry.stampOut?.time ? format(new Date(entry.stampOut.time), "dd/MM/yyyy HH:mm:ss") : "", // K: StampOut Time
+                entry.stampIn?.time ? formatInIST(entry.stampIn.time, "dd/MM/yyyy HH:mm:ss") : "", // J: StampIn Time
+                entry.stampOut?.time ? formatInIST(entry.stampOut.time, "dd/MM/yyyy HH:mm:ss") : "", // K: StampOut Time
                 calculateDistance(customerLoc, stampInLoc), // L: StampIn Distance (km)
                 calculateDistance(customerLoc, stampOutLoc), // M: StampOut Distance (km)
                 entry._id.toString(), // N: ID (Keep for reference/updates)
@@ -139,7 +139,7 @@ export async function updateEntryInSheet(entry) {
 
         const values = [
             [
-                entry.entryDate ? format(new Date(entry.entryDate), "dd/MM/yyyy HH:mm:ss") : format(new Date(), "dd/MM/yyyy HH:mm:ss"), // A: Date
+                entry.entryDate ? formatInIST(entry.entryDate, "dd/MM/yyyy HH:mm:ss") : formatInIST(new Date(), "dd/MM/yyyy HH:mm:ss"), // A: Date
                 entry.status || "Not Started", // B: Status
                 entry.userRegion || "", // C: Region
                 entry.userBranch || "", // D: Branch
@@ -148,8 +148,8 @@ export async function updateEntryInSheet(entry) {
                 entry.customerAddress || "", // G: Customer Address
                 `${entry.contactPerson || ""} ${entry.contactNumber || ""}`.trim(), // H: Contact Person & Number
                 entry.purpose || "", // I: Purpose
-                entry.stampIn?.time ? format(new Date(entry.stampIn.time), "dd/MM/yyyy HH:mm:ss") : "", // J: StampIn Time
-                entry.stampOut?.time ? format(new Date(entry.stampOut.time), "dd/MM/yyyy HH:mm:ss") : "", // K: StampOut Time
+                entry.stampIn?.time ? formatInIST(entry.stampIn.time, "dd/MM/yyyy HH:mm:ss") : "", // J: StampIn Time
+                entry.stampOut?.time ? formatInIST(entry.stampOut.time, "dd/MM/yyyy HH:mm:ss") : "", // K: StampOut Time
                 calculateDistance(customerLoc, stampInLoc), // L: StampIn Distance (km)
                 calculateDistance(customerLoc, stampOutLoc), // M: StampOut Distance (km)
                 entry._id.toString(), // N: ID

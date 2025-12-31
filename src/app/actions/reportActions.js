@@ -5,7 +5,7 @@ import dbConnect from "@/lib/db";
 import Entry from "@/models/Entry";
 import User from "@/models/User";
 import Location from "@/models/Location";
-import { format } from "date-fns";
+import { formatInIST } from "@/lib/utils";
 
 // Helper: Calculate distance between two coordinates in km (Haversine formula)
 function calculateDistance(loc1, loc2) {
@@ -66,7 +66,7 @@ export async function getReportData({ startDate, endDate, userId, region, branch
         const stampOutLoc = e.stampOut?.location;
 
         return {
-            "Date": e.entryDate ? format(new Date(e.entryDate), "dd/MM/yyyy HH:mm:ss") : format(new Date(e.createdAt), "dd/MM/yyyy HH:mm:ss"),
+            "Date": e.entryDate ? formatInIST(e.entryDate, "dd/MM/yyyy HH:mm:ss") : formatInIST(e.createdAt, "dd/MM/yyyy HH:mm:ss"),
             "Status": e.status || "Not Started",
             "Region": e.userRegion || e.userId?.region || "",
             "Branch": e.userBranch || e.userId?.branch || "",
@@ -75,8 +75,8 @@ export async function getReportData({ startDate, endDate, userId, region, branch
             "Customer Address": e.customerAddress || "",
             "Contact Person & Number": `${e.contactPerson || ""} ${e.contactNumber || ""}`.trim(),
             "Purpose": e.purpose || "",
-            "StampIn Time": e.stampIn?.time ? format(new Date(e.stampIn.time), "dd/MM/yyyy HH:mm:ss") : "",
-            "StampOut Time": e.stampOut?.time ? format(new Date(e.stampOut.time), "dd/MM/yyyy HH:mm:ss") : "",
+            "StampIn Time": e.stampIn?.time ? formatInIST(e.stampIn.time, "dd/MM/yyyy HH:mm:ss") : "",
+            "StampOut Time": e.stampOut?.time ? formatInIST(e.stampOut.time, "dd/MM/yyyy HH:mm:ss") : "",
             "StampIn Distance (km)": calculateDistance(customerLoc, stampInLoc),
             "StampOut Distance (km)": calculateDistance(customerLoc, stampOutLoc)
         };

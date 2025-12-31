@@ -7,7 +7,7 @@ import EntryUserCard from "@/components/EntryUserCard";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { redirect } from "next/navigation";
-import { format } from "date-fns";
+import { formatInIST } from "@/lib/utils";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Navigation, Edit } from "lucide-react";
@@ -109,11 +109,11 @@ export default async function EntryDetailPage({ params, searchParams }) {
                             <div className="border-t pt-4 space-y-2">
                                 <div className="flex justify-between">
                                     <span className="text-muted-foreground">Stamp In:</span>
-                                    <span>{entry.stampIn?.time ? format(new Date(entry.stampIn.time), "PPpp") : "-"}</span>
+                                    <span>{entry.stampIn?.time ? formatInIST(entry.stampIn.time, "PPpp") : "-"}</span>
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="text-muted-foreground">Stamp Out:</span>
-                                    <span>{entry.stampOut?.time ? format(new Date(entry.stampOut.time), "PPpp") : "-"}</span>
+                                    <span>{entry.stampOut?.time ? formatInIST(entry.stampOut.time, "PPpp") : "-"}</span>
                                 </div>
                             </div>
                         </CardContent>
@@ -137,7 +137,7 @@ export default async function EntryDetailPage({ params, searchParams }) {
                             ) : (
                                 session.user.role !== 'admin' && (
                                     <div className="w-full p-4 bg-yellow-50 text-yellow-800 rounded-md text-sm text-center">
-                                        Action allowed only on {format(new Date(entry.entryDate || entry.createdAt), "PP")}
+                                        Action allowed only on {formatInIST(entry.entryDate || entry.createdAt, "PP")}
                                     </div>
                                 )
                             )}

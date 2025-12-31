@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { format } from "date-fns";
+import { formatInIST } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import DurationDisplay from "@/components/DurationDisplay";
@@ -17,7 +17,7 @@ export default function EntryTableRow({ entry, isAdmin, serialNumber }) {
 
     const formatTime = (isoString) => {
         if (!isoString) return "-";
-        return format(new Date(isoString), "h:mm a");
+        return formatInIST(isoString, "h:mm a");
     };
 
     return (
@@ -32,7 +32,7 @@ export default function EntryTableRow({ entry, isAdmin, serialNumber }) {
 
             {/* Date */}
             <td className="px-6 py-4 text-gray-300 whitespace-nowrap">
-                {format(new Date(entry.entryDate || entry.createdAt), "PP")}
+                {formatInIST(entry.entryDate || entry.createdAt, "PP")}
             </td>
 
             {/* Timings (Stamp In / Out) */}
