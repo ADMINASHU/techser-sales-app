@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### ⚠ BREAKING CHANGES
 
-* Profile page layout significantly redesigned
+* User page layout significantly redesigned
 
 ### Features
 
