@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.11](https://github.com/ADMINASHU/techser-sales-app/compare/v0.2.10...v0.2.11) (2025-12-31)
+
+
+### Bug Fixes
+
+* ensure stamp in/out date time matches IST local time ([586dd34](https://github.com/ADMINASHU/techser-sales-app/commit/586dd34fa7bfe88b99696b1f6d3f8014edee3fdc))
+
 ### [0.2.10](https://github.com/ADMINASHU/techser-sales-app/compare/v0.2.9...v0.2.10) (2025-12-30)
 
 
