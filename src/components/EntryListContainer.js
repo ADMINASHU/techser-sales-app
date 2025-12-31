@@ -1,5 +1,7 @@
 import dbConnect from "@/lib/db";
 import Entry from "@/models/Entry";
+import Customer from "@/models/Customer";
+import User from "@/models/User";
 import InfiniteEntryList from "@/components/InfiniteEntryList";
 
 export default async function EntryListContainer({ searchParams, session, view }) {
@@ -78,7 +80,7 @@ export default async function EntryListContainer({ searchParams, session, view }
         .skip(skip)
         .limit(limit)
         .populate("userId", "name email region branch role designation image status")
-        .populate("customerId", "name customerAddress contactPerson contactNumber")
+        .populate("customerId", "name customerAddress contactPerson contactNumber location")
         .lean(); // Use lean for performance since we serialize to JSON anyway
 
     // Serialize MongoDB IDs

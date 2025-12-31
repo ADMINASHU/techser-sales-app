@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { formatInIST } from "@/lib/utils";
 import DurationDisplay from "@/components/DurationDisplay";
 import DeleteEntryButton from "@/components/DeleteEntryButton";
+import AdminEntryDetailsModal from "@/components/AdminEntryDetailsModal";
 import EntryDetailsModal from "@/components/EntryDetailsModal";
 import { useSession } from "next-auth/react";
 
@@ -107,12 +108,20 @@ export default function EntryCard({ entry, isAdmin, from }) {
                 </div>
             </div>
 
-            <EntryDetailsModal
-                entry={entry}
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                session={session}
-            />
+            {isAdmin ? (
+                <AdminEntryDetailsModal
+                    entry={entry}
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    session={session}
+                />
+            ) : (
+                <EntryDetailsModal
+                    entry={entry}
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                />
+            )}
         </>
     );
 }
