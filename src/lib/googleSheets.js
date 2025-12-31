@@ -78,7 +78,7 @@ export async function appendEntryToSheet(entry) {
                 entry.customerName || "", // F: Customer Name
                 entry.customerAddress || "", // G: Customer Address
                 `${entry.contactPerson || ""} ${entry.contactNumber || ""}`.trim(), // H: Contact Person & Number
-                entry.purpose || "", // I: Purpose
+                "", // I: Purpose
                 entry.stampIn?.time ? formatInIST(entry.stampIn.time, "dd/MM/yyyy HH:mm:ss") : "", // J: StampIn Time
                 entry.stampOut?.time ? formatInIST(entry.stampOut.time, "dd/MM/yyyy HH:mm:ss") : "", // K: StampOut Time
                 calculateDistance(customerLoc, stampInLoc), // L: StampIn Distance (km)

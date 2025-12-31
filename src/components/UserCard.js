@@ -13,7 +13,7 @@ export default function UserCard({ user, onClick, className = "", actions }) {
 
     return (
         <div 
-            className={`flex items-start gap-4 p-4 glass-panel border border-white/5 rounded-xl hover:bg-white/5 transition-all cursor-pointer group ${className}`}
+            className={`flex items-start gap-4 p-4 glass-card cursor-pointer group ${className}`}
             onClick={onClick}
         >
             {/* Left side: Image and Role */}

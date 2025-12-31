@@ -41,7 +41,7 @@ export default function SettingsList({ title, settingKey, initialValues }) {
     };
 
     return (
-        <Card>
+        <Card className="glass-card">
             <CardHeader>
                 <CardTitle>{title}</CardTitle>
             </CardHeader>

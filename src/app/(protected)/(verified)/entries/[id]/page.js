@@ -19,7 +19,17 @@ export default async function EntryDetailPage({ params, searchParams }) {
     if (!session) redirect("/login");
 
     await dbConnect();
-    const entryDoc = await Entry.findById(id).populate("userId", "name email image role designation region branch status");
+    
+    // Validate ID to prevent CastError (e.g., if "new" is passed)
+    const mongoose = (await import("mongoose")).default;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return redirect("/entries");
+    }
+
+    const entryDoc = await Entry.findById(id)
+        .populate("userId", "name email image role designation region branch status")
+        .populate("customerId"); // Populate customer data
+
 
     if (!entryDoc) {
         return <div>Entry not found</div>;
@@ -44,26 +54,28 @@ export default async function EntryDetailPage({ params, searchParams }) {
                 </Button>
             </Link>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2">
-                    <Card className="h-full flex flex-col">
-                        {/* Map Visualization */}
-                        <div className="grow p-1">
-                            <EntryMap
-                                location={entry.location}
-                                destinationName={entry.customerName}
-                                stampInLocation={session.user.role === 'admin' ? entry.stampIn?.location : null}
-                                stampOutLocation={session.user.role === 'admin' ? entry.stampOut?.location : null}
-                                className="w-full border-none rounded-t-lg lg:rounded-lg h-[400px] lg:h-[calc(100vh-200px)] min-h-[400px]"
-                            />
-                        </div>
-                    </Card>
-                </div>
+            <div className={`grid grid-cols-1 ${session.user.role === 'admin' ? "lg:grid-cols-3" : ""} gap-6`}>
+                {session.user.role === 'admin' && (
+                    <div className="lg:col-span-2">
+                        <Card className="h-full flex flex-col glass-card overflow-hidden">
+                            {/* Map Visualization */}
+                            <div className="grow p-1">
+                                <EntryMap
+                                    location={entry.location}
+                                    destinationName={entry.customerName}
+                                    stampInLocation={entry.stampIn?.location}
+                                    stampOutLocation={entry.stampOut?.location}
+                                    className="w-full border-none rounded-t-lg lg:rounded-lg h-[400px] lg:h-[calc(100vh-200px)] min-h-[400px]"
+                                />
+                            </div>
+                        </Card>
+                    </div>
+                )}
 
-                {/* Right Column: details (Takes 1/3 width on desktop) */}
-                <div className="lg:col-span-1 space-y-4">
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                {/* Right Column: details */}
+                <div className={`${session.user.role === 'admin' ? "lg:col-span-1" : "max-w-3xl mx-auto w-full"} space-y-4`}>
+                    <Card className="glass-card">
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 border-b border-white/5">
                             <CardTitle>Visit Details</CardTitle>
                             <div className="flex items-center gap-2">
                                 {session.user.role !== 'admin' && entry.status === 'Not Started' && (
@@ -84,11 +96,11 @@ export default async function EntryDetailPage({ params, searchParams }) {
                                 </div>
                                 <div>
                                     <Label className="text-muted-foreground">Customer</Label>
-                                    <div className="font-medium">{entry.customerName}</div>
+                                    <div className="font-medium text-lg text-white">{entry.customerName}</div>
                                 </div>
                                 <div>
                                     <Label className="text-muted-foreground">Address</Label>
-                                    <div className="font-medium mb-2">{entry.customerAddress}</div>
+                                    <div className="font-medium mb-2 text-gray-300">{entry.customerAddress}</div>
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
@@ -100,46 +112,44 @@ export default async function EntryDetailPage({ params, searchParams }) {
                                         <div className="font-medium text-sm sm:text-base">{entry.contactNumber || "-"}</div>
                                     </div>
                                 </div>
-                                <div>
-                                    <Label className="text-muted-foreground">Purpose</Label>
-                                    <div className="font-medium">{entry.purpose}</div>
-                                </div>
                             </div>
 
-                            <div className="border-t pt-4 space-y-2">
-                                <div className="flex justify-between">
+                            <div className="border-t border-white/5 pt-4 space-y-2">
+                                <div className="flex justify-between items-center">
                                     <span className="text-muted-foreground">Stamp In:</span>
-                                    <span>{entry.stampIn?.time ? formatInIST(entry.stampIn.time, "PPpp") : "-"}</span>
+                                    <span className="text-gray-200 font-medium">{entry.stampIn?.time ? formatInIST(entry.stampIn.time, "PPpp") : "-"}</span>
                                 </div>
-                                <div className="flex justify-between">
+                                <div className="flex justify-between items-center">
                                     <span className="text-muted-foreground">Stamp Out:</span>
-                                    <span>{entry.stampOut?.time ? formatInIST(entry.stampOut.time, "PPpp") : "-"}</span>
+                                    <span className="text-gray-200 font-medium">{entry.stampOut?.time ? formatInIST(entry.stampOut.time, "PPpp") : "-"}</span>
                                 </div>
                             </div>
                         </CardContent>
                         <CardFooter className="flex flex-col gap-3">
-                            {entry.location?.lat && entry.location?.lng && (
-                                <a
-                                    href={`https://www.google.com/maps/dir/?api=1&destination=${entry.location.lat},${entry.location.lng}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="w-full"
-                                >
-                                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-                                        <Navigation className="w-4 h-4 mr-2" />
-                                        Get Directions
-                                    </Button>
-                                </a>
-                            )}
+                            {session.user.role === 'admin' && (
+                                <>
+                                    {entry.location?.lat && entry.location?.lng && (
+                                        <a
+                                            href={`https://www.google.com/maps/dir/?api=1&destination=${entry.location.lat},${entry.location.lng}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="w-full"
+                                        >
+                                            <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                                                <Navigation className="w-4 h-4 mr-2" />
+                                                Get Directions
+                                            </Button>
+                                        </a>
+                                    )}
 
-                            {new Date().toDateString() === new Date(entry.entryDate || entry.createdAt).toDateString() ? (
-                                <EntryActionButtons entry={entry} role={session.user.role} />
-                            ) : (
-                                session.user.role !== 'admin' && (
-                                    <div className="w-full p-4 bg-yellow-50 text-yellow-800 rounded-md text-sm text-center">
-                                        Action allowed only on {formatInIST(entry.entryDate || entry.createdAt, "PP")}
-                                    </div>
-                                )
+                                    {new Date().toDateString() === new Date(entry.entryDate || entry.createdAt).toDateString() ? (
+                                        <EntryActionButtons entry={entry} role={session.user.role} />
+                                    ) : (
+                                        <div className="w-full p-4 bg-yellow-500/10 text-yellow-500 rounded-lg text-sm text-center border border-yellow-500/20">
+                                            Action allowed only on {formatInIST(entry.entryDate || entry.createdAt, "PP")}
+                                        </div>
+                                    )}
+                                </>
                             )}
                         </CardFooter>
                     </Card>

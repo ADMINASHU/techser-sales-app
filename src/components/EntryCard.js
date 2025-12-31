@@ -1,24 +1,28 @@
 "use client";
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { formatInIST } from "@/lib/utils";
 import DurationDisplay from "@/components/DurationDisplay";
 import DeleteEntryButton from "@/components/DeleteEntryButton";
+import EntryDetailsModal from "@/components/EntryDetailsModal";
+import { useSession } from "next-auth/react";
 
 export default function EntryCard({ entry, isAdmin, from }) {
-    const router = useRouter();
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const { data: session } = useSession();
 
     const handleCardClick = () => {
-        const url = from ? `/entries/${entry._id}?from=${from}` : `/entries/${entry._id}`;
-        router.push(url);
+        setIsModalOpen(true);
     };
 
     return (
+        <>
         <div
             onClick={handleCardClick}
-            className="glass-card p-4 rounded-xl relative overflow-hidden group active:scale-[0.98] transition-all duration-300 transform-gpu h-full flex flex-col cursor-pointer"
+            className={`glass-card p-4 rounded-xl relative overflow-hidden group active:scale-[0.98] transition-all duration-300 transform-gpu h-full flex flex-col cursor-pointer ${
+                entry.status === 'In Process' ? "border-yellow-500/30 ring-1 ring-yellow-500/10 shadow-[0_0_25px_rgba(234,179,8,0.1)]" : ""
+            }`}
         >
             {/* Background Glow */}
             <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity pointer-events-none">
@@ -56,10 +60,10 @@ export default function EntryCard({ entry, isAdmin, from }) {
                 </Badge>
             </div>
 
-            {/* Address - Full Display (up to 3 lines) */}
+            {/* Address - Full Display */}
             <div className="relative mb-3 flex-1">
-                <p className="text-sm text-gray-400 line-clamp-3 group-hover:text-gray-300 transition-colors">
-                    {entry.customerAddress}
+                <p className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">
+                    {entry.customerId?.customerAddress || entry.customerAddress || "No address available"}
                 </p>
             </div>
 
@@ -75,7 +79,7 @@ export default function EntryCard({ entry, isAdmin, from }) {
                     <div className="flex items-center gap-2">
                         {/* Duration Badge */}
                         {(entry.status === 'In Process' || entry.status === 'Completed') && (
-                            <div className={`px-2 py-1 rounded-md text-xs font-medium border flex items-center gap-1.5 shadow-sm ${entry.status === 'Completed'
+                            <div className={`px-2.5 py-1 rounded-full text-xs font-medium border flex items-center gap-1.5 shadow-sm ${entry.status === 'Completed'
                                 ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
                                 : "bg-yellow-500/10 text-yellow-400 border-yellow-500/20"
                                 }`}>
@@ -103,5 +107,13 @@ export default function EntryCard({ entry, isAdmin, from }) {
                 </div>
             </div>
         </div>
+
+        <EntryDetailsModal 
+            entry={entry} 
+            isOpen={isModalOpen} 
+            onClose={() => setIsModalOpen(false)}
+            session={session}
+        />
+        </>
     );
 }

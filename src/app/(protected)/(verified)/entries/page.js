@@ -21,17 +21,18 @@ export default async function EntriesPage({ searchParams }) {
 
     return (
         <div className="space-y-6">
-            <div className="flex flex-row items-center justify-between gap-4">
+            <div className="hidden sm:flex flex-row items-center justify-between gap-4">
                 <h1 className="text-3xl font-bold bg-linear-to-r from-white to-gray-400 bg-clip-text text-transparent">Entry Log</h1>
                 {/* Hide New Entry Button for Admins */}
-                {!isAdmin && (
+                {/* New Entry Button Removed as requested */}
+                {/* !isAdmin && (
                     <Link href="/entries/new?callbackUrl=/entries">
                         <Button className="glass-btn-primary">
                             <PlusCircle className="mr-2 h-4 w-4" />
                             New Entry
                         </Button>
                     </Link>
-                )}
+                ) */}
             </div>
 
             {/* Filter Component */}

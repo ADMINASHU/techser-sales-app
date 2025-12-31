@@ -18,22 +18,23 @@ export default function EditEntryForm({ entry }) {
     const [loading, setLoading] = useState(false);
     const isSubmitting = useRef(false);
 
-    // Initial State from Entry
-    const [customerName, setCustomerName] = useState(entry.customerName || "");
-    const [customerAddress, setCustomerAddress] = useState(entry.customerAddress || "");
-    const [district, setDistrict] = useState(entry.district || "");
-    const [state, setState] = useState(entry.state || "");
-    const [pincode, setPincode] = useState(entry.pincode || "");
-    const [contactPerson, setContactPerson] = useState(entry.contactPerson || "");
-    const [contactNumber, setContactNumber] = useState(entry.contactNumber || "");
+
+    // Initial State from Entry - Get customer data from populated customerId
+    const customer = entry.customerId || {};
+    const [customerName, setCustomerName] = useState(entry.customerName || customer.name || "");
+    const [customerAddress, setCustomerAddress] = useState(customer.customerAddress || entry.customerAddress || "");
+    const [district, setDistrict] = useState(customer.district || entry.district || "");
+    const [state, setState] = useState(customer.state || entry.state || "");
+    const [pincode, setPincode] = useState(customer.pincode || entry.pincode || "");
+    const [contactPerson, setContactPerson] = useState(customer.contactPerson || entry.contactPerson || "");
+    const [contactNumber, setContactNumber] = useState(customer.contactNumber || entry.contactNumber || "");
     const [coordinates, setCoordinates] = useState({
-        lat: entry.location?.lat || null,
-        lng: entry.location?.lng || null
+        lat: customer.location?.lat || entry.location?.lat || null,
+        lng: customer.location?.lng || entry.location?.lng || null
     });
     // Format date for input type="date"
     const formattedDate = entry.entryDate ? new Date(entry.entryDate).toISOString().split("T")[0] : "";
     const [entryDate, setEntryDate] = useState(formattedDate);
-    const [purpose, setPurpose] = useState(entry.purpose || "");
 
     const handleLocationSelect = (data) => {
         setCustomerAddress(data.address);
@@ -56,7 +57,6 @@ export default function EditEntryForm({ entry }) {
         formData.append("pincode", pincode);
         formData.set("contactPerson", contactPerson);
         formData.set("contactNumber", contactNumber);
-        formData.set("purpose", purpose);
         if (coordinates.lat) formData.append("lat", coordinates.lat);
         if (coordinates.lng) formData.append("lng", coordinates.lng);
 
@@ -75,8 +75,8 @@ export default function EditEntryForm({ entry }) {
 
     return (
         <div className="flex items-center justify-center min-h-[calc(100vh-6rem)] p-2 sm:p-4">
-            <Card className="w-full max-w-2xl bg-[#1a1f2e] border-white/10 shadow-2xl">
-                <CardHeader className="flex flex-row items-center justify-between border-b border-white/10 pb-4">
+            <Card className="w-full max-w-2xl glass-card overflow-hidden">
+                <CardHeader className="flex flex-row items-center justify-between border-b border-white/5 pb-4">
                     <div>
                         <CardTitle className="text-xl font-bold text-white">Edit Visit Entry</CardTitle>
                         <p className="text-sm text-gray-400 mt-1">Update customer visits and locations</p>
@@ -188,17 +188,6 @@ export default function EditEntryForm({ entry }) {
                                 </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <Label htmlFor="purpose" className="text-gray-300">Purpose of Visit</Label>
-                                <Textarea
-                                    id="purpose"
-                                    value={purpose}
-                                    onChange={(e) => setPurpose(e.target.value)}
-                                    className="bg-[#1e293b]/80 border-white/10 text-white placeholder:text-gray-500 focus-visible:ring-fuchsia-500/50 min-h-[100px]"
-                                    placeholder="Enter visitation details..."
-                                    required
-                                />
-                            </div>
 
                             <div className="pt-2 flex justify-end gap-3">
                                 <Button
@@ -211,7 +200,7 @@ export default function EditEntryForm({ entry }) {
                                 </Button>
                                 <LoadingButton
                                     type="submit"
-                                    className="bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 text-white border-0 shadow-lg shadow-fuchsia-500/20 px-8"
+                                    className="bg-linear-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 text-white border-0 shadow-lg shadow-fuchsia-500/20 px-8"
                                     loading={loading}
                                 >
                                     Update Entry

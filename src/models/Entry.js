@@ -7,21 +7,16 @@ const EntrySchema = new mongoose.Schema(
             ref: "User",
             required: true,
         },
+        customerId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Customer",
+            required: true,
+        },
+        // Keep customerName for text search index compatibility
         customerName: {
             type: String,
             required: true,
         },
-        customerAddress: String,
-        district: String,
-        state: String,
-        pincode: String,
-        location: {
-            lat: Number,
-            lng: Number,
-        },
-        contactPerson: String,
-        contactNumber: String,
-        purpose: String,
         stampIn: {
             time: Date,
             location: {

@@ -54,14 +54,17 @@ export async function getReportData({ startDate, endDate, userId, region, branch
         };
     }
 
-    const entries = await Entry.find(query).populate("userId", "name email region branch");
+    const entries = await Entry.find(query)
+        .populate("userId", "name email region branch")
+        .populate("customerId"); // Populate customer data
 
     // Format for Excel - Match Google Sheets column order exactly
     // Columns: Date | Status | Region | Branch | User Name | Customer Name | 
     // Customer Address | Contact Person & Number | Purpose | StampIn Time | 
     // StampOut Time | StampIn Distance | StampOut Distance | ID
     const data = entries.map(e => {
-        const customerLoc = e.location; // { lat, lng }
+        const customer = e.customerId || {};
+        const customerLoc = customer.location || e.location; // { lat, lng }
         const stampInLoc = e.stampIn?.location;
         const stampOutLoc = e.stampOut?.location;
 
@@ -71,10 +74,9 @@ export async function getReportData({ startDate, endDate, userId, region, branch
             "Region": e.userRegion || e.userId?.region || "",
             "Branch": e.userBranch || e.userId?.branch || "",
             "User Name": e.userName || e.userId?.name || "",
-            "Customer Name": e.customerName || "",
-            "Customer Address": e.customerAddress || "",
-            "Contact Person & Number": `${e.contactPerson || ""} ${e.contactNumber || ""}`.trim(),
-            "Purpose": e.purpose || "",
+            "Customer Name": e.customerName || customer.name || "",
+            "Customer Address": customer.customerAddress || e.customerAddress || "",
+            "Contact Person & Number": `${customer.contactPerson || e.contactPerson || ""} ${customer.contactNumber || e.contactNumber || ""}`.trim(),
             "StampIn Time": e.stampIn?.time ? formatInIST(e.stampIn.time, "dd/MM/yyyy HH:mm:ss") : "",
             "StampOut Time": e.stampOut?.time ? formatInIST(e.stampOut.time, "dd/MM/yyyy HH:mm:ss") : "",
             "StampIn Distance (km)": calculateDistance(customerLoc, stampInLoc),

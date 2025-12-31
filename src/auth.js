@@ -122,6 +122,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     token.id = user.id;
                     token.role = user.role;
                     token.status = user.status;
+                    token.region = user.region;
                     token.branch = user.branch;
                     token.viewPreference = user.viewPreference;
 

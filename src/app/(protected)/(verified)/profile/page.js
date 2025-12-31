@@ -43,7 +43,7 @@ export default async function ProfilePage() {
             <div className="grid gap-8 md:grid-cols-3">
 
                 {/* Left Column: Profile Card */}
-                <Card className="md:col-span-1 bg-[#1a1f2e] border-white/5 shadow-xl h-fit">
+                <Card className="md:col-span-1 glass-card h-fit">
                     <CardContent className="pt-8 flex flex-col items-center text-center space-y-4">
                         <div className="relative">
                             <div className="h-32 w-32 rounded-full ring-4 ring-white/5 overflow-hidden">
@@ -64,7 +64,7 @@ export default async function ProfilePage() {
                 </Card>
 
                 {/* Right Column: General Information */}
-                <Card className="md:col-span-2 bg-[#1a1f2e] border-white/5 shadow-xl">
+                <Card className="md:col-span-2 glass-card">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-white">
                             <svg className="w-5 h-5 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
@@ -113,7 +113,7 @@ export default async function ProfilePage() {
 
                         <div className="flex justify-end pt-4">
                             <EditProfileDialog user={userPlain} trigger={
-                                <Button className="bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 text-white shadow-lg shadow-fuchsia-500/20 border-0">
+                                <Button className="glass-btn-primary">
                                     <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                                     Edit Profile
                                 </Button>

@@ -6,14 +6,21 @@ export default function DurationDisplay({ startTime, endTime, status, hideLabel 
     // If not started, show nothing or placeholder
 
 
+    const [mounted, setMounted] = useState(false);
     const [now, setNow] = useState(new Date());
 
     useEffect(() => {
+        setMounted(true);
         if (status === "In Process") {
             const interval = setInterval(() => setNow(new Date()), 1000);
             return () => clearInterval(interval);
         }
     }, [status]);
+
+    // Prevent hydration mismatch by only rendering once mounted
+    if (!mounted) {
+        return <span className="text-xs opacity-0">Loading...</span>;
+    }
 
     const start = new Date(startTime);
     const end = status === "Completed" && endTime ? new Date(endTime) : now;

@@ -101,7 +101,7 @@ export default function EntryTableRow({ entry, isAdmin, serialNumber }) {
                     <div className="font-medium text-white text-base">{entry.customerName}</div>
                     {/* Full Address (Removed Truncation) */}
                     <div className="text-xs text-gray-500 group-hover:text-gray-400 transition-colors whitespace-pre-wrap">
-                        {entry.customerAddress || "No address"}
+                        {entry.customerId?.customerAddress || entry.customerAddress || "No address"}
                     </div>
                 </div>
             </td>

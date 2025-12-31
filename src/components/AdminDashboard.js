@@ -325,7 +325,7 @@ export default function AdminDashboard({
             {/* Stats Cards */}
             <div className="grid gap-6 md:grid-cols-3">
                 {/* Total Entries (Balance Style) */}
-                <Card className="bg-[#1a1f2e] border-white/5 shadow-lg relative overflow-hidden">
+                <Card className="glass-card shadow-lg relative overflow-hidden">
                     <div className="absolute top-0 right-0 p-4 opacity-5">
                         <svg className="w-32 h-32" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" /></svg>
                     </div>
@@ -341,7 +341,7 @@ export default function AdminDashboard({
                 </Card>
 
                 {/* Completed (Income Style) */}
-                <Card className="bg-[#1a1f2e] border-white/5 shadow-lg relative overflow-hidden">
+                <Card className="glass-card shadow-lg relative overflow-hidden">
                     <div className="absolute top-0 right-0 p-4 opacity-5">
                         <svg className="w-32 h-32" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" /></svg>
                     </div>
@@ -357,7 +357,7 @@ export default function AdminDashboard({
                 </Card>
 
                 {/* Pending (Expense Style) - Calculated */}
-                <Card className="bg-[#1a1f2e] border-white/5 shadow-lg relative overflow-hidden">
+                <Card className="glass-card shadow-lg relative overflow-hidden">
                     <div className="absolute top-0 right-0 p-4 opacity-5">
                         <svg className="w-32 h-32" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" /></svg>
                     </div>
@@ -376,7 +376,7 @@ export default function AdminDashboard({
             {/* System Stats Overview */}
             <div className="grid gap-6 md:grid-cols-3 mb-8">
                 {/* Admin Stats */}
-                <Card className="bg-[#1a1f2e] border-violet-500/20 shadow-lg relative overflow-hidden group hover:border-violet-500/40 transition-all">
+                <Card className="glass-card border-violet-500/20 shadow-lg relative overflow-hidden group hover:border-violet-500/40 transition-all">
                     <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                         <ShieldCheck className="w-24 h-24 text-violet-500" />
                     </div>
@@ -394,7 +394,7 @@ export default function AdminDashboard({
                 </Card>
 
                 {/* User Stats */}
-                <Card className="bg-[#1a1f2e] border-blue-500/20 shadow-lg relative overflow-hidden group hover:border-blue-500/40 transition-all">
+                <Card className="glass-card border-blue-500/20 shadow-lg relative overflow-hidden group hover:border-blue-500/40 transition-all">
                     <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                         <Users className="w-24 h-24 text-blue-500" />
                     </div>
@@ -412,7 +412,7 @@ export default function AdminDashboard({
                 </Card>
 
                 {/* Location Stats */}
-                <Card className="bg-[#1a1f2e] border-amber-500/20 shadow-lg relative overflow-hidden group hover:border-amber-500/40 transition-all">
+                <Card className="glass-card border-amber-500/20 shadow-lg relative overflow-hidden group hover:border-amber-500/40 transition-all">
                     <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                         <MapPin className="w-24 h-24 text-amber-500" />
                     </div>

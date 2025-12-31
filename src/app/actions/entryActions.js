@@ -12,7 +12,7 @@ export async function createEntry(formData) {
 
     const data = Object.fromEntries(formData);
     console.log("Server createEntry Received Data:", data);
-    const { customerName, customerAddress, district, state, pincode, lat, lng, purpose, entryDate, contactPerson, contactNumber } = data;
+    const { customerName, customerAddress, district, state, pincode, lat, lng, entryDate, contactPerson, contactNumber } = data;
 
     try {
         await dbConnect();
@@ -29,7 +29,6 @@ export async function createEntry(formData) {
             },
             contactPerson,
             contactNumber,
-            purpose,
             entryDate: entryDate ? new Date(entryDate) : new Date(),
             status: "Not Started",
         });
@@ -68,7 +67,7 @@ export async function updateEntry(id, formData) {
     }
 
     const data = Object.fromEntries(formData);
-    const { customerName, customerAddress, district, state, pincode, lat, lng, purpose, entryDate, contactPerson, contactNumber } = data;
+    const { customerName, customerAddress, district, state, pincode, lat, lng, entryDate, contactPerson, contactNumber } = data;
 
     try {
         await dbConnect();
@@ -96,7 +95,6 @@ export async function updateEntry(id, formData) {
         }
         entry.contactPerson = contactPerson;
         entry.contactNumber = contactNumber;
-        entry.purpose = purpose;
         if (entryDate) {
             entry.entryDate = new Date(entryDate);
         }
@@ -367,8 +365,9 @@ export async function fetchEntries({ page = 1, limit = 30, filters = {}, skip: c
             .sort({ entryDate: -1 }) // Sort by Entry Date 
             .skip(skip)
             .limit(limit)
-            .select("customerName customerAddress district state pincode location contactPerson contactNumber purpose entryDate status createdAt updatedAt userId stampIn stampOut googleSheetRowId")
+            .select("customerName entryDate status createdAt updatedAt userId customerId stampIn stampOut googleSheetRowId")
             .populate("userId", "name email region branch")
+            .populate("customerId") // Populate customer details
             .lean();
 
 
@@ -379,6 +378,10 @@ export async function fetchEntries({ page = 1, limit = 30, filters = {}, skip: c
             userId: entry.userId ? {
                 ...entry.userId,
                 _id: entry.userId._id.toString()
+            } : null,
+            customerId: entry.customerId ? {
+                ...entry.customerId,
+                _id: entry.customerId._id.toString()
             } : null,
             createdAt: entry.createdAt.toISOString(),
             updatedAt: entry.updatedAt.toISOString(),

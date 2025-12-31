@@ -39,6 +39,8 @@ export default function Navbar() {
 
     const links = [
         { href: "/dashboard", label: "Dashboard" },
+        { href: "/customer-log", label: "Log" },
+        { href: "/customers", label: "Customers" },
         { href: "/entries", label: "Entry Log" },
     ];
 
@@ -60,12 +62,20 @@ export default function Navbar() {
                                 alt="Techser Logo"
                                 width={160}
                                 height={40}
-                                className="h-10 w-auto object-contain"
+                                className="h-8 w-auto sm:h-10 object-contain"
                                 style={{ width: 'auto' }}
                                 priority
                             />
                         </div>
                     </Link>
+
+                    {/* Mobile Page Title */}
+                    <div className="sm:hidden absolute left-1/2 -translate-x-1/2 flex items-center h-20">
+                        <span className="text-lg font-bold bg-linear-to-r from-white to-gray-400 bg-clip-text text-transparent truncate max-w-[180px]">
+                            {links.find(l => l.href === pathname)?.label || 
+                             (pathname === "/profile" ? "Profile" : "")}
+                        </span>
+                    </div>
 
                     <div className="hidden md:flex items-center justify-center">
                         <div className="bg-white/5 border border-white/5 rounded-full px-1.5 py-1.5 flex space-x-1 shadow-inner backdrop-blur-md">
