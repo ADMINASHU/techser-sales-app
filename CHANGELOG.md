@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.13](https://github.com/ADMINASHU/techser-sales-app/compare/v0.2.12...v0.2.13) (2025-12-31)
+
+
+### Features
+
+* add features and specifications page for the sales application. ([661799b](https://github.com/ADMINASHU/techser-sales-app/commit/661799b0d293f85f963d4ff546ee76a4eac81468))
+* Implement core customer and entry management, user dashboards, and authentication features. ([5490fb8](https://github.com/ADMINASHU/techser-sales-app/commit/5490fb826211e24635aa04f6aa1a19ef4785902d))
+
 ### [0.2.12](https://github.com/ADMINASHU/techser-sales-app/compare/v0.2.11...v0.2.12) (2025-12-31)
 
 
