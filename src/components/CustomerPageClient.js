@@ -5,7 +5,7 @@ import CustomerForm from "@/components/CustomerForm";
 import CustomerFilters from "@/components/CustomerFilters";
 import InfiniteCustomerList from "@/components/InfiniteCustomerList";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, SearchX, Users } from "lucide-react";
+import { PlusCircle, SearchX } from "lucide-react";
 import {
     Dialog,
     DialogContent,

@@ -1,6 +1,17 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+### [1.0.3](https://github.com/ADMINASHU/techser-sales-app/compare/v1.0.2...v1.0.3) (2026-01-01)
+
+### Performance Improvements
+
+- **Mobile Optimization Suite**:
+  - Implemented `react-virtuoso` for Infinite Entry and Customer lists, fixing scroll lag on large datasets.
+  - Replaced JS-based responsiveness with pure CSS (`lg:hidden` classes) to eliminate layout shifts.
+  - Disabled expensive `backdrop-blur` effects on mobile devices for improved GPU performance.
+  - Fixed "sticky" hover states on touch devices using `@media (hover: hover)`.
+  - Reduced initial data fetch limit from 18 to 10 items for faster load times.
+  - Memoized `EntryCard` and `CustomerCard` components to prevent unnecessary re-renders.
+  - Fixed duplicate CSS imports in `layout.js`.
 
 ### [1.0.2](https://github.com/ADMINASHU/techser-sales-app/compare/v1.0.1...v1.0.2) (2026-01-01)
 

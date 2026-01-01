@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, memo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Phone, User, Trash2, Home, Navigation } from "lucide-react";
 import { deleteCustomer, toggleCustomerStatus } from "@/app/actions/customerActions";
@@ -19,7 +18,7 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-export default function CustomerCard({ customer, isAdmin, onEdit }) {
+const CustomerCard = memo(function CustomerCard({ customer, isAdmin, onEdit }) {
     const [isDeleting, setIsDeleting] = useState(false);
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
     const [isActive, setIsActive] = useState(customer.isActive !== false); // Handle undefined as true
@@ -176,4 +175,6 @@ export default function CustomerCard({ customer, isAdmin, onEdit }) {
             </AlertDialog>
         </>
     );
-}
+});
+
+export default CustomerCard;

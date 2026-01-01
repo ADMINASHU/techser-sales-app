@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 import CustomerActionCard from "@/components/CustomerActionCard";
 import { getCustomersWithEntryCount, getCustomerActionStatus } from "@/app/actions/customerActions";
-import { Loader2 } from "lucide-react";
 import CustomerCardSkeleton from "@/components/skeletons/CustomerCardSkeleton";
 
 export default function InfiniteCustomerLogList({ initialCustomers, initialHasMore, searchParams, userId }) {

@@ -157,11 +157,19 @@
 
 @layer components {
   .glass-card {
-    @apply bg-white/8 backdrop-blur-md border border-white/10 shadow-2xl transition-all duration-300 hover:border-blue-500/50 hover:shadow-blue-500/10 hover:-translate-y-1 hover:scale-[1.01];
+    /* Mobile Default: Solid background, faster rendering */
+    @apply bg-slate-900/95 border border-white/10 shadow-lg transition-all duration-300;
+  }
+
+  @media (min-width: 768px) {
+    .glass-card {
+      @apply bg-white/8 backdrop-blur-md;
+      @apply hover:border-blue-500/50 hover:shadow-blue-500/10 hover:-translate-y-1 hover:scale-[1.01];
+    }
   }
 
   .glass-panel {
-    @apply bg-white/5 backdrop-blur-sm border border-white/5;
+    @apply bg-white/5 md:backdrop-blur-sm border border-white/5;
   }
 
   .glass-inputs {
@@ -185,7 +193,6 @@
 }
 
 @media (max-width: 640px) {
-
   html,
   body {
     scrollbar-width: none;

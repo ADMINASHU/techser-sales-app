@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, memo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { formatInIST } from "@/lib/utils";
 import DurationDisplay from "@/components/DurationDisplay";
@@ -9,7 +9,7 @@ import AdminEntryDetailsModal from "@/components/AdminEntryDetailsModal";
 import EntryDetailsModal from "@/components/EntryDetailsModal";
 import { useSession } from "next-auth/react";
 
-export default function EntryCard({ entry, isAdmin, from }) {
+const EntryCard = memo(function EntryCard({ entry, isAdmin, from }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const { data: session } = useSession();
 
@@ -124,4 +124,6 @@ export default function EntryCard({ entry, isAdmin, from }) {
             )}
         </>
     );
-}
+});
+
+export default EntryCard;

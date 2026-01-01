@@ -3,7 +3,7 @@ import { getCustomersWithEntryCount, getCustomerActionStatus } from "@/app/actio
 import { getFilters } from "@/app/actions/reportActions";
 import CustomerFilters from "@/components/CustomerFilters";
 import InfiniteCustomerLogList from "@/components/InfiniteCustomerLogList";
-import { ClipboardList, SearchX } from "lucide-react";
+import { SearchX } from "lucide-react";
 import { redirect } from "next/navigation";
 
 export default async function CustomerLogPage({ searchParams }) {
