@@ -1,5 +1,23 @@
 # Changelog
 
+All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+## [1.2.0](https://github.com/ADMINASHU/techser-sales-app/compare/v1.0.1...v1.2.0) (2026-01-01)
+
+
+### Features
+
+* Add duplicate customer detection and active/inactive status toggle ([0a17128](https://github.com/ADMINASHU/techser-sales-app/commit/0a1712859e5cab20dcfbe69d47dbd779fe546b91))
+* Add entry details and admin details modals with dynamic map, location tracking, and new report actions. ([49dd6ae](https://github.com/ADMINASHU/techser-sales-app/commit/49dd6aecc13ce175b170e24a7ca2fa5cef0db10d))
+* Add global styling, customer action card for stamping, and infinite list components. ([db80035](https://github.com/ADMINASHU/techser-sales-app/commit/db8003565fea7e18ec329e8d121f45a0e00f69fd))
+* Implement comprehensive entry management with data model, server actions, UI components, and Google Sheets integration. ([6ca10fa](https://github.com/ADMINASHU/techser-sales-app/commit/6ca10fa950db8219d8ee93472afeb20be76c7c44))
+* Introduce user login page, authentication actions, and initial user and admin dashboard components. ([1d15e54](https://github.com/ADMINASHU/techser-sales-app/commit/1d15e54aaf70ae9dbe9c1054a17060b63e4c5068))
+
+
+### Bug Fixes
+
+* ensure live sync setting is respected and optimize stamp actions ([5947f4f](https://github.com/ADMINASHU/techser-sales-app/commit/5947f4f8d5e3491bb89542f7e7e17b98e827c23b))
+
 ### [1.1.3](https://github.com/ADMINASHU/techser-sales-app/compare/v1.1.2...v1.1.3) (2026-01-01)
 
 ### Features
