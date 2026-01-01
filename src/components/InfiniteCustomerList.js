@@ -72,7 +72,7 @@ export default function InfiniteCustomerList({ initialCustomers, initialHasMore,
                         Footer: Footer
                     }}
                     itemContent={(index, customer) => (
-                        <div className="mb-6 pr-2"> {/* Added spacing */}
+                        <div className="mb-6 pr-2 h-full"> {/* Added spacing */}
                             <CustomerCard
                                 customer={customer}
                                 isAdmin={isAdmin}

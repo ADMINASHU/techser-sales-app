@@ -105,7 +105,7 @@ export default function CustomerActionCard({ customer, activeEntry, userId, hasA
                             loading={loading}
                             disabled={!canStampIn}
                             className={`w-full ${canStampIn
-                                ? "bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg shadow-emerald-500/20"
+                                ? "bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg shadow-emerald-500/20"
                                 : "bg-gray-500/20 text-gray-500 cursor-not-allowed"
                                 } font-bold h-12 rounded-xl border-0 transition-all duration-300 active:scale-[0.98]`}
                         >
@@ -125,7 +125,7 @@ export default function CustomerActionCard({ customer, activeEntry, userId, hasA
                     <LoadingButton
                         onClick={() => handleStamp("out")}
                         loading={loading}
-                        className="flex-1 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-bold h-12 rounded-xl shadow-lg shadow-rose-500/20 border-0 transition-all duration-300 active:scale-[0.98] flex flex-row items-center justify-between px-4 group ring-1 ring-white/10"
+                        className="flex-1 bg-linear-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-bold h-12 rounded-xl shadow-lg shadow-rose-500/20 border-0 transition-all duration-300 active:scale-[0.98] flex flex-row items-center justify-between px-4 group ring-1 ring-white/10"
                     >
                         <div className="flex items-center gap-2">
                             <div className="p-1.5 bg-white/10 rounded-full">
