@@ -27,9 +27,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
                 try {
                     await dbConnect();
-                    const user = await User.findOne({ email: credentials.email }).select(
-                        "+password"
-                    );
+                    // EXCLUDE image field from selection to avoid fetching large Base64 strings
+                    const user = await User.findOne({ email: credentials.email })
+                        .select("+password -image");
 
                     if (!user) {
                         console.log("Auth failed: User not found");
@@ -55,7 +55,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                         id: user._id.toString(),
                         name: user.name,
                         email: user.email,
-                        image: user.image ? `/api/user/image?v=${user.updatedAt?.getTime() || Date.now()}` : null,
+                        // Always return the API URL. The UI handles 404s/fallbacks gracefully.
+                        image: `/api/user/image?v=${user.updatedAt?.getTime() || Date.now()}`,
                         role: user.role,
                         status: user.status,
                         region: user.region,
@@ -82,6 +83,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 if (session.branch) token.branch = session.branch;
 
                 if (session.image) {
+                     // If session update provides a new image (e.g. after upload), use it or the URL
                     token.image = session.image.startsWith("data:image")
                         ? `/api/user/image?v=${Date.now()}`
                         : session.image;
@@ -93,13 +95,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 if (account?.provider === "google") {
                     try {
                         await dbConnect();
-                        let dbUser = await User.findOne({ email: user.email });
+                        // EXCLUDE image field here too
+                        let dbUser = await User.findOne({ email: user.email }).select("-image");
 
                         if (!dbUser) {
                             dbUser = await User.create({
                                 name: user.name,
                                 email: user.email,
-                                image: user.image,
+                                image: user.image, // Initial Google image URL
                                 provider: "google",
                                 status: "pending",
                                 role: "user"
@@ -113,10 +116,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                         token.branch = dbUser.branch;
                         token.viewPreference = dbUser.viewPreference;
 
-                        // Handle large images from DB
-                        token.image = dbUser.image?.startsWith("data:image")
-                            ? `/api/user/image?v=${dbUser.updatedAt?.getTime() || Date.now()}`
-                            : dbUser.image;
+                        // Use API URL preferably to ensure consistency if they update it later
+                        token.image = `/api/user/image?v=${dbUser.updatedAt?.getTime() || Date.now()}`;
 
                     } catch (error) {
                         console.error("Error in JWT Google callback:", error);
@@ -128,12 +129,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     token.region = user.region;
                     token.branch = user.branch;
                     token.viewPreference = user.viewPreference;
-
-                    // The 'user' object here comes from authorize()
-                    // If it was base64, we should have already sanitized it or do it now
-                    token.image = user.image?.startsWith("data:image")
-                        ? `/api/user/image?v=${Date.now()}`
-                        : user.image;
+                    token.image = user.image; // Already set to URL in authorize()
                 }
             }
             return token;
