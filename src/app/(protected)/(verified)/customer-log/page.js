@@ -14,11 +14,12 @@ export default async function CustomerLogPage({ searchParams }) {
     const params = await searchParams;
     const filtersData = await getFilters();
 
-    // Get initial batch of customers sorted by entry count
+    // Get initial batch of customers sorted by entry count (only active customers)
     const { customers, hasMore } = await getCustomersWithEntryCount({
         filters: params,
         skip: 0,
-        limit: 15
+        limit: 10,
+        activeOnly: true // Only show active customers on check-in page
     });
 
     // For the initial batch, check active entry status

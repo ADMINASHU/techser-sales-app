@@ -4,8 +4,9 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
 import { Phone, User, Trash2, Home, Navigation } from "lucide-react";
-import { deleteCustomer } from "@/app/actions/customerActions";
+import { deleteCustomer, toggleCustomerStatus } from "@/app/actions/customerActions";
 import { toast } from "sonner";
 import {
     AlertDialog,
@@ -21,6 +22,8 @@ import {
 export default function CustomerCard({ customer, isAdmin, onEdit }) {
     const [isDeleting, setIsDeleting] = useState(false);
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+    const [isActive, setIsActive] = useState(customer.isActive !== false); // Handle undefined as true
+    const [isTogglingStatus, setIsTogglingStatus] = useState(false);
 
     const handleDelete = async () => {
         setIsDeleting(true);
@@ -31,6 +34,22 @@ export default function CustomerCard({ customer, isAdmin, onEdit }) {
             toast.error(res.error);
         } else {
             toast.success("Customer deleted");
+        }
+    };
+
+    const handleToggleStatus = async (e) => {
+        e.stopPropagation(); // Prevent card click
+        setIsTogglingStatus(true);
+        
+        const res = await toggleCustomerStatus(customer._id);
+        
+        setIsTogglingStatus(false);
+        
+        if (res?.error) {
+            toast.error(res.error);
+        } else {
+            setIsActive(res.isActive);
+            toast.success(`Customer marked as ${res.isActive ? "Active" : "Inactive"}`);
         }
     };
 
@@ -76,7 +95,7 @@ export default function CustomerCard({ customer, isAdmin, onEdit }) {
                 </div>
 
                 <div className="pt-3 border-t border-white/5 flex justify-between items-center mt-auto relative z-10">
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 items-center">
                         <Button
                             variant="ghost"
                             size="sm"
@@ -88,6 +107,35 @@ export default function CustomerCard({ customer, isAdmin, onEdit }) {
                         >
                             <Trash2 className="w-4 h-4" />
                         </Button>
+                        
+                        {/* Status Toggle */}
+                        <div 
+                            onClick={handleToggleStatus}
+                            className="flex items-center gap-2 px-2 py-1 rounded border cursor-pointer transition-colors"
+                            style={{
+                                backgroundColor: isActive ? 'rgba(34, 197, 94, 0.1)' : 'rgba(107, 114, 128, 0.1)',
+                                borderColor: isActive ? 'rgba(34, 197, 94, 0.3)' : 'rgba(107, 114, 128, 0.3)',
+                            }}
+                        >
+                            <span 
+                                className={`text-[10px] font-medium whitespace-nowrap ${
+                                    isActive ? 'text-green-400' : 'text-gray-400'
+                                }`}
+                            >
+                                {isActive ? "Active" : "Inactive"}
+                            </span>
+                            <div 
+                                className={`w-7 h-3.5 rounded-full transition-colors ${
+                                    isActive ? 'bg-green-500/30' : 'bg-gray-500/30'
+                                }`}
+                            >
+                                <div 
+                                    className={`w-3 h-3 rounded-full transition-all ${
+                                        isActive ? 'bg-green-400 translate-x-3.5' : 'bg-gray-400 translate-x-0.5'
+                                    }`}
+                                />
+                            </div>
+                        </div>
                     </div>
 
                     {customer.location?.lat && (

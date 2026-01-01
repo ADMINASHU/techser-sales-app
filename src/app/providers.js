@@ -7,7 +7,7 @@ import { Toaster } from "@/components/ui/sonner";
 export default function Providers({ children, session }) {
     return (
         <SessionProvider session={session}>
-            <KnockClientProvider session={session}>
+            <KnockClientProvider>
                 <ThemeProvider
                     attribute="class"
                     defaultTheme="dark"

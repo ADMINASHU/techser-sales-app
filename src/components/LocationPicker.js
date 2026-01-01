@@ -12,7 +12,7 @@ import { toast } from "sonner";
 
 const libraries = ["places", "geometry"];
 
-export default function LocationPicker({ onLocationSelect }) {
+export default function LocationPicker({ onLocationSelect, initialCoordinates }) {
     const { isLoaded, loadError } = useLoadScript({
         googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
         libraries,
@@ -34,14 +34,14 @@ export default function LocationPicker({ onLocationSelect }) {
 
     if (!isLoaded) return <div className="p-4 flex justify-center"><Loader2 className="animate-spin" /></div>;
 
-    return <MapInterface onLocationSelect={onLocationSelect} />;
+    return <MapInterface onLocationSelect={onLocationSelect} initialCoordinates={initialCoordinates} />;
 }
 
-function MapInterface({ onLocationSelect }) {
+function MapInterface({ onLocationSelect, initialCoordinates }) {
     const mapCenter = useMemo(() => ({ lat: 20.5937, lng: 78.9629 }), []); // Default to India center
-    const [center, setCenter] = useState(mapCenter);
-    const [zoom, setZoom] = useState(5);
-    const [markerPosition, setMarkerPosition] = useState(null);
+    const [center, setCenter] = useState(initialCoordinates || mapCenter);
+    const [zoom, setZoom] = useState(initialCoordinates ? 15 : 5);
+    const [markerPosition, setMarkerPosition] = useState(initialCoordinates || null);
     const [selectedAddress, setSelectedAddress] = useState("");
 
     // Autocomplete hook
@@ -112,8 +112,15 @@ function MapInterface({ onLocationSelect }) {
         }
     }, [setValue, processAddressComponents]);
 
-    // Initial load - Get current location
+    // Initial load - Get current location only if no initial coordinates provided
     useEffect(() => {
+        // If we have initial coordinates, do reverse geocoding for them
+        if (initialCoordinates) {
+            handleReverseGeocode(initialCoordinates);
+            return;
+        }
+        
+        // Otherwise, get current location for new entries
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
@@ -133,7 +140,7 @@ function MapInterface({ onLocationSelect }) {
                 { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
             );
         }
-    }, [handleReverseGeocode]);
+    }, [handleReverseGeocode, initialCoordinates]);
 
     const handleSelect = async (address) => {
         setValue(address, false);

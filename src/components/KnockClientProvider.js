@@ -1,7 +1,7 @@
 "use client";
 
 import { KnockProvider, KnockFeedProvider, useKnockClient } from "@knocklabs/react";
-import { SessionProvider, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import "@knocklabs/react/dist/index.css";
 import { useEffect } from "react";
 
@@ -101,10 +101,6 @@ function KnockProviderContent({ children }) {
     );
 }
 
-export default function KnockClientProvider({ children, session }) {
-    return (
-        <SessionProvider session={session}>
-            <KnockProviderContent>{children}</KnockProviderContent>
-        </SessionProvider>
-    );
+export default function KnockClientProvider({ children }) {
+    return <KnockProviderContent>{children}</KnockProviderContent>;
 }

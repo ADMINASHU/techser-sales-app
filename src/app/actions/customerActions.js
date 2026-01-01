@@ -12,7 +12,7 @@ export async function createCustomer(formData) {
     if (!session) return { error: "Not authenticated" };
 
     const data = Object.fromEntries(formData);
-    const { name, customerAddress, district, state, pincode, lat, lng, contactPerson, contactNumber, region, branch } = data;
+    const { name, customerAddress, district, state, pincode, lat, lng, contactPerson, contactNumber, region, branch, isActive } = data;
 
     try {
         await dbConnect();
@@ -31,6 +31,7 @@ export async function createCustomer(formData) {
             contactNumber,
             region,
             branch,
+            isActive: isActive === "true" || isActive === true,
         });
 
         revalidatePath("/customers");
@@ -46,7 +47,7 @@ export async function updateCustomer(id, formData) {
     if (!session) return { error: "Not authenticated" };
 
     const data = Object.fromEntries(formData);
-    const { name, customerAddress, district, state, pincode, lat, lng, contactPerson, contactNumber, region, branch } = data;
+    const { name, customerAddress, district, state, pincode, lat, lng, contactPerson, contactNumber, region, branch, isActive } = data;
 
     try {
         await dbConnect();
@@ -73,6 +74,7 @@ export async function updateCustomer(id, formData) {
         customer.contactNumber = contactNumber;
         customer.region = region;
         customer.branch = branch;
+        customer.isActive = isActive === "true" || isActive === true;
 
         await customer.save();
 
@@ -106,7 +108,32 @@ export async function deleteCustomer(id) {
     }
 }
 
-export async function getCustomers({ filters = {}, skip = 0, limit = 18 }) {
+export async function toggleCustomerStatus(id) {
+    const session = await auth();
+    if (!session) return { error: "Not authenticated" };
+
+    try {
+        await dbConnect();
+        const customer = await Customer.findById(id);
+        if (!customer) return { error: "Customer not found" };
+
+        // Allow toggle if it's the owner or an admin
+        if (customer.userId.toString() !== session.user.id && session.user.role !== "admin") {
+            return { error: "Unauthorized" };
+        }
+
+        customer.isActive = !customer.isActive;
+        await customer.save();
+
+        revalidatePath("/customers");
+        return { success: true, isActive: customer.isActive };
+    } catch (error) {
+        console.error("Toggle Customer Status Error:", error);
+        return { error: "Failed to toggle customer status" };
+    }
+}
+
+export async function getCustomers({ filters = {}, skip = 0, limit = 18, activeOnly = false }) {
     const session = await auth();
     if (!session) return { customers: [], hasMore: false };
 
@@ -127,6 +154,11 @@ export async function getCustomers({ filters = {}, skip = 0, limit = 18 }) {
             if (filters.branch && filters.branch !== "all") {
                 query.branch = filters.branch;
             }
+        }
+
+        // Filter by active status if requested (for check-in page)
+        if (activeOnly) {
+            query.isActive = true;
         }
 
         if (filters.search) {
@@ -155,7 +187,7 @@ export async function getCustomers({ filters = {}, skip = 0, limit = 18 }) {
     }
 }
 
-export async function getCustomersWithEntryCount({ filters = {}, skip = 0, limit = 15 }) {
+export async function getCustomersWithEntryCount({ filters = {}, skip = 0, limit = 15, activeOnly = false }) {
     const session = await auth();
     if (!session) return { customers: [], hasMore: false };
 
@@ -174,6 +206,11 @@ export async function getCustomersWithEntryCount({ filters = {}, skip = 0, limit
             if (filters.branch && filters.branch !== "all") {
                 query.branch = filters.branch;
             }
+        }
+
+        // Filter by active status if requested (for check-in page)
+        if (activeOnly) {
+            query.isActive = true;
         }
 
         if (filters.search) {

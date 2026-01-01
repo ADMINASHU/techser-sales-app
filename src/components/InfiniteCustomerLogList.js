@@ -35,7 +35,8 @@ export default function InfiniteCustomerLogList({ initialCustomers, initialHasMo
                 const { customers: newCustomers, hasMore: moreAvailable } = await getCustomersWithEntryCount({
                     filters: searchParams,
                     skip: currentSkip,
-                    limit
+                    limit,
+                    activeOnly: true // Only load active customers on check-in page
                 });
 
                 if (newCustomers.length > 0) {

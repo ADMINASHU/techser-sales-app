@@ -32,6 +32,10 @@ const CustomerSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
+        isActive: {
+            type: Boolean,
+            default: true,
+        },
     },
     { timestamps: true }
 );
@@ -40,6 +44,8 @@ const CustomerSchema = new mongoose.Schema(
 CustomerSchema.index({ userId: 1 });
 CustomerSchema.index({ region: 1, branch: 1 });
 CustomerSchema.index({ name: "text" });
+CustomerSchema.index({ location: "2dsphere" }); // Geospatial index for proximity queries
+CustomerSchema.index({ isActive: 1 }); // Index for active/inactive filtering
 
 // Handle model compilation error in development
 if (process.env.NODE_ENV !== "production" && mongoose.models.Customer) {
