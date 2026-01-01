@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import dbConnect from "@/lib/db";
 import Entry from "@/models/Entry";
 import Customer from "@/models/Customer"; // Ensure Customer model is registered
+import SystemSetting from "@/models/SystemSetting";
 import { revalidatePath } from "next/cache";
 import { appendEntryToSheet } from "@/lib/googleSheets";
 
@@ -57,24 +58,35 @@ export async function createEntry(formData) {
             status: "Not Started",
         });
 
-        // Fetch full entry with customer details for Sheet Sync
-        const entryWithCustomer = await Entry.findById(entry._id).populate("customerId");
-        
-        const entryData = entryWithCustomer.toObject();
-        entryData.userEmail = session.user.email;
-        entryData.userName = session.user.name;
-        entryData.userRegion = session.user.region;
-        entryData.userBranch = session.user.branch;
-        const sheetResponse = await appendEntryToSheet(entryData);
+        // Parallelize Side Effects (Notification & Sheet Sync)
+        const sideEffects = [];
 
-        // Save Google Sheet Row ID if available
-        if (sheetResponse && sheetResponse.rowId) {
-            entry.googleSheetRowId = sheetResponse.rowId;
-            await entry.save();
-        }
+        // 1. Notify Admins
+        sideEffects.push(notifyAdmins("Created Entry", entry, session.user));
 
-        // Notify Admins (Knock + Firebase)
-        await notifyAdmins("Created Entry", entry, session.user);
+        // 2. Sheet Sync (Conditional)
+        sideEffects.push((async () => {
+            const liveSyncSetting = await SystemSetting.findOne({ key: "liveSync" });
+            const isLiveSyncOn = liveSyncSetting ? liveSyncSetting.value : true;
+
+            if (isLiveSyncOn) {
+                const entryWithCustomer = await Entry.findById(entry._id).populate("customerId");
+                const entryData = entryWithCustomer.toObject();
+                entryData.userEmail = session.user.email;
+                entryData.userName = session.user.name;
+                entryData.userRegion = session.user.region;
+                entryData.userBranch = session.user.branch;
+                const sheetResponse = await appendEntryToSheet(entryData);
+
+                if (sheetResponse && sheetResponse.rowId) {
+                    entry.googleSheetRowId = sheetResponse.rowId;
+                    await entry.save();
+                }
+            }
+        })());
+
+        // Wait for all side effects to complete (or fail) without blocking each other
+        await Promise.allSettled(sideEffects);
 
         revalidatePath("/entries");
         // revalidatePath("/dashboard"); // Removed to prevent Observer refresh in dev mode
@@ -221,18 +233,32 @@ export async function stampIn(entryId, location) {
             return { success: true };
         }
 
-        // Trigger Notification
-        await notifyAdmins("Stamped In", entry, session.user);
+        // Parallelize Side Effects
+        const sideEffects = [];
 
-        // Sync Update to Sheet
+        // 1. Notify
+        sideEffects.push(notifyAdmins("Stamped In", entry, session.user));
+
+        // 2. Sync
         if (entry.googleSheetRowId) {
-            const entryData = { ...entry.toObject() };
-            entryData.userName = entry.userId?.name || session.user.name;
-            entryData.userRegion = entry.userId?.region || session.user.region;
-            entryData.userBranch = entry.userId?.branch || session.user.branch;
+            sideEffects.push((async () => {
+                const liveSyncSetting = await SystemSetting.findOne({ key: "liveSync" });
+                const isLiveSyncOn = liveSyncSetting ? liveSyncSetting.value : true;
 
-            await updateEntryInSheet(entryData);
+                if (isLiveSyncOn) {
+                     const fullEntry = await Entry.findById(entryId).populate("customerId");
+                     if (fullEntry) {
+                        const entryData = { ...fullEntry.toObject() };
+                        entryData.userName = entry.userId?.name || session.user.name;
+                        entryData.userRegion = entry.userId?.region || session.user.region;
+                        entryData.userBranch = entry.userId?.branch || session.user.branch;
+                        await updateEntryInSheet(entryData);
+                     }
+                }
+            })());
         }
+
+        await Promise.allSettled(sideEffects);
 
         revalidatePath(`/entries`);
         // revalidatePath("/dashboard");
@@ -263,25 +289,39 @@ export async function stampOut(entryId, location) {
                 }
             },
             { new: true }
-        ).populate("userId", "name email region branch").populate("customerId");
+        ).populate("userId", "name email region branch"); // populate customerId not strictly needed here if we re-fetch
 
         if (!entry) {
             console.log(`[StampOut] Entry ${entryId} already completed or not in process. Skipping.`);
             return { success: true };
         }
 
-        // Trigger Notification
-        await notifyAdmins("Stamped Out", entry, session.user);
+        // Parallelize Side Effects
+        const sideEffects = [];
 
-        // Sync Update to Sheet
+        // 1. Notify
+        sideEffects.push(notifyAdmins("Stamped Out", entry, session.user));
+
+        // 2. Sync
         if (entry.googleSheetRowId) {
-            const entryData = { ...entry.toObject() };
-            entryData.userName = entry.userId?.name || session.user.name;
-            entryData.userRegion = entry.userId?.region || session.user.region;
-            entryData.userBranch = entry.userId?.branch || session.user.branch;
+            sideEffects.push((async () => {
+                const liveSyncSetting = await SystemSetting.findOne({ key: "liveSync" });
+                const isLiveSyncOn = liveSyncSetting ? liveSyncSetting.value : true;
 
-            await updateEntryInSheet(entryData);
+                if (isLiveSyncOn) {
+                    const fullEntry = await Entry.findById(entryId).populate("customerId");
+                    if (fullEntry) {
+                         const entryData = { ...fullEntry.toObject() };
+                         entryData.userName = entry.userId?.name || session.user.name;
+                         entryData.userRegion = entry.userId?.region || session.user.region;
+                         entryData.userBranch = entry.userId?.branch || session.user.branch;
+                         await updateEntryInSheet(entryData);
+                    }
+                }
+            })());
         }
+
+        await Promise.allSettled(sideEffects);
 
         revalidatePath(`/entries`);
         // revalidatePath("/dashboard");

@@ -1,5 +1,17 @@
 # Changelog
 
+### [1.1.2](https://github.com/ADMINASHU/techser-sales-app/compare/v1.1.1...v1.1.2) (2026-01-01)
+
+### Features
+
+- Global Live Sync Toggle: Added a global Admin setting to toggle real-time Google Sheet synchronization ON/OFF.
+- Performance: Parallelized notification and sync tasks in `stampIn`, `stampOut`, and `createEntry` for faster UI response.
+
+### Bug Fixes
+
+- Data Integrity: Fixed missing customer details (Address, Contact) in Google Sheet syncs by enforcing data population before upload.
+- LocationPicker: Fixed `useEffect` dependency warnings to prevent build errors and excessive re-renders.
+
 ### [1.1.1](https://github.com/ADMINASHU/techser-sales-app/compare/v1.1.0...v1.1.1) (2026-01-01)
 
 ### Features

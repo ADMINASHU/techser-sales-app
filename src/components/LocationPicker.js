@@ -115,36 +115,41 @@ function MapInterface({ onLocationSelect, initialCoordinates }) {
     const initialized = useRef(false);
 
     // Initial load - Get current location only if no initial coordinates provided
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
-        // If we have initial coordinates, do reverse geocoding for them
-        if (initialCoordinates && !initialized.current) {
-            initialized.current = true;
-            handleReverseGeocode(initialCoordinates);
-            return;
-        }
-        
-        // Otherwise, get current location for new entries
-        if (navigator.geolocation && !initialCoordinates && !initialized.current) {
-             initialized.current = true;
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const pos = {
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude,
-                    };
-                    setCenter(pos);
-                    setMarkerPosition(pos);
-                    setZoom(15);
-                    handleReverseGeocode(pos);
-                },
-                (error) => {
-                    // console.log("Geolocation error:", error);
-                    // toast.error("Could not fetch location");
-                },
-                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-            );
-        }
-    }, [handleReverseGeocode, initialCoordinates]);
+        const initializeLocation = () => {
+            // If we have initial coordinates, do reverse geocoding for them
+            if (initialCoordinates && !initialized.current) {
+                initialized.current = true;
+                handleReverseGeocode(initialCoordinates);
+                return;
+            }
+            
+            // Otherwise, get current location for new entries
+            if (navigator.geolocation && !initialCoordinates && !initialized.current) {
+                 initialized.current = true;
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const pos = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude,
+                        };
+                        setCenter(pos);
+                        setMarkerPosition(pos);
+                        setZoom(15);
+                        handleReverseGeocode(pos);
+                    },
+                    (error) => {
+                        // console.log("Geolocation error:", error);
+                    },
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                );
+            }
+        };
+
+        initializeLocation();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // Run once on mount
 
     const handleSelect = async (address) => {
         setValue(address, false);

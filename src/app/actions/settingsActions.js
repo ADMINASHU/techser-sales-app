@@ -3,7 +3,42 @@
 import { auth } from "@/auth";
 import dbConnect from "@/lib/db";
 import Location from "@/models/Location";
+import SystemSetting from "@/models/SystemSetting";
 import { revalidatePath } from "next/cache";
+
+export async function getLiveSyncStatus() {
+    try {
+        await dbConnect();
+        const setting = await SystemSetting.findOne({ key: "liveSync" });
+        // Default to true if not set
+        return setting ? setting.value : true;
+    } catch (error) {
+        console.error("Get Live Sync Status Error", error);
+        return true; // Default to on in case of error
+    }
+}
+
+export async function toggleLiveSync() {
+    try {
+        await checkAdmin();
+        await dbConnect();
+
+        const currentStatus = await getLiveSyncStatus();
+        const newStatus = !currentStatus;
+
+        await SystemSetting.findOneAndUpdate(
+            { key: "liveSync" },
+            { value: newStatus },
+            { upsert: true, new: true }
+        );
+
+        revalidatePath("/settings");
+        return { success: true, enabled: newStatus };
+    } catch (error) {
+        console.error("Toggle Live Sync Error", error);
+        return { error: "Failed to toggle setting" };
+    }
+}
 
 async function checkAdmin() {
     const session = await auth();
