@@ -34,7 +34,7 @@ export default function LoginPage() {
         const result = await authenticate(undefined, formData);
         
         if (typeof result === "object" && result?.success) {
-            toast.success("Login successful");
+            // toast.success("Login successful");
             // Force hard navigation to ensure fresh session data
             window.location.href = "/";
             return;

@@ -21,7 +21,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             },
             async authorize(credentials) {
                 if (!credentials?.email || !credentials?.password) {
-                    console.log("Auth failed: Missing credentials");
+                    // console.log("Auth failed: Missing credentials");
                     return null;
                 }
 
@@ -32,12 +32,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                         .select("+password -image");
 
                     if (!user) {
-                        console.log("Auth failed: User not found");
+                        // console.log("Auth failed: User not found");
                         return null;
                     }
 
                     if (user.provider && user.provider !== "credentials") {
-                        console.log("Auth failed: Wrong provider", user.provider);
+                        // console.log("Auth failed: Wrong provider", user.provider);
                         return null;
                     }
 
@@ -47,7 +47,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     );
 
                     if (!isPasswordCorrect) {
-                        console.log("Auth failed: Invalid password");
+                        // console.log("Auth failed: Invalid password");
                         return null;
                     }
 
@@ -64,7 +64,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                         viewPreference: user.viewPreference,
                     };
                 } catch (error) {
-                    console.error("Auth error:", error);
+                    //   console.error("Auth error:", error);
                     return null;
                 }
             },
@@ -74,7 +74,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         ...authConfig.callbacks,
         async jwt({ token, user, account, trigger, session }) {
             if (trigger === "update" && session) {
-                console.log("[Auth] JWT Update Triggered:", session);
+                // console.log("[Auth] JWT Update Triggered:", session);
                 if (session.status) token.status = session.status;
                 if (session.role) token.role = session.role;
                 if (session.viewPreference) token.viewPreference = session.viewPreference;             
@@ -88,7 +88,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                         ? `/api/user/image?v=${Date.now()}`
                         : session.image;
                 }
-                console.log("[Auth] New token role:", token.role);
+                // console.log("[Auth] New token role:", token.role);
             }
 
             if (user) {
@@ -120,7 +120,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                         token.image = `/api/user/image?v=${dbUser.updatedAt?.getTime() || Date.now()}`;
 
                     } catch (error) {
-                        console.error("Error in JWT Google callback:", error);
+                        // console.error("Error in JWT Google callback:", error);
                     }
                 } else {
                     token.id = user.id;

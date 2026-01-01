@@ -230,7 +230,7 @@ export async function stampIn(entryId, location) {
         ).populate("userId", "name email region branch");
 
         if (!entry) {
-            console.log(`[StampIn] Entry ${entryId} already stamped in. Skipping.`);
+            // console.log(`[StampIn] Entry ${entryId} already stamped in. Skipping.`);
             return { success: true };
         }
 
@@ -296,7 +296,7 @@ export async function stampOut(entryId, location) {
         ).populate("userId", "name email region branch"); // populate customerId not strictly needed here if we re-fetch
 
         if (!entry) {
-            console.log(`[StampOut] Entry ${entryId} already completed or not in process. Skipping.`);
+            // console.log(`[StampOut] Entry ${entryId} already completed or not in process. Skipping.`);
             return { success: true };
         }
 

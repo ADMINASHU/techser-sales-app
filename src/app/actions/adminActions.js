@@ -30,7 +30,7 @@ export async function verifyUser(userId) {
 
         // If no user found or user was already verified, user will be null
         if (!user) {
-            console.log(`[Verify] User ${userId} already verified or not found. Skipping notification.`);
+            // console.log(`[Verify] User ${userId} already verified or not found. Skipping notification.`);
             return { success: true };
         }
 
