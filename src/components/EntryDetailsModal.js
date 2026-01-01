@@ -43,7 +43,7 @@ export default function EntryDetailsModal({ entry, isOpen, onClose, session }) {
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="w-[calc(100%-2rem)] max-w-6xl max-h-[90vh] overflow-y-auto hide-scrollbar bg-card border-white/10 p-6 rounded-xl">
                 <DialogHeader className="border-b border-white/5 pb-4">
-                    <div className="flex items-center justify-between pr-10">
+                    <div className="flex items-center justify-between pr-12">
                         <DialogTitle className="text-xl font-bold">Visit Details</DialogTitle>
                         <Badge variant={statusColor}>{entry.status}</Badge>
                     </div>

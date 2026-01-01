@@ -55,7 +55,7 @@ export async function getReportData({ startDate, endDate, userId, region, branch
     }
 
     const entries = await Entry.find(query)
-        .populate("userId", "name email region branch")
+        .populate("userId", "name email region branch role status image")
         .populate("customerId"); // Populate customer data
 
     // Format for Excel - Match Google Sheets column order exactly
@@ -116,7 +116,7 @@ export async function getRawEntries({ startDate, endDate, userId, region, branch
 
     // We sort by createdAt -1 to get recent ones
     let queryBuilder = Entry.find(query)
-        .populate("userId", "name email region branch")
+        .populate("userId", "name email region branch role status image")
         .populate("customerId")
         .sort({ createdAt: -1 });
 
