@@ -18,7 +18,7 @@ function parseChangelog(markdown) {
 
   const versionRegex = /^###? \[?(\d+\.\d+\.\d+)\]?.*?\((\d{4}-\d{2}-\d{2})\)/;
   const typeRegex = /^### (.*)/;
-  const itemRegex = /^\* (.*)/;
+  const itemRegex = /^[\*\-] (.*)/;
 
   lines.forEach(line => {
     // 1. Detect Version

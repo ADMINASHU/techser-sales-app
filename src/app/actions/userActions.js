@@ -17,7 +17,7 @@ import { triggerNotification } from "@/lib/knock";
 import { z } from "zod";
 
 const ProfileSchema = z.object({
-    name: z.string().min(2, "Name must be at least 2 characters"),
+    name: z.string().min(2, "Name must be at least 2 characters").optional(),
     contactNumber: z.string().regex(/^\d{10}$/, "Contact number must be exactly 10 digits"),
     address: z.string().min(5, "Address must be at least 5 characters"),
     region: z.string().min(1, "Region is required"),
@@ -36,7 +36,14 @@ export async function updateProfile(formData) {
         return { error: parsed.error.issues[0].message };
     }
 
-    const { name, contactNumber, address, region, branch, designation } = parsed.data;
+    // Only include fields that are present in the parsed data
+    const updateFields = {};
+    if (parsed.data.name) updateFields.name = parsed.data.name;
+    if (parsed.data.contactNumber) updateFields.contactNumber = parsed.data.contactNumber;
+    if (parsed.data.address) updateFields.address = parsed.data.address;
+    if (parsed.data.region) updateFields.region = parsed.data.region;
+    if (parsed.data.branch) updateFields.branch = parsed.data.branch;
+    if (parsed.data.designation) updateFields.designation = parsed.data.designation;
 
     try {
         await dbConnect();
@@ -45,14 +52,7 @@ export async function updateProfile(formData) {
 
         const isFirstTimeSetup = user.status === "pending" && (!user.contactNumber || !user.address);
 
-        await User.findByIdAndUpdate(session.user.id, {
-            name,
-            contactNumber,
-            address,
-            region,
-            branch,
-            designation,
-        });
+        await User.findByIdAndUpdate(session.user.id, updateFields);
 
         // Trigger Verification Request Notification to Admins ONLY if it's the first relevant setup
         // or if they are still pending verification.

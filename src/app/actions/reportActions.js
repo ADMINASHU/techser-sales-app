@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import dbConnect from "@/lib/db";
 import Entry from "@/models/Entry";
 import User from "@/models/User";
+import Customer from "@/models/Customer";
 import Location from "@/models/Location";
 import { formatInIST } from "@/lib/utils";
 

@@ -14,12 +14,10 @@ import {
     FileSpreadsheet,
     Map as MapIcon,
     CheckCircle2,
-    Clock,
     UserPlus,
     LayoutDashboard,
     Search,
     RefreshCcw,
-    Mail,
     ArrowLeft
 } from "lucide-react";
 import Link from "next/link";
@@ -69,20 +67,20 @@ export default function FeaturesPage() {
         {
             icon: Fingerprint,
             title: "Smart Attendance (Stamping)",
-            description: "Geofenced check-in and check-out system with real-time location validation and IST synchronization.",
-            tags: ["Location Verified", "IST Time", "Audit Trail"]
+            description: "Geofenced check-in/out system with strict Region/Branch access control and real-time IST synchronization.",
+            tags: ["Location Verified", "Region Locked", "Audit Trail"]
         },
         {
             icon: MapPin,
-            title: "Live Location Tracking",
-            description: "Continuous location tracking during visits using Google Maps API for precise movement history.",
-            tags: ["Google Maps", "GPS", "Coordinates"]
+            title: "Visit Location Verification",
+            description: "Precise GPS coordinate capture during Check-In and Check-Out actions to authenticate field visit locations.",
+            tags: ["Google Maps", "Event-Based", "GPS Snapshot"]
         },
         {
-            icon: LayoutDashboard,
-            title: "Intelligent Dashboard",
-            description: "Role-based dashboards providing real-time metrics, visit summaries, and performance analytics.",
-            tags: ["Personalized", "Real-time", "Charts"]
+            icon: ShieldCheck,
+            title: "Smart Duplicate Shield",
+            description: "Proximity-based detection system that prevents data redundancy by warning users of existing customers within 50m.",
+            tags: ["50m Radius", "Haversine Algo", "Data Integrity"]
         },
         {
             icon: Users,
@@ -93,19 +91,19 @@ export default function FeaturesPage() {
         {
             icon: Bell,
             title: "Omnichannel Notifications",
-            description: "Real-time alerts via Knock for in-app feeds, push notifications, and email updates for critical events.",
-            tags: ["Knock", "Push", "Email"]
+            description: "Real-time alerts via Knock for in-app feeds for critical events.",
+            tags: ["Knock", "Check-in", "Check-out" ]
         },
         {
             icon: FileSpreadsheet,
-            title: "Data Synchronization",
-            description: "Automatic background syncing with Google Sheets for secondary backup and easy report generation.",
-            tags: ["Google Sheets API", "Auto-Sync", "Reporting"]
+            title: "Data Sync & Export",
+            description: "Automatic background syncing with Google Sheets plus matching Excel exports for seamless reporting.",
+            tags: ["Google Sheets", "Excel", "Auto-Sync"]
         }
     ];
 
     const techSpecs = [
-        { label: "Frontend Framework", value: "Next.js 15 (App Router)", icon: Globe },
+        { label: "Frontend Framework", value: "Next.js 16 (Turbopack)", icon: Globe },
         { label: "Styling & UI", value: "Tailwind CSS 4, Shadcn UI, Lucide Icons", icon: Layers },
         { label: "Primary Database", value: "MongoDB with Mongoose ODM", icon: Database },
         { label: "Authentication", value: "NextAuth.js v5 (Beta)", icon: ShieldCheck },
@@ -129,7 +127,7 @@ export default function FeaturesPage() {
                 <Badge variant="outline" className="px-4 py-1 border-primary/30 bg-primary/5 text-primary mb-4">
                     Product Overview
                 </Badge>
-                <h1 className="text-4xl md:text-6xl font-black bg-clip-text text-transparent bg-gradient-to-r from-white via-white/80 to-white/50 tracking-tight">
+                <h1 className="text-4xl md:text-6xl font-black bg-clip-text text-transparent bg-linear-to-r from-white via-white/80 to-white/50 tracking-tight">
                     Features & Specifications
                 </h1>
                 <p className="text-lg md:text-xl text-muted-foreground/80 max-w-2xl mx-auto">
@@ -192,11 +190,11 @@ export default function FeaturesPage() {
                                     <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
                                         <RefreshCcw className="w-4 h-4 text-emerald-500" />
                                     </div>
-                                    <span>Background Background Sync</span>
+                                    <span>Background Sync & Export</span>
                                 </div>
                             </AccordionTrigger>
                             <AccordionContent className="text-muted-foreground pt-2">
-                                Implements seamless synchronization with Google Sheets API to ensure all visit data is mirrored for secondary analysis and reporting.
+                                Implements seamless synchronization with Google Sheets API plus strict parity with Excel exports for robust reporting and backups.
                             </AccordionContent>
                         </AccordionItem>
                         <AccordionItem value="item-3" className="border-white/5">
@@ -215,27 +213,40 @@ export default function FeaturesPage() {
                         <AccordionItem value="item-4" className="border-white/5">
                             <AccordionTrigger className="hover:no-underline">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center">
-                                        <Mail className="w-4 h-4 text-purple-500" />
+                                    <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center">
+                                        <MapIcon className="w-4 h-4 text-red-500" />
                                     </div>
-                                    <span>Email Integration</span>
+                                    <span>Geospatial Intelligence</span>
                                 </div>
                             </AccordionTrigger>
                             <AccordionContent className="text-muted-foreground pt-2">
-                                Nodemailer integration for automated password resets, system alerts, and notification fallback when push fails.
+                                Uses Haversine logic for both stamp-in proximity validation and 50m radius duplicate customer detection.
                             </AccordionContent>
                         </AccordionItem>
-                        <AccordionItem value="item-5" className="border-white/5">
+                         <AccordionItem value="item-5" className="border-white/5">
                             <AccordionTrigger className="hover:no-underline">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center">
-                                        <ShieldCheck className="w-4 h-4 text-red-500" />
+                                    <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center">
+                                        <Zap className="w-4 h-4 text-indigo-500" />
                                     </div>
-                                    <span>Proximity Validation</span>
+                                    <span>Infinite Performance</span>
                                 </div>
                             </AccordionTrigger>
                             <AccordionContent className="text-muted-foreground pt-2">
-                                Uses the Haversine formula to calculate the precise distance (in km) between the customer&apos;s registered location and the user&apos;s actual stamping location for audit integrity.
+                                Optimized mobile experience using virtualization (react-virtuoso) for infinite scrolling on massive datasets without lag.
+                            </AccordionContent>
+                        </AccordionItem>
+                        <AccordionItem value="item-6" className="border-white/5">
+                            <AccordionTrigger className="hover:no-underline">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-lg bg-pink-500/10 flex items-center justify-center">
+                                        <CheckCircle2 className="w-4 h-4 text-pink-500" />
+                                    </div>
+                                    <span>Lifecycle Management</span>
+                                </div>
+                            </AccordionTrigger>
+                            <AccordionContent className="text-muted-foreground pt-2">
+                                Active/Inactive status toggles to maintain a clean workspace and filter out dormant customers from daily views.
                             </AccordionContent>
                         </AccordionItem>
                     </Accordion>

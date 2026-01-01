@@ -76,7 +76,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 console.log("[Auth] JWT Update Triggered:", session);
                 if (session.status) token.status = session.status;
                 if (session.role) token.role = session.role;
-                if (session.viewPreference) token.viewPreference = session.viewPreference;
+                if (session.viewPreference) token.viewPreference = session.viewPreference;             
+                // Add Region and Branch updates
+                if (session.region) token.region = session.region;
+                if (session.branch) token.branch = session.branch;
 
                 if (session.image) {
                     token.image = session.image.startsWith("data:image")

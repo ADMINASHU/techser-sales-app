@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import dbConnect from "@/lib/db";
 import Entry from "@/models/Entry";
+import Customer from "@/models/Customer";
 import EntryActionButtons from "@/components/EntryActionButtons";
 import EntryMap from "@/components/EntryMap";
 import EntryUserCard from "@/components/EntryUserCard";

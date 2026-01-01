@@ -1,52 +1,63 @@
 # Changelog
 
+### [1.1.1](https://github.com/ADMINASHU/techser-sales-app/compare/v1.1.0...v1.1.1) (2026-01-01)
+
+### Features
+
+- Features Page: Comprehensive update to "Features & Specifications" page including new capabilities (Duplicate Shield, Geospatial Intelligence, Lifecycle Management).
+- Documentation: Clarified "Visit Location Verification" (event-based) vs. continuous tracking.
+
+### Bug Fixes
+
+- LocationPicker: Fixed infinite loop in `useEffect` causing excessive re-renders/geocoding calls.
+- Cleanup: Removed unused imports and fixed Accordion numbering in Features page.
+- Styling: Fixed CSS lint warnings in Features page.
+
 ### [1.1.0](https://github.com/ADMINASHU/techser-sales-app/compare/v1.0.3...v1.1.0) (2026-01-01)
 
 ### Features
 
-- **Google Sheet Sync**:
-  - Removed "Purpose" column to streamline data.
-  - Updated Date format to `dd/MM/yyyy` (removed time component).
-  - Populated missing Customer Address and Contact details from Customer database.
-- **Excel Export**: Updated export format to match Google Sheets (Date only, no Purpose).
-- **Dashboard**: Renamed "Pending" status card to "In Process" for clarity.
+- Removed "Purpose" column to streamline data.
+- Updated Date format to `dd/MM/yyyy` (removed time component).
+- Populated missing Customer Address and Contact details from Customer database.
+- Excel Export: Updated export format to match Google Sheets (Date only, no Purpose).
+- Dashboard: Renamed "Pending" status card to "In Process" for clarity.
 
 ### Bug Fixes
 
-- **Sync Stability**: Fixed issue where sync reported "Failed" despite success (Row ID logic).
-- **Mobile UI**: Fixed Admin Entry Details modal width and scrolling issues on mobile devices.
+- Sync Stability: Fixed issue where sync reported "Failed" despite success (Row ID logic).
+- Mobile UI: Fixed Admin Entry Details modal width and scrolling issues on mobile devices.
 
 ### [1.0.3](https://github.com/ADMINASHU/techser-sales-app/compare/v1.0.2...v1.0.3) (2026-01-01)
 
 ### Performance Improvements
 
-- **Mobile Optimization Suite**:
-  - Implemented `react-virtuoso` for Infinite Entry and Customer lists, fixing scroll lag on large datasets.
-  - Replaced JS-based responsiveness with pure CSS (`lg:hidden` classes) to eliminate layout shifts.
-  - Disabled expensive `backdrop-blur` effects on mobile devices for improved GPU performance.
-  - Fixed "sticky" hover states on touch devices using `@media (hover: hover)`.
-  - Reduced initial data fetch limit from 18 to 10 items for faster load times.
-  - Memoized `EntryCard` and `CustomerCard` components to prevent unnecessary re-renders.
-  - Fixed duplicate CSS imports in `layout.js`.
+- Implemented `react-virtuoso` for Infinite Entry and Customer lists, fixing scroll lag on large datasets.
+- Replaced JS-based responsiveness with pure CSS (`lg:hidden` classes) to eliminate layout shifts.
+- Disabled expensive `backdrop-blur` effects on mobile devices for improved GPU performance.
+- Fixed "sticky" hover states on touch devices using `@media (hover: hover)`.
+- Reduced initial data fetch limit from 18 to 10 items for faster load times.
+- Memoized `EntryCard` and `CustomerCard` components to prevent unnecessary re-renders.
+- Fixed duplicate CSS imports in `layout.js`.
 
 ### [1.0.2](https://github.com/ADMINASHU/techser-sales-app/compare/v1.0.1...v1.0.2) (2026-01-01)
 
 ### Features
 
-- **Duplicate Detection**: Add proximity-based duplicate customer detection ([0a17128](https://github.com/ADMINASHU/techser-sales-app/commit/0a17128))
+- Duplicate Detection: Add proximity-based duplicate customer detection ([0a17128](https://github.com/ADMINASHU/techser-sales-app/commit/0a17128))
 
-  - Implemented 50-meter threshold using Haversine formula for accurate distance calculation
-  - Created warning dialog showing nearby customers with distances
-  - Added geospatial utilities and server actions for duplicate checking
-  - Integrated into customer form with loading states
-  - Skip duplicate check in edit mode to avoid false positives
+- Implemented 50-meter threshold using Haversine formula for accurate distance calculation
+- Created warning dialog showing nearby customers with distances
+- Added geospatial utilities and server actions for duplicate checking
+- Integrated into customer form with loading states
+- Skip duplicate check in edit mode to avoid false positives
 
-- **Customer Status**: Add active/inactive status toggle for customer management ([0a17128](https://github.com/ADMINASHU/techser-sales-app/commit/0a17128))
-  - Added `isActive` field to Customer schema with database index
-  - Created interactive toggle switch in customer form and cards
-  - Implemented quick status toggle server action
-  - Updated check-in page to show only active customers
-  - Added activeOnly filter parameter to customer queries
+- Customer Status: Add active/inactive status toggle for customer management ([0a17128](https://github.com/ADMINASHU/techser-sales-app/commit/0a17128))
+- Added `isActive` field to Customer schema with database index
+- Created interactive toggle switch in customer form and cards
+- Implemented quick status toggle server action
+- Updated check-in page to show only active customers
+- Added activeOnly filter parameter to customer queries
 
 ### [1.0.1](https://github.com/ADMINASHU/techser-sales-app/compare/v1.0.0...v1.0.1) (2025-12-31)
 

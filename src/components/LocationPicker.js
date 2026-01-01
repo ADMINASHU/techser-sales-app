@@ -112,16 +112,20 @@ function MapInterface({ onLocationSelect, initialCoordinates }) {
         }
     }, [setValue, processAddressComponents]);
 
+    const initialized = useRef(false);
+
     // Initial load - Get current location only if no initial coordinates provided
     useEffect(() => {
         // If we have initial coordinates, do reverse geocoding for them
-        if (initialCoordinates) {
+        if (initialCoordinates && !initialized.current) {
+            initialized.current = true;
             handleReverseGeocode(initialCoordinates);
             return;
         }
         
         // Otherwise, get current location for new entries
-        if (navigator.geolocation) {
+        if (navigator.geolocation && !initialCoordinates && !initialized.current) {
+             initialized.current = true;
             navigator.geolocation.getCurrentPosition(
                 (position) => {
                     const pos = {

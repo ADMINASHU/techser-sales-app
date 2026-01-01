@@ -144,8 +144,12 @@ export async function getCustomers({ filters = {}, skip = 0, limit = 18, activeO
 
         // For non-admins, strictly filter by their region and branch
         if (!isAdmin) {
-            if (session.user.region) query.region = session.user.region;
-            if (session.user.branch) query.branch = session.user.branch;
+            // STRICT SECURITY: If user has no region/branch content, return empty instead of ALL.
+            if (!session.user.region || !session.user.branch) {
+                return { customers: [], hasMore: false };
+            }
+            query.region = session.user.region;
+            query.branch = session.user.branch;
         } else {
             // For admins, use provided filters
             if (filters.region && filters.region !== "all") {
@@ -197,8 +201,12 @@ export async function getCustomersWithEntryCount({ filters = {}, skip = 0, limit
         const isAdmin = session.user.role === "admin";
 
         if (!isAdmin) {
-            if (session.user.region) query.region = session.user.region;
-            if (session.user.branch) query.branch = session.user.branch;
+            // STRICT SECURITY: If user has no region/branch content, return empty instead of ALL.
+            if (!session.user.region || !session.user.branch) {
+                return { customers: [], hasMore: false };
+            }
+            query.region = session.user.region;
+            query.branch = session.user.branch;
         } else {
             if (filters.region && filters.region !== "all") {
                 query.region = filters.region;

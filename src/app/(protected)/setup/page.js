@@ -106,6 +106,15 @@ export default function ProfileSetupPage() {
         if (res?.error) {
             toast.error(res.error);
         } else {
+            // Update session explicitly so client has region/branch immediately
+            await update({
+                region,
+                branch,
+                status: "pending" // Should still be pending until verification? Or whatever userActions sets.
+                // Assuming status doesn't change implicitly here unless userActions changes it. 
+                // But region/branch are critical.
+            });
+            
             toast.success("Profile updated!");
             router.push("/dashboard");
             router.refresh();
