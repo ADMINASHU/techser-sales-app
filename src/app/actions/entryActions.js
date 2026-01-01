@@ -238,7 +238,8 @@ export async function stampIn(entryId, location) {
         const sideEffects = [];
 
         // 1. Notify
-        sideEffects.push(notifyAdmins("Stamped In", entry, session.user));
+        // 1. Notify - REMOVED per user request to reduce lag
+        // sideEffects.push(notifyAdmins("Stamped In", entry, session.user));
 
         // 2. Sync
         if (entry.googleSheetRowId) {
@@ -303,7 +304,8 @@ export async function stampOut(entryId, location) {
         const sideEffects = [];
 
         // 1. Notify
-        sideEffects.push(notifyAdmins("Stamped Out", entry, session.user));
+        // 1. Notify - REMOVED per user request to reduce lag
+        // sideEffects.push(notifyAdmins("Stamped Out", entry, session.user));
 
         // 2. Sync
         if (entry.googleSheetRowId) {

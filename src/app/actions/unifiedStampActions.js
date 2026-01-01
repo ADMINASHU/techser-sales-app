@@ -75,7 +75,7 @@ export async function customerStampIn(customerId, location) {
             };
             await existingEntry.save();
 
-            await notifyAdmins("Stamped In", existingEntry, session.user);
+            // await notifyAdmins("Stamped In", existingEntry, session.user);
             revalidatePath("/customer-log");
             return { success: true };
         }
@@ -94,7 +94,9 @@ export async function customerStampIn(customerId, location) {
         });
 
         // Sync to Google Sheets & Notify in parallel
-        const tasks = [notifyAdmins("Stamped In", entry, session.user)];
+        // Sync to Google Sheets
+        // const tasks = [notifyAdmins("Stamped In", entry, session.user)];
+        const tasks = [];
         let sheetPromise = Promise.resolve(null);
 
         if (isLiveSyncOn) {
@@ -164,7 +166,9 @@ export async function customerStampOut(customerId, location) {
         }
 
         const isLiveSyncOn = liveSyncSetting ? liveSyncSetting.value : true;
-        const tasks = [notifyAdmins("Stamped Out", entry, session.user)];
+
+        // const tasks = [notifyAdmins("Stamped Out", entry, session.user)];
+        const tasks = [];
 
         // Sync Update to Sheet
         if (entry.googleSheetRowId && isLiveSyncOn) {
