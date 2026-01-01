@@ -63,7 +63,7 @@ export default function DuplicateCustomerWarning({ nearbyCustomers, open, onOpen
                 <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 text-sm text-amber-200">
                     <p className="font-medium mb-1">💡 Is this a different floor or section?</p>
                     <p className="text-xs text-amber-300/80">
-                        If you're adding a different company/section in the same building, you can proceed. 
+                        If you&apos;re adding a different company/section in the same building, you can proceed. 
                         Otherwise, you might be creating a duplicate entry.
                     </p>
                 </div>

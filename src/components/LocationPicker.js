@@ -115,7 +115,6 @@ function MapInterface({ onLocationSelect, initialCoordinates }) {
     const initialized = useRef(false);
 
     // Initial load - Get current location only if no initial coordinates provided
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         const initializeLocation = () => {
             // If we have initial coordinates, do reverse geocoding for them

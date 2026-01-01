@@ -1,5 +1,18 @@
 # Changelog
 
+### [1.1.3](https://github.com/ADMINASHU/techser-sales-app/compare/v1.1.2...v1.1.3) (2026-01-01)
+
+### Features
+
+- Performance: Removed redundant database fetch in `stampIn` action for faster response times.
+- Cleanup: Removed "Created Entry" notification to reduce alert noise.
+- Cleanup: Removed unused "New Entry" button code from Entry Log page.
+
+### Bug Fixes
+
+- DuplicateCustomerWarning: Fixed unescaped apostrophe causing build errors.
+- LocationPicker: Removed redundant lint suppression.
+
 ### [1.1.2](https://github.com/ADMINASHU/techser-sales-app/compare/v1.1.1...v1.1.2) (2026-01-01)
 
 ### Features

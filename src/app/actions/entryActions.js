@@ -62,7 +62,8 @@ export async function createEntry(formData) {
         const sideEffects = [];
 
         // 1. Notify Admins
-        sideEffects.push(notifyAdmins("Created Entry", entry, session.user));
+        // 1. Notify Admins - REMOVED per user request (only Stamp In/Out interactions matter)
+        // sideEffects.push(notifyAdmins("Created Entry", entry, session.user));
 
         // 2. Sheet Sync (Conditional)
         sideEffects.push((async () => {
@@ -226,7 +227,7 @@ export async function stampIn(entryId, location) {
                 }
             },
             { new: true }
-        ).populate("userId", "name email region branch").populate("customerId");
+        ).populate("userId", "name email region branch");
 
         if (!entry) {
             console.log(`[StampIn] Entry ${entryId} already stamped in. Skipping.`);
