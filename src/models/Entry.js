@@ -50,6 +50,8 @@ const EntrySchema = new mongoose.Schema(
 
 // Index for easier filtering
 EntrySchema.index({ userId: 1, status: 1 });
+EntrySchema.index({ userId: 1, entryDate: -1 }); // Fast user history lookup (Compound)
+EntrySchema.index({ "stampIn.location": "2dsphere" }); // Geo queries
 EntrySchema.index({ "stampIn.time": -1 });
 EntrySchema.index({ createdAt: -1 });
 EntrySchema.index({ userId: 1, createdAt: -1 }); // Composite for User Dashboard

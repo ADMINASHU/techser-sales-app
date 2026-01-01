@@ -6,10 +6,17 @@ import { Button } from "@/components/ui/button";
 import { Navigation, Edit, X } from "lucide-react";
 import { formatInIST } from "@/lib/utils";
 import EntryUserCard from "@/components/EntryUserCard";
-import EntryMap from "@/components/EntryMap";
+
 import EntryActionButtons from "@/components/EntryActionButtons";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import dynamic from 'next/dynamic';
+import { Loader2 } from "lucide-react";
+
+const EntryMap = dynamic(() => import('@/components/EntryMap'), {
+    loading: () => <div className="w-full h-full flex items-center justify-center bg-gray-900"><Loader2 className="w-8 h-8 text-blue-500 animate-spin" /></div>,
+    ssr: false
+});
 
 function Label({ children, className }) {
     return <p className={`text-xs uppercase tracking-wider ${className}`}>{children}</p>;
@@ -34,10 +41,10 @@ export default function AdminEntryDetailsModal({ entry, isOpen, onClose, session
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="w-[80vw] sm:max-w-[80vw] max-w-5xl p-0 overflow-hidden bg-[#0b0f19] border-white/10 sm:rounded-2xl h-[680px] max-h-[80vh]">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 h-full overflow-hidden">
+            <DialogContent className="w-[95vw] sm:w-[90vw] lg:w-[80vw] sm:max-w-[80vw] max-w-5xl p-0 overflow-hidden bg-[#0b0f19] border-white/10 sm:rounded-2xl h-[80vh] sm:h-[680px] max-h-[80vh] flex flex-col">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 h-full overflow-y-auto lg:overflow-hidden hide-scrollbar">
                     {/* Map Column - Left Side (2/3) */}
-                    <div className="lg:col-span-2 h-full relative bg-gray-900/50 border-r border-white/5 overflow-hidden">
+                    <div className="lg:col-span-2 h-[250px] lg:h-full relative bg-gray-900/50 border-r border-white/5 overflow-hidden shrink-0">
                         <EntryMap
                             location={entry.customerId?.location || entry.location}
                             destinationName={entry.customerId?.name || entry.customerName}
@@ -48,7 +55,7 @@ export default function AdminEntryDetailsModal({ entry, isOpen, onClose, session
                     </div>
 
                     {/* Info Panel - Right Side (1/3) */}
-                    <div className="lg:col-span-1 bg-[#0b0f19] p-6 lg:p-8 overflow-hidden flex flex-col relative">
+                    <div className="lg:col-span-1 bg-[#0b0f19] p-6 lg:p-8 h-auto lg:h-full lg:overflow-y-auto flex flex-col relative hide-scrollbar">
                         {/* Header inside the panel with DialogTitle for accessibility */}
                         <div className="flex items-center justify-between mb-6">
                             <DialogTitle className="text-xl font-bold text-white">Visit Details</DialogTitle>

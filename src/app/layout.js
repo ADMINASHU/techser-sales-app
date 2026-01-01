@@ -13,6 +13,13 @@ export const metadata = {
     manifest: "/manifest.json",
 };
 
+export const viewport = {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false, // Prevents zooming on inputs
+};
+
 export default async function RootLayout({ children }) {
     const session = await auth();
 

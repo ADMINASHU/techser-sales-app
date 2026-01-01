@@ -96,7 +96,7 @@ const EntryCard = memo(function EntryCard({ entry, isAdmin, from }) {
 
                             {/* Delete Button (Only if not admin) */}
                             {!isAdmin && (
-                                <div className="opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity" onClick={(e) => {
+                                <div className="opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity min-w-[44px] min-h-[44px] flex items-center justify-center" onClick={(e) => {
                                     e.preventDefault();
                                     e.stopPropagation();
                                 }}>

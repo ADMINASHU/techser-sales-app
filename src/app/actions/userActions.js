@@ -14,28 +14,29 @@ import { triggerNotification } from "@/lib/knock";
 
 // ... existing code ...
 
+import { z } from "zod";
+
+const ProfileSchema = z.object({
+    name: z.string().min(2, "Name must be at least 2 characters"),
+    contactNumber: z.string().regex(/^\d{10}$/, "Contact number must be exactly 10 digits"),
+    address: z.string().min(5, "Address must be at least 5 characters"),
+    region: z.string().min(1, "Region is required"),
+    branch: z.string().min(1, "Branch is required"),
+    designation: z.string().optional(),
+});
+
 export async function updateProfile(formData) {
     const session = await auth();
     if (!session) return { error: "Not authenticated" };
 
-    const { name, contactNumber, address, region, branch, designation } = Object.fromEntries(formData);
-    console.log("[DEBUG] updateProfile Action Received:", { name, designation });
+    const data = Object.fromEntries(formData);
+    const parsed = ProfileSchema.safeParse(data);
 
-    if (!name || !contactNumber) {
-        return { error: "Name and Contact number are required" };
-    }
-    // Re-evaluating existing validation: "if (!contactNumber || !address || !region || !branch)"
-    // User didn't ask to relax validation, but designation can be optional.
-
-    if (!contactNumber || !address || !region || !branch) {
-        return { error: "All fields are required" };
+    if (!parsed.success) {
+        return { error: parsed.error.issues[0].message };
     }
 
-    // Phone number validation (10 digits)
-    const phoneRegex = /^\d{10}$/;
-    if (!phoneRegex.test(contactNumber)) {
-        return { error: "Contact number must be exactly 10 digits" };
-    }
+    const { name, contactNumber, address, region, branch, designation } = parsed.data;
 
     try {
         await dbConnect();

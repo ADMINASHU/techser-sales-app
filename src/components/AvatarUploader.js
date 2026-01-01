@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Loader2, Camera } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import imageCompression from 'browser-image-compression';
 
 export default function AvatarUploader({ user, className }) {
     const [loading, setLoading] = useState(false);
@@ -22,18 +23,27 @@ export default function AvatarUploader({ user, className }) {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        // Validation: Max size 1MB
-        if (file.size > 1024 * 1024) {
-            toast.error("Image size must be less than 1MB");
-            return;
+        // Validation: Max size 5MB (Compression will reduce it)
+        if (file.size > 5 * 1024 * 1024) {
+             toast.error("Image is too large. Please select an image under 5MB.");
+             return;
         }
 
         setLoading(true);
 
         try {
+            // Compression Options
+            const options = {
+                maxSizeMB: 0.5, // Compress to ~500KB
+                maxWidthOrHeight: 800,
+                useWebWorker: true
+            };
+
+            const compressedFile = await imageCompression(file, options);
+            
             // Convert to Base64
             const reader = new FileReader();
-            reader.readAsDataURL(file);
+            reader.readAsDataURL(compressedFile);
             reader.onloadend = async () => {
                 const base64data = reader.result;
 
@@ -49,6 +59,7 @@ export default function AvatarUploader({ user, className }) {
                 router.refresh();
             };
         } catch (error) {
+            console.error(error);
             toast.error(error.message || "Failed to upload image");
         } finally {
             setLoading(false);

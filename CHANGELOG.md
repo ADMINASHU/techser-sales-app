@@ -1,5 +1,21 @@
 # Changelog
 
+### [1.1.0](https://github.com/ADMINASHU/techser-sales-app/compare/v1.0.3...v1.1.0) (2026-01-01)
+
+### Features
+
+- **Google Sheet Sync**:
+  - Removed "Purpose" column to streamline data.
+  - Updated Date format to `dd/MM/yyyy` (removed time component).
+  - Populated missing Customer Address and Contact details from Customer database.
+- **Excel Export**: Updated export format to match Google Sheets (Date only, no Purpose).
+- **Dashboard**: Renamed "Pending" status card to "In Process" for clarity.
+
+### Bug Fixes
+
+- **Sync Stability**: Fixed issue where sync reported "Failed" despite success (Row ID logic).
+- **Mobile UI**: Fixed Admin Entry Details modal width and scrolling issues on mobile devices.
+
 ### [1.0.3](https://github.com/ADMINASHU/techser-sales-app/compare/v1.0.2...v1.0.3) (2026-01-01)
 
 ### Performance Improvements

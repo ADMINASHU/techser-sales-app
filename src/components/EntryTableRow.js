@@ -110,7 +110,7 @@ export default function EntryTableRow({ entry, isAdmin, serialNumber }) {
             {!isAdmin && (
                 <td className="px-6 py-4 text-right">
                     <div className="flex justify-end items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                        <div className="opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
+                        <div className="opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity min-w-[44px] min-h-[44px] flex items-center justify-center">
                             <DeleteEntryButton entryId={entry._id.toString()} />
                         </div>
                     </div>

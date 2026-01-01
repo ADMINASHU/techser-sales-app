@@ -57,33 +57,36 @@ export async function appendEntryToSheet(entry) {
     }
 
     try {
-        const range = "Entries!A:N"; // Adjusted range for more columns
+        const range = "Entries!A:M"; // Adjusted range (Removed Purpose, total 13 cols)
         // Columns: 
         // A: Date | B: Status | C: Region | D: Branch | E: User Name 
-        // F: Customer Name | G: Customer Address | H: Contact Person & Number | I: Purpose
-        // J: StampIn Time | K: StampOut Time | L: StampIn Distance | M: StampOut Distance | N: ID
+        // F: Customer Name | G: Customer Address | H: Contact Person & Number
+        // I: StampIn Time | J: StampOut Time | K: StampIn Distance | L: StampOut Distance | M: ID
         
-        // Prepare locations
-        const customerLoc = entry.location; // { lat, lng }
+        // Prepare locations (Source from populated customerId)
+        const customerLoc = entry.customerId?.location || entry.location; 
         const stampInLoc = entry.stampIn?.location;
         const stampOutLoc = entry.stampOut?.location;
 
+        // Helper to get data from Entry or populated Customer
+        const getVal = (key) => entry[key] || entry.customerId?.[key] || "";
+
         const values = [
             [
-                entry.entryDate ? formatInIST(entry.entryDate, "dd/MM/yyyy HH:mm:ss") : formatInIST(new Date(), "dd/MM/yyyy HH:mm:ss"), // A: Date
+                entry.entryDate ? formatInIST(entry.entryDate, "dd/MM/yyyy") : formatInIST(new Date(), "dd/MM/yyyy"), // A: Date
                 entry.status || "Not Started", // B: Status
                 entry.userRegion || "", // C: Region
                 entry.userBranch || "", // D: Branch
                 entry.userName || "", // E: User Name
-                entry.customerName || "", // F: Customer Name
-                entry.customerAddress || "", // G: Customer Address
-                `${entry.contactPerson || ""} ${entry.contactNumber || ""}`.trim(), // H: Contact Person & Number
-                "", // I: Purpose
-                entry.stampIn?.time ? formatInIST(entry.stampIn.time, "dd/MM/yyyy HH:mm:ss") : "", // J: StampIn Time
-                entry.stampOut?.time ? formatInIST(entry.stampOut.time, "dd/MM/yyyy HH:mm:ss") : "", // K: StampOut Time
-                calculateDistance(customerLoc, stampInLoc), // L: StampIn Distance (km)
-                calculateDistance(customerLoc, stampOutLoc), // M: StampOut Distance (km)
-                entry._id.toString(), // N: ID (Keep for reference/updates)
+                getVal("customerName") || getVal("name"), // F: Customer Name
+                getVal("customerAddress"), // G: Customer Address
+                `${getVal("contactPerson")} ${getVal("contactNumber")}`.trim(), // H: Contact Person & Number
+                // Removed Purpose
+                entry.stampIn?.time ? formatInIST(entry.stampIn.time, "dd/MM/yyyy HH:mm:ss") : "", // I: StampIn Time
+                entry.stampOut?.time ? formatInIST(entry.stampOut.time, "dd/MM/yyyy HH:mm:ss") : "", // J: StampOut Time
+                calculateDistance(customerLoc, stampInLoc), // K: StampIn Distance (km)
+                calculateDistance(customerLoc, stampOutLoc), // L: StampOut Distance (km)
+                entry._id.toString(), // M: ID
             ],
         ];
 
@@ -114,7 +117,6 @@ export async function appendEntryToSheet(entry) {
 }
 
 export async function updateEntryInSheet(entry) {
-    // If we don't have a row ID, we can't reliably update the specific row without scanning
     if (!entry.googleSheetRowId) {
         console.warn("Skipping sheet update: No googleSheetRowId for entry", entry._id);
         return null;
@@ -130,12 +132,14 @@ export async function updateEntryInSheet(entry) {
 
     try {
         const row = entry.googleSheetRowId;
-        const range = `Entries!A${row}:N${row}`;
+        const range = `Entries!A${row}:M${row}`;
         
         // Prepare locations
-        const customerLoc = entry.location; // { lat, lng }
+        const customerLoc = entry.customerId?.location || entry.location; 
         const stampInLoc = entry.stampIn?.location;
         const stampOutLoc = entry.stampOut?.location;
+
+        const getVal = (key) => entry[key] || entry.customerId?.[key] || "";
 
         const values = [
             [
@@ -144,15 +148,15 @@ export async function updateEntryInSheet(entry) {
                 entry.userRegion || "", // C: Region
                 entry.userBranch || "", // D: Branch
                 entry.userName || "", // E: User Name
-                entry.customerName || "", // F: Customer Name
-                entry.customerAddress || "", // G: Customer Address
-                `${entry.contactPerson || ""} ${entry.contactNumber || ""}`.trim(), // H: Contact Person & Number
-                entry.purpose || "", // I: Purpose
-                entry.stampIn?.time ? formatInIST(entry.stampIn.time, "dd/MM/yyyy HH:mm:ss") : "", // J: StampIn Time
-                entry.stampOut?.time ? formatInIST(entry.stampOut.time, "dd/MM/yyyy HH:mm:ss") : "", // K: StampOut Time
-                calculateDistance(customerLoc, stampInLoc), // L: StampIn Distance (km)
-                calculateDistance(customerLoc, stampOutLoc), // M: StampOut Distance (km)
-                entry._id.toString(), // N: ID
+                getVal("customerName") || getVal("name"), // F: Customer Name
+                getVal("customerAddress"), // G: Customer Address
+                `${getVal("contactPerson")} ${getVal("contactNumber")}`.trim(), // H: Contact Person & Number
+                // Removed Purpose
+                entry.stampIn?.time ? formatInIST(entry.stampIn.time, "dd/MM/yyyy HH:mm:ss") : "", // I: StampIn Time
+                entry.stampOut?.time ? formatInIST(entry.stampOut.time, "dd/MM/yyyy HH:mm:ss") : "", // J: StampOut Time
+                calculateDistance(customerLoc, stampInLoc), // K: StampIn Distance (km)
+                calculateDistance(customerLoc, stampOutLoc), // L: StampOut Distance (km)
+                entry._id.toString(), // M: ID
             ],
         ];
 
@@ -164,6 +168,7 @@ export async function updateEntryInSheet(entry) {
         });
 
         return response.data;
+
     } catch (error) {
         console.error("Sheet Update Error", error);
         return null;
@@ -181,7 +186,7 @@ export async function clearSheet() {
 
     try {
         // Clear everything starting from A2 (keep headers)
-        const range = "Entries!A2:N";
+        const range = "Entries!A2:M";
         
         const response = await sheets.spreadsheets.values.clear({
             spreadsheetId,

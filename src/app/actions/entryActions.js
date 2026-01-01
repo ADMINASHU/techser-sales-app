@@ -7,13 +7,35 @@ import Customer from "@/models/Customer"; // Ensure Customer model is registered
 import { revalidatePath } from "next/cache";
 import { appendEntryToSheet } from "@/lib/googleSheets";
 
+import { z } from "zod";
+
+const EntrySchema = z.object({
+    customerName: z.string().min(1, "Customer Name is required"),
+    customerAddress: z.string().min(5, "Valid Customer Address is required"),
+    district: z.string().optional(),
+    state: z.string().optional(),
+    pincode: z.string().optional(),
+    lat: z.coerce.number().optional(), // Coerce form string to number
+    lng: z.coerce.number().optional(),
+    contactPerson: z.string().optional(),
+    contactNumber: z.string().optional(),
+    // Fix: Don't default to new Date() here, or updates will overwrite existing dates with "now"
+    entryDate: z.string().optional().transform((str) => str ? new Date(str) : undefined), 
+});
+
 export async function createEntry(formData) {
     const session = await auth();
     if (!session) return { error: "Not authenticated" };
 
     const data = Object.fromEntries(formData);
-    console.log("Server createEntry Received Data:", data);
-    const { customerName, customerAddress, district, state, pincode, lat, lng, entryDate, contactPerson, contactNumber } = data;
+    const parsed = EntrySchema.safeParse(data);
+
+    if (!parsed.success) {
+         console.error("Validation Error:", parsed.error);
+         return { error: "Invalid Entry Data: " + parsed.error.issues[0].message };
+    }
+
+    const { customerName, customerAddress, district, state, pincode, lat, lng, entryDate, contactPerson, contactNumber } = parsed.data;
 
     try {
         await dbConnect();
@@ -25,16 +47,20 @@ export async function createEntry(formData) {
             state,
             pincode,
             location: {
-                lat: lat ? parseFloat(lat) : undefined,
-                lng: lng ? parseFloat(lng) : undefined,
+                lat: lat,
+                lng: lng,
             },
             contactPerson,
             contactNumber,
-            entryDate: entryDate ? new Date(entryDate) : new Date(),
+            // Explicit default to Now if undefined
+            entryDate: entryDate || new Date(),
             status: "Not Started",
         });
 
-        const entryData = entry.toObject();
+        // Fetch full entry with customer details for Sheet Sync
+        const entryWithCustomer = await Entry.findById(entry._id).populate("customerId");
+        
+        const entryData = entryWithCustomer.toObject();
         entryData.userEmail = session.user.email;
         entryData.userName = session.user.name;
         entryData.userRegion = session.user.region;
@@ -68,7 +94,16 @@ export async function updateEntry(id, formData) {
     }
 
     const data = Object.fromEntries(formData);
-    const { customerName, customerAddress, district, state, pincode, lat, lng, entryDate, contactPerson, contactNumber } = data;
+    // Reuse EntrySchema but make everything optional since update might be partial? 
+    // Actually, update form usually resubmits all fields. Let's use strict parsing for safety or partial if widely used.
+    // Based on `EditEntryForm`, it sends all data.
+    const parsed = EntrySchema.safeParse(data);
+
+    if (!parsed.success) {
+         return { error: "Invalid Entry Data: " + parsed.error.issues[0].message };
+    }
+
+    const { customerName, customerAddress, district, state, pincode, lat, lng, entryDate, contactPerson, contactNumber } = parsed.data;
 
     try {
         await dbConnect();
@@ -88,16 +123,16 @@ export async function updateEntry(id, formData) {
         entry.district = district;
         entry.state = state;
         entry.pincode = pincode;
-        if (lat && lng) {
-            entry.location = {
-                lat: parseFloat(lat),
-                lng: parseFloat(lng),
+        if (lat !== undefined && lng !== undefined) {
+             entry.location = {
+                lat: lat,
+                lng: lng,
             };
         }
         entry.contactPerson = contactPerson;
         entry.contactNumber = contactNumber;
         if (entryDate) {
-            entry.entryDate = new Date(entryDate);
+            entry.entryDate = entryDate;
         }
 
         await entry.save();
@@ -179,7 +214,7 @@ export async function stampIn(entryId, location) {
                 }
             },
             { new: true }
-        ).populate("userId", "name email region branch");
+        ).populate("userId", "name email region branch").populate("customerId");
 
         if (!entry) {
             console.log(`[StampIn] Entry ${entryId} already stamped in. Skipping.`);
@@ -228,7 +263,7 @@ export async function stampOut(entryId, location) {
                 }
             },
             { new: true }
-        ).populate("userId", "name email region branch");
+        ).populate("userId", "name email region branch").populate("customerId");
 
         if (!entry) {
             console.log(`[StampOut] Entry ${entryId} already completed or not in process. Skipping.`);

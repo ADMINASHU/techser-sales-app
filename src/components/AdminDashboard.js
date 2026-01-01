@@ -193,7 +193,8 @@ export default function AdminDashboard({
     // Calculations
     const totalEntries = statsEntries.length;
     const completedEntries = statsEntries.filter(e => e.status === "Completed").length;
-    const pendingEntries = totalEntries - completedEntries;
+    // Reverted: User wants "In Process" label to represent all pending work (Not Started + In Process)
+    const displayCount = totalEntries - completedEntries;
 
     return (
         <div className="space-y-6">
@@ -357,10 +358,10 @@ export default function AdminDashboard({
                         <svg className="w-24 h-24" fill="currentColor" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
                     </div>
                     <CardHeader className="pb-2 p-4">
-                        <CardTitle className="text-xs font-medium text-gray-400 uppercase tracking-wider">Pending</CardTitle>
+                        <CardTitle className="text-xs font-medium text-gray-400 uppercase tracking-wider">In Process</CardTitle>
                     </CardHeader>
                     <CardContent className="p-4 pt-0">
-                        <div className="text-2xl font-bold text-rose-500 relative z-10">{fetchLoading ? "--" : pendingEntries}</div>
+                        <div className="text-2xl font-bold text-rose-500 relative z-10">{fetchLoading ? "--" : displayCount}</div>
                     </CardContent>
                 </Card>
 

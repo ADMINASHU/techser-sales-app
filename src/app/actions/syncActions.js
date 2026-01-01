@@ -3,6 +3,7 @@
 import { auth } from "@/auth";
 import dbConnect from "@/lib/db";
 import Entry from "@/models/Entry";
+import Customer from "@/models/Customer";
 import { appendEntryToSheet, clearSheet } from "@/lib/googleSheets";
 
 export async function syncOldEntries() {
@@ -21,6 +22,7 @@ export async function syncOldEntries() {
         const entries = await Entry.find({})
             .sort({ createdAt: 1 }) // Oldest first
             .populate("userId", "name email region branch")
+            .populate("customerId")
             .lean();
 
         let successCount = 0;

@@ -69,7 +69,7 @@ export async function getReportData({ startDate, endDate, userId, region, branch
         const stampOutLoc = e.stampOut?.location;
 
         return {
-            "Date": e.entryDate ? formatInIST(e.entryDate, "dd/MM/yyyy HH:mm:ss") : formatInIST(e.createdAt, "dd/MM/yyyy HH:mm:ss"),
+            "Date": e.entryDate ? formatInIST(e.entryDate, "dd/MM/yyyy") : formatInIST(e.createdAt, "dd/MM/yyyy"),
             "Status": e.status || "Not Started",
             "Region": e.userRegion || e.userId?.region || "",
             "Branch": e.userBranch || e.userId?.branch || "",
@@ -142,28 +142,39 @@ export async function getFilters() {
     };
 }
 
+import { unstable_cache } from "next/cache";
+
+const getCachedSystemStats = unstable_cache(
+    async () => {
+        // ... (data fetching logic)
+        await dbConnect();
+        
+        const [totalAdmins, verifiedAdmins, totalUsers, verifiedUsers, locations] = await Promise.all([
+            User.countDocuments({ role: "admin" }),
+            User.countDocuments({ role: "admin", status: "verified" }),
+            User.countDocuments({ role: "user" }),
+            User.countDocuments({ role: "user", status: "verified" }),
+            Location.find({}).lean()
+        ]);
+
+        const totalRegions = locations.length;
+        const totalBranches = locations.reduce((acc, loc) => acc + (loc.branches?.length || 0), 0);
+
+        return {
+            admins: { total: totalAdmins, verified: verifiedAdmins },
+            users: { total: totalUsers, verified: verifiedUsers },
+            locations: { regions: totalRegions, branches: totalBranches }
+        };
+    },
+    ['system-stats'],
+    { revalidate: 300 } // Cache for 5 minutes
+);
+
+// Wrapper to secure it (Exported as getSystemStats to maintain compatibility)
 export async function getSystemStats() {
     const session = await auth();
     if (!session || session.user.role !== "admin") {
-        throw new Error("Unauthorized");
+         throw new Error("Unauthorized");
     }
-
-    await dbConnect();
-
-    const [totalAdmins, verifiedAdmins, totalUsers, verifiedUsers, locations] = await Promise.all([
-        User.countDocuments({ role: "admin" }),
-        User.countDocuments({ role: "admin", status: "verified" }),
-        User.countDocuments({ role: "user" }),
-        User.countDocuments({ role: "user", status: "verified" }),
-        Location.find({}).lean()
-    ]);
-
-    const totalRegions = locations.length;
-    const totalBranches = locations.reduce((acc, loc) => acc + (loc.branches?.length || 0), 0);
-
-    return {
-        admins: { total: totalAdmins, verified: verifiedAdmins },
-        users: { total: totalUsers, verified: verifiedUsers },
-        locations: { regions: totalRegions, branches: totalBranches }
-    };
+    return getCachedSystemStats();
 }

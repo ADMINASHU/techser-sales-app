@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useOptimistic, startTransition } from "react";
 import { stampIn, stampOut } from "@/app/actions/entryActions";
 import { LoadingButton } from "@/components/ui/LoadingButton";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,11 @@ import { MapPin } from "lucide-react";
 export default function EntryActionButtons({ entry, role }) {
     const [loading, setLoading] = useState(false);
     const router = useRouter();
+    
+    const [optimisticStatus, setOptimisticStatus] = useOptimistic(
+        entry.status,
+        (currentStatus, newStatus) => newStatus
+    );
 
     // Admins don't need to stamp in/out
     if (role === 'admin') return null;
@@ -18,6 +23,12 @@ export default function EntryActionButtons({ entry, role }) {
     const handleAction = async (actionType) => {
         if (loading) return;
         setLoading(true);
+
+        const newStatus = actionType === "in" ? "In Process" : "Completed";
+        
+        startTransition(() => {
+            setOptimisticStatus(newStatus);
+        });
 
         if (!navigator.geolocation) {
             toast.error("Geolocation is not supported by your browser");
@@ -58,7 +69,7 @@ export default function EntryActionButtons({ entry, role }) {
         );
     };
 
-    if (entry.status === "Not Started") {
+    if (optimisticStatus === "Not Started") {
         return (
             <LoadingButton onClick={() => handleAction("in")} loading={loading} className="w-full bg-green-600 hover:bg-green-700">
                 <MapPin className="mr-2 h-4 w-4" />
@@ -67,7 +78,7 @@ export default function EntryActionButtons({ entry, role }) {
         );
     }
 
-    if (entry.status === "In Process") {
+    if (optimisticStatus === "In Process") {
         return (
             <LoadingButton onClick={() => handleAction("out")} loading={loading} className="w-full bg-blue-600 hover:bg-blue-700">
                 <MapPin className="mr-2 h-4 w-4" />
@@ -76,7 +87,7 @@ export default function EntryActionButtons({ entry, role }) {
         );
     }
 
-    if (entry.status === "Completed") {
+    if (optimisticStatus === "Completed") {
         return (
             <Button disabled className="w-full" variant="outline">
                 Completed
