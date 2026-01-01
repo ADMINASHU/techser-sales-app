@@ -40,7 +40,11 @@ export async function register(formData) {
 
 export async function authenticate(prevState, formData) {
     try {
-        await signIn("credentials", Object.fromEntries(formData));
+        await signIn("credentials", {
+            ...Object.fromEntries(formData),
+            redirect: false,
+        });
+        return { success: true };
     } catch (error) {
         if (error instanceof AuthError) {
             switch (error.type) {
@@ -50,6 +54,13 @@ export async function authenticate(prevState, formData) {
                     return "Something went wrong.";
             }
         }
+        
+        // Next.js Redirect "Error" is actually a successful signal.
+        // If signIn throws a redirect (even with redirect: false in some versions), we treat it as success.
+        if (error.digest?.startsWith("NEXT_REDIRECT")) {
+            return { success: true };
+        }
+
         throw error;
     }
 }

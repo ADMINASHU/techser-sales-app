@@ -32,11 +32,17 @@ export default function LoginPage() {
 
     async function clientAction(formData) {
         const result = await authenticate(undefined, formData);
+        
+        if (typeof result === "object" && result?.success) {
+            toast.success("Login successful");
+            // Force hard navigation to ensure fresh session data
+            window.location.href = "/";
+            return;
+        }
+
         if (result) {
             setError(result);
             toast.error(result);
-        } else {
-            // Success
         }
     }
 

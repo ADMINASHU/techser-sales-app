@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import EntryCard from "@/components/EntryCard";
 import Link from "next/link";
 import DashboardSkeleton from "@/components/skeletons/DashboardSkeleton";
+import EntryTableRow from "@/components/EntryTableRow";
 
 export default function AdminDashboard({ 
     initialSystemStats, 
@@ -322,117 +323,96 @@ export default function AdminDashboard({
                 </div>
             </div>
 
-            {/* Stats Cards */}
-            <div className="grid gap-6 md:grid-cols-3">
-                {/* Total Entries (Balance Style) */}
-                <Card className="glass-card shadow-lg relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-4 opacity-5">
-                        <svg className="w-32 h-32" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" /></svg>
+            {/* Combined Stats Overview */}
+            <div className="grid gap-4 grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 mb-8">
+                {/* Total Entries */}
+                <Card className="glass-card shadow-lg relative overflow-hidden group hover:border-white/20 transition-all">
+                    <div className="absolute -right-6 -bottom-6 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
+                        <svg className="w-24 h-24" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
                     </div>
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-400 uppercase tracking-wider">Total Entries</CardTitle>
+                    <CardHeader className="pb-2 p-4">
+                        <CardTitle className="text-xs font-medium text-gray-400 uppercase tracking-wider">Total Entries</CardTitle>
                     </CardHeader>
-                    <CardContent>
-                        <div className="text-4xl font-bold text-white mb-1">{fetchLoading ? "--" : totalEntries}</div>
-                        <p className="text-xs text-gray-500">
-                            Based on selected filters
-                        </p>
+                    <CardContent className="p-4 pt-0">
+                        <div className="text-2xl font-bold text-white relative z-10">{fetchLoading ? "--" : totalEntries}</div>
                     </CardContent>
                 </Card>
 
-                {/* Completed (Income Style) */}
-                <Card className="glass-card shadow-lg relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-4 opacity-5">
-                        <svg className="w-32 h-32" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" /></svg>
+                {/* Completed */}
+                <Card className="glass-card shadow-lg relative overflow-hidden group hover:border-emerald-500/30 transition-all">
+                    <div className="absolute -right-6 -bottom-6 opacity-[0.03] text-emerald-500 group-hover:opacity-[0.1] transition-opacity">
+                         <svg className="w-24 h-24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
                     </div>
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-400 uppercase tracking-wider">Completed Visits</CardTitle>
+                    <CardHeader className="pb-2 p-4">
+                        <CardTitle className="text-xs font-medium text-gray-400 uppercase tracking-wider">Completed</CardTitle>
                     </CardHeader>
-                    <CardContent>
-                        <div className="text-4xl font-bold text-emerald-400 mb-1">{fetchLoading ? "--" : completedEntries}</div>
-                        <p className="text-xs text-gray-500">
-                            Successfully verified
-                        </p>
+                    <CardContent className="p-4 pt-0">
+                        <div className="text-2xl font-bold text-emerald-400 relative z-10">{fetchLoading ? "--" : completedEntries}</div>
                     </CardContent>
                 </Card>
 
-                {/* Pending (Expense Style) - Calculated */}
-                <Card className="glass-card shadow-lg relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-4 opacity-5">
-                        <svg className="w-32 h-32" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" /></svg>
+                {/* Pending */}
+                <Card className="glass-card shadow-lg relative overflow-hidden group hover:border-rose-500/30 transition-all">
+                    <div className="absolute -right-6 -bottom-6 opacity-[0.03] text-rose-500 group-hover:opacity-[0.1] transition-opacity">
+                        <svg className="w-24 h-24" fill="currentColor" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
                     </div>
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-400 uppercase tracking-wider">Pending / Others</CardTitle>
+                    <CardHeader className="pb-2 p-4">
+                        <CardTitle className="text-xs font-medium text-gray-400 uppercase tracking-wider">Pending</CardTitle>
                     </CardHeader>
-                    <CardContent>
-                        <div className="text-4xl font-bold text-rose-500 mb-1">{fetchLoading ? "--" : pendingEntries}</div>
-                        <p className="text-xs text-gray-500">
-                            Requires attention
-                        </p>
+                    <CardContent className="p-4 pt-0">
+                        <div className="text-2xl font-bold text-rose-500 relative z-10">{fetchLoading ? "--" : pendingEntries}</div>
                     </CardContent>
                 </Card>
-            </div>
 
-            {/* System Stats Overview */}
-            <div className="grid gap-6 md:grid-cols-3 mb-8">
                 {/* Admin Stats */}
                 <Card className="glass-card border-violet-500/20 shadow-lg relative overflow-hidden group hover:border-violet-500/40 transition-all">
-                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                        <ShieldCheck className="w-24 h-24 text-violet-500" />
+                    <div className="absolute -right-6 -bottom-6 opacity-[0.05] text-violet-500 group-hover:opacity-[0.15] transition-opacity">
+                         <ShieldCheck className="w-24 h-24" />
                     </div>
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-violet-300 uppercase tracking-wider">Admins</CardTitle>
+                    <CardHeader className="pb-2 p-4">
+                        <CardTitle className="text-xs font-medium text-violet-300 uppercase tracking-wider relative z-10">Admins</CardTitle>
                     </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold text-white mb-1">
-                            {systemStats ? `${systemStats.admins.verified} / ${systemStats.admins.total}` : "--"}
+                    <CardContent className="p-4 pt-0">
+                        <div className="text-2xl font-bold text-white relative z-10">
+                            {systemStats ? `${systemStats.admins.verified}/${systemStats.admins.total}` : "--"}
                         </div>
-                        <p className="text-xs text-violet-400">
-                            Verified / Total Admins
-                        </p>
                     </CardContent>
                 </Card>
 
                 {/* User Stats */}
                 <Card className="glass-card border-blue-500/20 shadow-lg relative overflow-hidden group hover:border-blue-500/40 transition-all">
-                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                        <Users className="w-24 h-24 text-blue-500" />
+                    <div className="absolute -right-6 -bottom-6 opacity-[0.05] text-blue-500 group-hover:opacity-[0.15] transition-opacity">
+                        <Users className="w-24 h-24" />
                     </div>
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-blue-300 uppercase tracking-wider">Users</CardTitle>
+                    <CardHeader className="pb-2 p-4">
+                        <CardTitle className="text-xs font-medium text-blue-300 uppercase tracking-wider relative z-10">Users</CardTitle>
                     </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold text-white mb-1">
-                            {systemStats ? `${systemStats.users.verified} / ${systemStats.users.total}` : "--"}
+                    <CardContent className="p-4 pt-0">
+                        <div className="text-2xl font-bold text-white relative z-10">
+                            {systemStats ? `${systemStats.users.verified}/${systemStats.users.total}` : "--"}
                         </div>
-                        <p className="text-xs text-blue-400">
-                            Verified / Total Users
-                        </p>
                     </CardContent>
                 </Card>
 
                 {/* Location Stats */}
                 <Card className="glass-card border-amber-500/20 shadow-lg relative overflow-hidden group hover:border-amber-500/40 transition-all">
-                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                        <MapPin className="w-24 h-24 text-amber-500" />
+                    <div className="absolute -right-6 -bottom-6 opacity-[0.05] text-amber-500 group-hover:opacity-[0.15] transition-opacity">
+                        <MapPin className="w-24 h-24" />
                     </div>
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-amber-300 uppercase tracking-wider">Locations</CardTitle>
+                    <CardHeader className="pb-2 p-4">
+                        <CardTitle className="text-xs font-medium text-amber-300 uppercase tracking-wider relative z-10">Locations</CardTitle>
                     </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold text-white mb-1">
-                            {systemStats ? `${systemStats.locations.branches} / ${systemStats.locations.regions}` : "--"}
+                    <CardContent className="p-4 pt-0">
+                        <div className="text-2xl font-bold text-white relative z-10">
+                            {systemStats ? `${systemStats.locations.branches}/${systemStats.locations.regions}` : "--"}
                         </div>
-                        <p className="text-xs text-amber-400">
-                            Branches / Regions
-                        </p>
                     </CardContent>
                 </Card>
             </div>
 
             {/* Recent Entries */}
-            <div className="mt-8">
-                <div className="flex items-center justify-between mb-4">
+            <div className="mt-8 space-y-4">
+                <div className="flex items-center justify-between">
                     <h2 className="text-xl font-semibold">Recent Entries</h2>
                     <Link href="/entries">
                         <Button variant="ghost" className="text-slate-400 hover:text-white hover:bg-white/5">
@@ -447,7 +427,7 @@ export default function AdminDashboard({
                         No entries found.
                     </div>
                 ) : (
-                    <div className="grid gap-4 md:grid-cols-2">
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                         {recentEntries.map((entry) => (
                             <EntryCard
                                 key={entry._id.toString()}

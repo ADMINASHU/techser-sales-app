@@ -46,55 +46,43 @@ export default function AdminUserList({ initialData, locations = [] }) {
         triggerOnce: false,
     });
 
-    // Handle Filters: Reset and Fetch Page 1
+    // Sync state with initialData when it changes (Server Filter)
     useEffect(() => {
-        // Avoid initial double fetch if props already match (optional optimization, but simple reset is safer)
-        // We will fetch client-side on filter change to allow smooth transition without full page reload
-        const fetchFiltered = async () => {
-            setLoading(true);
-            try {
-                const res = await getUsers({
-                    page: 1,
-                    limit: 10,
-                    search: debouncedSearch,
-                    region: region === "all" ? "" : region,
-                    branch: branch === "all" ? "" : branch
-                });
+        setUsers(initialData.users);
+        setHasMore(initialData.currentPage < initialData.totalPages);
+        setPage(initialData.currentPage);
+    }, [initialData]);
 
-                if (res.error) {
-                    console.error(res.error);
-                } else {
-                    setUsers(res.users);
-                    setHasMore(res.currentPage < res.totalPages);
-                    setPage(1);
+    // Handle Search Debounce
+    useEffect(() => {
+        const params = new URLSearchParams(searchParams);
+        if (debouncedSearch) {
+            params.set("search", debouncedSearch);
+        } else {
+            params.delete("search");
+        }
+        params.set("page", "1"); // Reset to page 1 on search
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    }, [debouncedSearch, router, pathname]); // Intentionally exclude check to prevent loop, debouncedSearch drives it
 
-                    // Update URL shallowly
-                    const params = new URLSearchParams();
-                    if (debouncedSearch) params.set("search", debouncedSearch);
-                    if (region && region !== "all") params.set("region", region);
-                    if (branch && branch !== "all") params.set("branch", branch);
-                    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-                }
-            } catch (error) {
-                console.error("Filter Fetch Error", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        // Skip first run if it matches initialData? 
-        // Actually simplest is: if filter state differs from URL/initial, fetch.
-        // For now, let's just run it when dependencies change, EXCEPT mount if we assume initialData is fresh.
-        // To prevent double fetch on mount (since initialData is already filtered by server), we can track if mounted.
-
-        // However, since we use debounced values, they might change shortly after mount.
-        // Let's implementing a simple "isMounted" ref or just allow one re-fetch if needed.
-        // Better: We rely on the server action. 
-
-        // NOTE: getUsers needs to be imported!
-
-    }, [debouncedSearch, region, branch]);
-    // Wait, we need to define the effect body properly. AND Import getUsers.
+    // Handle Filter Changes
+    const updateFilters = (key, value) => {
+        const params = new URLSearchParams(searchParams);
+        if (value && value !== "all") {
+            params.set(key, value);
+        } else {
+            params.delete(key);
+        }
+        
+        // Reset sub-filter if Region changes
+        if (key === "region") {
+            params.delete("branch");
+            setBranch("all");
+        }
+        
+        params.set("page", "1");
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    };
 
     const loadMore = async () => {
         if (loading || !hasMore) return;
@@ -165,6 +153,7 @@ export default function AdminUserList({ initialData, locations = [] }) {
                                     setSearch("");
                                     setRegion("all");
                                     setBranch("all");
+                                    router.push(pathname); // Reset URL completely
                                 }}
                                 className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-8 text-xs font-medium"
                             >
@@ -178,7 +167,7 @@ export default function AdminUserList({ initialData, locations = [] }) {
                                 <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">Region</span>
                                 <Select value={region} onValueChange={(val) => {
                                     setRegion(val);
-                                    setBranch("all");
+                                    updateFilters("region", val);
                                 }}>
                                     <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10">
                                         <SelectValue placeholder="Region" />
@@ -196,7 +185,10 @@ export default function AdminUserList({ initialData, locations = [] }) {
 
                             <div className="space-y-1.5">
                                 <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">Branch</span>
-                                <Select value={branch} onValueChange={setBranch}>
+                                <Select value={branch} onValueChange={(val) => {
+                                    setBranch(val);
+                                    updateFilters("branch", val);
+                                }}>
                                     <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10">
                                         <SelectValue placeholder="Branch" />
                                     </SelectTrigger>

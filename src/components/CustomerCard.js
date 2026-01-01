@@ -78,7 +78,7 @@ const CustomerCard = memo(function CustomerCard({ customer, isAdmin, onEdit }) {
                 <div className="flex flex-col gap-1.5 mb-3 flex-1 relative z-10">
                     <div className="flex items-start gap-3 text-sm text-gray-400">
                         <Home className="w-4 h-4 mt-0.5 text-blue-500/50 shrink-0" />
-                        <p className="line-clamp-2">{customer.customerAddress}</p>
+                        <p className="">{customer.customerAddress}</p>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1">
