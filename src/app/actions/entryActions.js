@@ -246,6 +246,8 @@ export async function stampIn(entryId, location) {
                 const liveSyncSetting = await SystemSetting.findOne({ key: "liveSync" });
                 const isLiveSyncOn = liveSyncSetting ? liveSyncSetting.value : true;
 
+                // PRE-FETCH Full Entry if we are possibly going to sync
+                // Actually, we can check liveSync first, then fetch entry only if needed
                 if (isLiveSyncOn) {
                      const fullEntry = await Entry.findById(entryId).populate("customerId");
                      if (fullEntry) {
@@ -306,6 +308,7 @@ export async function stampOut(entryId, location) {
         // 2. Sync
         if (entry.googleSheetRowId) {
             sideEffects.push((async () => {
+                // Fetch Setting
                 const liveSyncSetting = await SystemSetting.findOne({ key: "liveSync" });
                 const isLiveSyncOn = liveSyncSetting ? liveSyncSetting.value : true;
 
