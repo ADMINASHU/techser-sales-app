@@ -37,7 +37,7 @@ export default async function CustomerLogPage({ searchParams }) {
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <h1 className="text-3xl font-bold bg-linear-to-r from-white to-gray-400 bg-clip-text text-transparent hidden sm:block">
-                    Check-In
+                    Check-In/Out
                 </h1>
 
                 <div className="w-full sm:max-w-xs md:max-w-sm">

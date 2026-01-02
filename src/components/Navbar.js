@@ -40,7 +40,7 @@ export default function Navbar() {
     const links = [
         ...(session?.user?.role === "admin" ? [{ href: "/dashboard", label: "Dashboard" }] : []),
         ...(session?.user?.role !== "admin" ? [
-            { href: "/customer-log", label: "Check-In" },
+            { href: "/customer-log", label: "Check-In/Out" },
             { href: "/customers", label: "Customers" }
         ] : []),
         { href: "/entries", label: "Entry Log" },
