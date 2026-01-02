@@ -159,8 +159,7 @@ export async function customerStampOut(customerId, location) {
                      }
                  },
                  { new: true, sort: { createdAt: -1 } }
-            ).populate("userId", "name email region branch role designation image status")
-             .populate("customerId"); // Populate customer to get location/address for sheet
+            ); // Removed critical-path populates
 
         if (!entry) {
             return { error: "No active stamp-in found for this customer" };
@@ -178,10 +177,17 @@ export async function customerStampOut(customerId, location) {
                     const isLiveSyncOn = liveSyncSetting ? liveSyncSetting.value : false;
 
                     if (isLiveSyncOn) {
-                        const entryData = { ...entry.toObject() };
-                        entryData.userName = entry.userId?.name || session.user.name;
-                        entryData.userRegion = entry.userId?.region || session.user.region;
-                        entryData.userBranch = entry.userId?.branch || session.user.branch;
+                        // Fetch full entry details ONLY if we are actually syncing
+                        const fullEntry = await Entry.findById(entry._id)
+                            .populate("userId", "name email region branch")
+                            .populate("customerId");
+
+                        if (!fullEntry) return;
+
+                        const entryData = { ...fullEntry.toObject() };
+                        entryData.userName = fullEntry.userId?.name || session.user.name;
+                        entryData.userRegion = fullEntry.userId?.region || session.user.region;
+                        entryData.userBranch = fullEntry.userId?.branch || session.user.branch;
                         await updateEntryInSheet(entryData);
                     }
                 } catch(err) {

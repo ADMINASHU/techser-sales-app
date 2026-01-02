@@ -298,7 +298,7 @@ export async function stampOut(entryId, location) {
                 }
             },
             { new: true }
-        ).populate("userId", "name email region branch"); // populate customerId not strictly needed here if we re-fetch
+        ); // Removed populate("userId") from critical path
 
         if (!entry) {
             // console.log(`[StampOut] Entry ${entryId} already completed or not in process. Skipping.`);
@@ -322,12 +322,17 @@ export async function stampOut(entryId, location) {
                 const isLiveSyncOn = liveSyncSetting ? liveSyncSetting.value : false; // Default OFF
 
                 if (isLiveSyncOn) {
-                    const fullEntry = await Entry.findById(entryId).populate("customerId");
+                    // Fetch full entry with user population only if syncing
+                    const fullEntry = await Entry.findById(entryId)
+                        .populate("customerId")
+                        .populate("userId", "name email region branch");
+
                     if (fullEntry) {
                          const entryData = { ...fullEntry.toObject() };
-                         entryData.userName = entry.userId?.name || session.user.name;
-                         entryData.userRegion = entry.userId?.region || session.user.region;
-                         entryData.userBranch = entry.userId?.branch || session.user.branch;
+                         // Use fullEntry.userId since we populated it here
+                         entryData.userName = fullEntry.userId?.name || session.user.name;
+                         entryData.userRegion = fullEntry.userId?.region || session.user.region;
+                         entryData.userBranch = fullEntry.userId?.branch || session.user.branch;
                          await updateEntryInSheet(entryData);
                     }
                 }
