@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.3.0](https://github.com/ADMINASHU/techser-sales-app/compare/v1.2.0...v1.3.0) (2026-01-02)
+
+
+### Features
+
+* Add server actions for entry management, customer stamp in/out, and Google Sheets integration. ([6540915](https://github.com/ADMINASHU/techser-sales-app/commit/65409159d1ffecbf5ddcccabdb8e16b27f9dbe20))
+* Implement initial authentication, login page, core sales entry management (create, update, stamp-in), and related UI and admin actions. ([afb25e7](https://github.com/ADMINASHU/techser-sales-app/commit/afb25e74cfd4a07d29e41d7823e81e3b9d0611d6))
+* Implement NextAuth for user authentication with Google and Credentials providers, including JWT and session management. ([1f9946b](https://github.com/ADMINASHU/techser-sales-app/commit/1f9946b0b8ad573f0e4c02f8a373cc2351171c04))
+* Implement unified customer stamp actions and new entry creation with Google Sheets integration and Zod validation. ([82e6251](https://github.com/ADMINASHU/techser-sales-app/commit/82e625107a1638fd108bfe6cf00b88f20a8ab35a))
+* restrict features page access to admin only ([c094af1](https://github.com/ADMINASHU/techser-sales-app/commit/c094af1fce748207070e2f7cff3e587c91493643))
+* update check-in label to check-in/out ([be49c8c](https://github.com/ADMINASHU/techser-sales-app/commit/be49c8c997055b9372e48f935eef443cfdbb0854))
+
+
+### Performance Improvements
+
+* optimize stamp actions for mobile and async sheet sync ([17dc7e9](https://github.com/ADMINASHU/techser-sales-app/commit/17dc7e97830f3daa98427e68c3d80c4354920741))
+
 ## [1.2.0](https://github.com/ADMINASHU/techser-sales-app/compare/v1.0.1...v1.2.0) (2026-01-01)
 
 
