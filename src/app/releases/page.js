@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Tag, Calendar, ChevronDown } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { auth } from "@/auth";
 
 export const metadata = {
   title: "Release Notes | Techser Sales App",
@@ -66,7 +67,9 @@ function parseChangelog(markdown) {
   return versions;
 }
 
-export default function ReleasesPage() {
+export default async function ReleasesPage() {
+  const session = await auth();
+  const isAdmin = session?.user?.role === "admin";
   let releaseData = [];
   
   try {
@@ -98,11 +101,13 @@ export default function ReleasesPage() {
                 History of improvements, fixes, and updates.
               </p>
             </div>
-            <Link href="/features">
-              <Button className="glass-btn-primary rounded-full px-6">
-                View All Features
-              </Button>
-            </Link>
+            {isAdmin && (
+                <Link href="/features">
+                  <Button className="glass-btn-primary rounded-full px-6">
+                    View All Features
+                  </Button>
+                </Link>
+            )}
           </div>
         </div>
 

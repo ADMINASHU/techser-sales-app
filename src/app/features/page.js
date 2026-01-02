@@ -25,6 +25,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 
 export const metadata = {
     title: "Features & Specifications | Techser Sales App",
@@ -62,7 +64,12 @@ const SpecItem = ({ label, value, icon: Icon }) => (
     </div>
 );
 
-export default function FeaturesPage() {
+export default async function FeaturesPage() {
+    const session = await auth();
+    if (session?.user?.role !== "admin") {
+        redirect("/dashboard");
+    }
+
     const coreFeatures = [
         {
             icon: Fingerprint,
