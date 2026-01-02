@@ -242,27 +242,32 @@ export async function stampIn(entryId, location) {
         // sideEffects.push(notifyAdmins("Stamped In", entry, session.user));
 
         // 2. Sync
+        // 2. Sync (Background)
         if (entry.googleSheetRowId) {
-            sideEffects.push((async () => {
-                const liveSyncSetting = await SystemSetting.findOne({ key: "liveSync" });
-                const isLiveSyncOn = liveSyncSetting ? liveSyncSetting.value : true;
+            (async () => {
+                try {
+                    const liveSyncSetting = await SystemSetting.findOne({ key: "liveSync" });
+                    const isLiveSyncOn = liveSyncSetting ? liveSyncSetting.value : true;
 
-                // PRE-FETCH Full Entry if we are possibly going to sync
-                // Actually, we can check liveSync first, then fetch entry only if needed
-                if (isLiveSyncOn) {
-                     const fullEntry = await Entry.findById(entryId).populate("customerId");
-                     if (fullEntry) {
-                        const entryData = { ...fullEntry.toObject() };
-                        entryData.userName = entry.userId?.name || session.user.name;
-                        entryData.userRegion = entry.userId?.region || session.user.region;
-                        entryData.userBranch = entry.userId?.branch || session.user.branch;
-                        await updateEntryInSheet(entryData);
-                     }
+                    // PRE-FETCH Full Entry if we are possibly going to sync
+                    // Actually, we can check liveSync first, then fetch entry only if needed
+                    if (isLiveSyncOn) {
+                         const fullEntry = await Entry.findById(entryId).populate("customerId");
+                         if (fullEntry) {
+                            const entryData = { ...fullEntry.toObject() };
+                            entryData.userName = entry.userId?.name || session.user.name;
+                            entryData.userRegion = entry.userId?.region || session.user.region;
+                            entryData.userBranch = entry.userId?.branch || session.user.branch;
+                            await updateEntryInSheet(entryData);
+                         }
+                    }
+                } catch(e) {
+                    console.error("Background StampIn Sync Error:", e);
                 }
-            })());
+            })();
         }
-
-        await Promise.allSettled(sideEffects);
+        
+        // Removed await Promise.allSettled(sideEffects);
 
         revalidatePath(`/entries`);
         // revalidatePath("/dashboard");
@@ -308,8 +313,10 @@ export async function stampOut(entryId, location) {
         // sideEffects.push(notifyAdmins("Stamped Out", entry, session.user));
 
         // 2. Sync
+        // 2. Sync (Background)
         if (entry.googleSheetRowId) {
-            sideEffects.push((async () => {
+            (async () => {
+                try {
                 // Fetch Setting
                 const liveSyncSetting = await SystemSetting.findOne({ key: "liveSync" });
                 const isLiveSyncOn = liveSyncSetting ? liveSyncSetting.value : true;
@@ -324,10 +331,13 @@ export async function stampOut(entryId, location) {
                          await updateEntryInSheet(entryData);
                     }
                 }
-            })());
+                } catch(e) {
+                    console.error("Background StampOut Sync Error:", e);
+                }
+            })();
         }
 
-        await Promise.allSettled(sideEffects);
+        // Removed await Promise.allSettled(sideEffects);
 
         revalidatePath(`/entries`);
         // revalidatePath("/dashboard");

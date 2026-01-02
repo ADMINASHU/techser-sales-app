@@ -99,27 +99,28 @@ export async function customerStampIn(customerId, location) {
         const tasks = [];
         let sheetPromise = Promise.resolve(null);
 
+        // Fire-and-forget Google Sheet Sync
         if (isLiveSyncOn) {
-            const entryData = entry.toObject();
-            // Explicitly attach the full customer object we already fetched
-            // This ensures the sheet sync can read address/location/contact info
-            entryData.customerId = customer.toObject(); 
-            entryData.userEmail = session.user.email;
-            entryData.userName = session.user.name;
-            entryData.userRegion = session.user.region;
-            entryData.userBranch = session.user.branch;
-            
-            sheetPromise = appendEntryToSheet(entryData);
-        }
-
-        const [_, sheetResponse] = await Promise.all([
-            Promise.all(tasks),
-            sheetPromise
-        ]);
-
-        if (sheetResponse && sheetResponse.rowId) {
-            entry.googleSheetRowId = sheetResponse.rowId;
-            await entry.save();
+            (async () => {
+                try {
+                    const entryData = entry.toObject();
+                    // Explicitly attach the full customer object we already fetched
+                    entryData.customerId = customer.toObject(); 
+                    entryData.userEmail = session.user.email;
+                    entryData.userName = session.user.name;
+                    entryData.userRegion = session.user.region;
+                    entryData.userBranch = session.user.branch;
+                    
+                    const sheetResponse = await appendEntryToSheet(entryData);
+                    
+                    if (sheetResponse && sheetResponse.rowId) {
+                        entry.googleSheetRowId = sheetResponse.rowId;
+                        await entry.save();
+                    }
+                } catch (err) {
+                    console.error("Background Sheet Sync Error:", err);
+                }
+            })();
         }
 
         revalidatePath("/customer-log");
@@ -171,15 +172,20 @@ export async function customerStampOut(customerId, location) {
         const tasks = [];
 
         // Sync Update to Sheet
+        // Sync Update to Sheet (Background)
         if (entry.googleSheetRowId && isLiveSyncOn) {
-            const entryData = { ...entry.toObject() };
-            entryData.userName = entry.userId?.name || session.user.name;
-            entryData.userRegion = entry.userId?.region || session.user.region;
-            entryData.userBranch = entry.userId?.branch || session.user.branch;
-            tasks.push(updateEntryInSheet(entryData));
+            (async () => {
+                try {
+                    const entryData = { ...entry.toObject() };
+                    entryData.userName = entry.userId?.name || session.user.name;
+                    entryData.userRegion = entry.userId?.region || session.user.region;
+                    entryData.userBranch = entry.userId?.branch || session.user.branch;
+                    await updateEntryInSheet(entryData);
+                } catch(err) {
+                     console.error("Background Sheet Update Error:", err);
+                }
+            })();
         }
-
-        await Promise.all(tasks);
 
         revalidatePath("/customer-log");
         revalidatePath("/entries");
