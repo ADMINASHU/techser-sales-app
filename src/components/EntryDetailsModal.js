@@ -7,7 +7,7 @@ import { Navigation, Edit, X } from "lucide-react";
 import { formatInIST } from "@/lib/utils";
 import EntryUserCard from "@/components/EntryUserCard";
 
-import EntryActionButtons from "@/components/EntryActionButtons";
+
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import dynamic from 'next/dynamic';
@@ -132,13 +132,7 @@ export default function EntryDetailsModal({ entry, isOpen, onClose, session }) {
                                         </a>
                                     )}
 
-                                    {isToday ? (
-                                        <EntryActionButtons entry={entry} role={session.user.role} />
-                                    ) : (
-                                        <div className="w-full p-4 bg-yellow-500/10 text-yellow-500 rounded-lg text-sm text-center border border-yellow-500/20">
-                                            Action allowed only on {formatInIST(entry.entryDate || entry.createdAt, "PP")}
-                                        </div>
-                                    )}
+{/* Action buttons removed as per user request to restrict stamping to Customer Log only */}
                                 </>
                             )}
 

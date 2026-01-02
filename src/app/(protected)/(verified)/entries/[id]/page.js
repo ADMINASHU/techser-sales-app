@@ -2,7 +2,7 @@ import { auth } from "@/auth";
 import dbConnect from "@/lib/db";
 import Entry from "@/models/Entry";
 import Customer from "@/models/Customer";
-import EntryActionButtons from "@/components/EntryActionButtons";
+
 import EntryMap from "@/components/EntryMap";
 import EntryUserCard from "@/components/EntryUserCard";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -143,13 +143,7 @@ export default async function EntryDetailPage({ params, searchParams }) {
                                         </a>
                                     )}
 
-                                    {new Date().toDateString() === new Date(entry.entryDate || entry.createdAt).toDateString() ? (
-                                        <EntryActionButtons entry={entry} role={session.user.role} />
-                                    ) : (
-                                        <div className="w-full p-4 bg-yellow-500/10 text-yellow-500 rounded-lg text-sm text-center border border-yellow-500/20">
-                                            Action allowed only on {formatInIST(entry.entryDate || entry.createdAt, "PP")}
-                                        </div>
-                                    )}
+{/* Buttons removed used to restrict actions to Customer Log only */}
                                 </>
                             )}
                         </CardFooter>

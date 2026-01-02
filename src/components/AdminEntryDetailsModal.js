@@ -7,7 +7,6 @@ import { Navigation, Edit, X } from "lucide-react";
 import { formatInIST } from "@/lib/utils";
 import EntryUserCard from "@/components/EntryUserCard";
 
-import EntryActionButtons from "@/components/EntryActionButtons";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import dynamic from 'next/dynamic';
