@@ -41,6 +41,7 @@ export default async function DashboardPage({ searchParams }) {
             initialRecentEntries={recentEntries}
             initialMonthlyEntries={initialMonthlyEntries}
             initialFilters={filters}
+            currentUserRegion={session.user.region}
         />;
     }
 

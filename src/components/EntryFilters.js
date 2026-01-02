@@ -7,14 +7,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-export default function EntryFilters({ users = [], locations = [], isAdmin, showStatus = true, showSearch = true }) {
+export default function EntryFilters({ users = [], locations = [], isAdmin, showStatus = true, showSearch = true, defaultRegion }) {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
 
     // Initialize state from URL params or defaults
     const [selectedUser, setSelectedUser] = useState(searchParams.get("user") || "all");
-    const [selectedRegion, setSelectedRegion] = useState(searchParams.get("region") || "all");
+    const [selectedRegion, setSelectedRegion] = useState(searchParams.get("region") || defaultRegion || "all");
     const [selectedBranch, setSelectedBranch] = useState(searchParams.get("branch") || "all");
     const [selectedStatus, setSelectedStatus] = useState(searchParams.get("status") || "all");
     const [search, setSearch] = useState(searchParams.get("search") || "");

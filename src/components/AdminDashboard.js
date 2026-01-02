@@ -18,7 +18,8 @@ export default function AdminDashboard({
     initialSystemStats, 
     initialRecentEntries, 
     initialMonthlyEntries, 
-    initialFilters 
+    initialFilters,
+    currentUserRegion 
 }) {
     const [filters, setFilters] = useState(initialFilters || { users: [], locations: [] }); // locations: [{name, branches:[]}]
     const [filtersLoading, setFiltersLoading] = useState(!initialFilters);
@@ -26,7 +27,7 @@ export default function AdminDashboard({
     // Default to current Month/Year
     const currentDate = new Date();
     const [selectedUser, setSelectedUser] = useState("all");
-    const [selectedRegion, setSelectedRegion] = useState("all");
+    const [selectedRegion, setSelectedRegion] = useState(currentUserRegion || "all");
     const [selectedBranch, setSelectedBranch] = useState("all");
     const [selectedMonth, setSelectedMonth] = useState(currentDate.getMonth().toString());
     const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear().toString());

@@ -29,6 +29,7 @@ export default async function EntriesPage({ searchParams }) {
                         users={filtersData.users}
                         locations={filtersData.locations}
                         isAdmin={isAdmin}
+                        defaultRegion={isAdmin ? session.user.region : undefined}
                     />
                 </Suspense>
 
