@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.3.1](https://github.com/ADMINASHU/techser-sales-app/compare/v1.3.0...v1.3.1) (2026-01-02)
+
+
+### Bug Fixes
+
+* remove stamp actions from detail views to enforce customer log workflow ([3d16de1](https://github.com/ADMINASHU/techser-sales-app/commit/3d16de1d50220905e462f043af10d3e7bfb02341))
+
+
+### Performance Improvements
+
+* optimize stampOut speed by moving sync to background ([9ff61ed](https://github.com/ADMINASHU/techser-sales-app/commit/9ff61ed912d8f841b9d14132276a4df63c7e12ac))
+
 ## [1.3.0](https://github.com/ADMINASHU/techser-sales-app/compare/v1.2.0...v1.3.0) (2026-01-02)
 
 
