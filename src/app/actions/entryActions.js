@@ -247,7 +247,7 @@ export async function stampIn(entryId, location) {
             (async () => {
                 try {
                     const liveSyncSetting = await SystemSetting.findOne({ key: "liveSync" });
-                    const isLiveSyncOn = liveSyncSetting ? liveSyncSetting.value : true;
+                    const isLiveSyncOn = liveSyncSetting ? liveSyncSetting.value : false; // Default OFF
 
                     // PRE-FETCH Full Entry if we are possibly going to sync
                     // Actually, we can check liveSync first, then fetch entry only if needed
@@ -319,7 +319,7 @@ export async function stampOut(entryId, location) {
                 try {
                 // Fetch Setting
                 const liveSyncSetting = await SystemSetting.findOne({ key: "liveSync" });
-                const isLiveSyncOn = liveSyncSetting ? liveSyncSetting.value : true;
+                const isLiveSyncOn = liveSyncSetting ? liveSyncSetting.value : false; // Default OFF
 
                 if (isLiveSyncOn) {
                     const fullEntry = await Entry.findById(entryId).populate("customerId");

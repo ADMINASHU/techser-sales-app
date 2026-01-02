@@ -47,20 +47,19 @@ export async function customerStampIn(customerId, location) {
         const endOfToday = new Date();
         endOfToday.setHours(23, 59, 59, 999);
 
-        const [customer, existingEntry, liveSyncSetting] = await Promise.all([
+        const [customer, existingEntry] = await Promise.all([
             Customer.findById(customerId),
             Entry.findOne({
                 customerId,
                 userId: session.user.id,
                 status: { $in: ["Not Started", "In Process"] },
                 entryDate: { $gte: today, $lte: endOfToday }
-            }),
-            SystemSetting.findOne({ key: "liveSync" })
+            })
         ]);
 
         if (!customer) return { error: "Customer not found" };
 
-        const isLiveSyncOn = liveSyncSetting ? liveSyncSetting.value : true;
+        // const isLiveSyncOn = true; // Removed to enforce background check with default OFF
 
         // 3. Logic Checks
         if (existingEntry) {
@@ -100,10 +99,15 @@ export async function customerStampIn(customerId, location) {
         let sheetPromise = Promise.resolve(null);
 
         // Fire-and-forget Google Sheet Sync
-        if (isLiveSyncOn) {
-            (async () => {
-                try {
-                    const entryData = entry.toObject();
+        (async () => {
+            try {
+                const liveSyncSetting = await SystemSetting.findOne({ key: "liveSync" });
+                // Default to FALSE if setting is missing, per user request
+                const shouldSync = liveSyncSetting ? liveSyncSetting.value : false; 
+                
+                if (!shouldSync) return;
+
+                const entryData = entry.toObject();
                     // Explicitly attach the full customer object we already fetched
                     entryData.customerId = customer.toObject(); 
                     entryData.userEmail = session.user.email;
@@ -121,7 +125,6 @@ export async function customerStampIn(customerId, location) {
                     console.error("Background Sheet Sync Error:", err);
                 }
             })();
-        }
 
         revalidatePath("/customer-log");
         revalidatePath("/entries");
@@ -140,49 +143,49 @@ export async function customerStampOut(customerId, location) {
         await dbConnect();
 
         // Parallelize updates
-        const [entry, liveSyncSetting] = await Promise.all([
-             Entry.findOneAndUpdate(
-                {
-                    customerId,
-                    userId: session.user.id,
-                    status: "In Process"
-                },
-                {
-                    $set: {
-                        status: "Completed",
-                        stampOut: {
-                            time: new Date(),
-                            location: location,
-                        }
-                    }
-                },
-                { new: true, sort: { createdAt: -1 } }
+        const entry = await Entry.findOneAndUpdate(
+                 {
+                     customerId,
+                     userId: session.user.id,
+                     status: "In Process"
+                 },
+                 {
+                     $set: {
+                         status: "Completed",
+                         stampOut: {
+                             time: new Date(),
+                             location: location,
+                         }
+                     }
+                 },
+                 { new: true, sort: { createdAt: -1 } }
             ).populate("userId", "name email region branch role designation image status")
-             .populate("customerId"), // Populate customer to get location/address for sheet
-            SystemSetting.findOne({ key: "liveSync" })
-        ]);
+             .populate("customerId"); // Populate customer to get location/address for sheet
 
         if (!entry) {
             return { error: "No active stamp-in found for this customer" };
         }
 
-        const isLiveSyncOn = liveSyncSetting ? liveSyncSetting.value : true;
-
         // const tasks = [notifyAdmins("Stamped Out", entry, session.user)];
         const tasks = [];
 
-        // Sync Update to Sheet
         // Sync Update to Sheet (Background)
-        if (entry.googleSheetRowId && isLiveSyncOn) {
+        if (entry.googleSheetRowId) {
             (async () => {
                 try {
-                    const entryData = { ...entry.toObject() };
-                    entryData.userName = entry.userId?.name || session.user.name;
-                    entryData.userRegion = entry.userId?.region || session.user.region;
-                    entryData.userBranch = entry.userId?.branch || session.user.branch;
-                    await updateEntryInSheet(entryData);
+                    const liveSyncSetting = await SystemSetting.findOne({ key: "liveSync" });
+                    // Default to FALSE if setting is missing
+                    const isLiveSyncOn = liveSyncSetting ? liveSyncSetting.value : false;
+
+                    if (isLiveSyncOn) {
+                        const entryData = { ...entry.toObject() };
+                        entryData.userName = entry.userId?.name || session.user.name;
+                        entryData.userRegion = entry.userId?.region || session.user.region;
+                        entryData.userBranch = entry.userId?.branch || session.user.branch;
+                        await updateEntryInSheet(entryData);
+                    }
                 } catch(err) {
-                     console.error("Background Sheet Update Error:", err);
+                    console.error("Background Sheet Update Error:", err);
                 }
             })();
         }

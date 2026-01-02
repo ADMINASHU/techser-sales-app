@@ -36,6 +36,12 @@ export default function EntryActionButtons({ entry, role }) {
             return;
         }
 
+        const options = {
+            enableHighAccuracy: true,
+            timeout: 10000, 
+            maximumAge: 60000 
+        };
+
         navigator.geolocation.getCurrentPosition(
             async (position) => {
                 const { latitude, longitude } = position.coords;
@@ -63,9 +69,12 @@ export default function EntryActionButtons({ entry, role }) {
             },
             (error) => {
                 console.error(error);
-                toast.error("Unable to retrieve your location");
+                let msg = "Unable to retrieve your location";
+                if (error.code === error.TIMEOUT) msg = "Location request timed out. Please check GPS.";
+                toast.error(msg);
                 setLoading(false);
-            }
+            },
+            options
         );
     };
 
