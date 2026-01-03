@@ -27,9 +27,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
                 try {
                     await dbConnect();
-                    // EXCLUDE image field from selection to avoid fetching large Base64 strings
+                    // Include all fields, especially region and branch which are required
                     const user = await User.findOne({ email: credentials.email })
-                        .select("+password -image");
+                        .select("+password");
 
                     if (!user) {
                         // console.log("Auth failed: User not found");
@@ -55,8 +55,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                         id: user._id.toString(),
                         name: user.name,
                         email: user.email,
-                        // Always return the API URL. The UI handles 404s/fallbacks gracefully.
-                        image: `/api/user/image?v=${user.updatedAt?.getTime() || Date.now()}`,
+                        // Only set image URL if user actually has an image to prevent 404s
+                        image: user.image ? `/api/user/image?v=${user.updatedAt?.getTime() || Date.now()}` : null,
                         role: user.role,
                         status: user.status,
                         region: user.region,
@@ -94,9 +94,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             if (user) {
                 if (account?.provider === "google") {
                     try {
-                        await dbConnect();
-                        // EXCLUDE image field here too
-                        let dbUser = await User.findOne({ email: user.email }).select("-image");
+                        // EXCLUDE image data but check if it exists
+                        let dbUser = await User.findOne({ email: user.email }).select("image");
+                        let hasImage = false;
 
                         if (!dbUser) {
                             dbUser = await User.create({
@@ -107,6 +107,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                                 status: "pending",
                                 role: "user"
                             });
+                            hasImage = !!user.image;
+                        } else {
+                            hasImage = !!dbUser.image;
+                            // Refetch without image data for other fields
+                            dbUser = await User.findOne({ email: user.email }).select("-image");
                         }
 
                         token.id = dbUser._id.toString();
@@ -116,8 +121,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                         token.branch = dbUser.branch;
                         token.viewPreference = dbUser.viewPreference;
 
-                        // Use API URL preferably to ensure consistency if they update it later
-                        token.image = `/api/user/image?v=${dbUser.updatedAt?.getTime() || Date.now()}`;
+                        // Only set image URL if user has an image
+                        token.image = hasImage ? `/api/user/image?v=${dbUser.updatedAt?.getTime() || Date.now()}` : null;
 
                     } catch (error) {
                         // console.error("Error in JWT Google callback:", error);

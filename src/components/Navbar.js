@@ -107,7 +107,7 @@ export default function Navbar() {
                                 <DropdownMenuTrigger asChild>
                                     <Button variant="ghost" className="relative h-10 w-10 rounded-full ring-2 ring-white/10 hover:ring-white/30 transition-all p-0 overflow-hidden">
                                         <Avatar className="h-full w-full">
-                                            <AvatarImage src={session?.user?.image} alt={session?.user?.name} />
+                                            {session?.user?.image && <AvatarImage src={session.user.image} alt={session.user.name} />}
                                             <AvatarFallback className="bg-linear-to-br from-violet-500 to-fuchsia-500 text-white font-bold">
                                                 {session?.user?.name
                                                     ? session.user.name.split(" ").map(n => n[0]).join("").slice(0, 2)
@@ -120,7 +120,7 @@ export default function Navbar() {
                                 <DropdownMenuContent className="w-72 glass-card mt-2 p-2" align="end" forceMount>
                                     <div className="flex items-center gap-3 p-3 bg-white/5 rounded-lg mb-2 border border-white/5">
                                         <Avatar className="h-10 w-10 border border-white/10">
-                                            <AvatarImage src={session?.user?.image} />
+                                            {session?.user?.image && <AvatarImage src={session.user.image} />}
                                             <AvatarFallback className="bg-linear-to-br from-violet-500 to-fuchsia-500 text-white font-bold">
                                                 {session?.user?.name
                                                     ? session.user.name.split(" ").map(n => n[0]).join("").slice(0, 2)
@@ -189,7 +189,7 @@ export default function Navbar() {
                                 className="flex items-center gap-3 active:opacity-60 transition-opacity p-2 -ml-2 rounded-lg active:bg-white/5"
                             >
                                 <Avatar className="h-10 w-10 ring-2 ring-white/10">
-                                    <AvatarImage src={session?.user?.image} />
+                                    {session?.user?.image && <AvatarImage src={session.user.image} />}
                                     <AvatarFallback className="bg-linear-to-br from-violet-500 to-fuchsia-500 text-white font-bold">
                                         {session?.user?.name
                                             ? session.user.name.split(" ").map(n => n[0]).join("").slice(0, 2)
