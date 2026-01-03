@@ -59,6 +59,7 @@ export default function Navbar() {
                                 className="h-8 w-auto sm:h-10 object-contain"
                                 style={{ width: 'auto' }}
                                 priority
+                                unoptimized
                             />
                         </div>
                     </Link>

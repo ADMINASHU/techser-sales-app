@@ -10,10 +10,8 @@ import { toast } from "sonner";
 import { LoadingButton } from "@/components/ui/LoadingButton";
 import DurationDisplay from "@/components/DurationDisplay";
 import { Timer } from "lucide-react";
-import { useRouter } from "next/navigation";
 
 export default function CustomerActionCard({ customer, activeEntry, userId, hasActiveStampIn }) {
-    const router = useRouter();
     const [loading, setLoading] = useState(false);
 
     const handleStamp = async (type) => {
@@ -46,7 +44,7 @@ export default function CustomerActionCard({ customer, activeEntry, userId, hasA
                     toast.error(res.error);
                 } else {
                     toast.success(type === "in" ? "Stamped In!" : "Stamped Out!");
-                    router.refresh();
+                    // router.refresh() removed - server actions already call revalidatePath()
                 }
             },
             (error) => {
