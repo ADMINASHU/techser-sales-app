@@ -45,7 +45,7 @@ export default function CustomerActionCard({ customer, activeEntry, userId, hasA
                 if (res?.error) {
                     toast.error(res.error);
                 } else {
-                    // toast.success(type === "in" ? "Stamped In!" : "Stamped Out!");
+                    toast.success(type === "in" ? "Stamped In!" : "Stamped Out!");
                     router.refresh();
                 }
             },

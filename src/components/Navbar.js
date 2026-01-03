@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Menu, X } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { clsx } from "clsx";
 import { ModeToggle } from "@/components/ModeToggle";
 import NotificationFeed from "@/components/NotificationFeed";
@@ -24,14 +24,6 @@ export default function Navbar() {
     const pathname = usePathname();
     const { data: session } = useSession();
     const [isOpen, setIsOpen] = useState(false);
-    const [mounted, setMounted] = useState(false);
-
-    useEffect(() => {
-        // Use setTimeout to avoid 'setState in effect' lint error (synchronous update)
-        // This ensures the update happens in the next tick
-        const timer = setTimeout(() => setMounted(true), 0);
-        return () => clearTimeout(timer);
-    }, []);
 
 
     const isVerified = session?.user?.status === "verified" || session?.user?.role === "admin";
@@ -109,7 +101,7 @@ export default function Navbar() {
                         )}
                         <div className="h-8 w-px bg-white/10 mx-2"></div>
 
-                        {mounted && (
+                        {session?.user && (
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <Button variant="ghost" className="relative h-10 w-10 rounded-full ring-2 ring-white/10 hover:ring-white/30 transition-all p-0 overflow-hidden">

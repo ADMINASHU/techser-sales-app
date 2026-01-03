@@ -1,10 +1,8 @@
 import { auth } from "@/auth";
-import { getLocations, getLiveSyncStatus } from "@/app/actions/settingsActions";
+import { getLocations } from "@/app/actions/settingsActions";
 import LocationManager from "@/components/LocationManager";
-import SyncButton from "@/components/SyncButton";
 import { redirect } from "next/navigation";
 import ViewPreferenceToggle from "@/components/ViewPreferenceToggle";
-import LiveSyncToggle from "@/components/LiveSyncToggle";
 
 export const dynamic = 'force-dynamic';
 
@@ -28,7 +26,6 @@ export default async function SettingsPage() {
     }
 
     const locations = await getLocations();
-    const liveSyncEnabled = await getLiveSyncStatus();
 
     return (
         <div className="space-y-6">
@@ -50,14 +47,6 @@ export default async function SettingsPage() {
                             <p className="text-sm text-gray-400">Choose how you want to see lists by default.</p>
                         </div>
                         <ViewPreferenceToggle />
-                    </div>
-                </div>
-
-                <div className="pt-6 border-t border-white/10">
-                    <h2 className="text-xl font-semibold mb-4">Data Sync</h2>
-                    <div className="space-y-4">
-                        <LiveSyncToggle initialEnabled={liveSyncEnabled} />
-                        <SyncButton sheetId={process.env.GOOGLE_SHEET_ID} />
                     </div>
                 </div>
             </div>

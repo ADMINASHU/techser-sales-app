@@ -43,7 +43,15 @@ const EntrySchema = new mongoose.Schema(
             required: true,
             default: Date.now,
         },
-        googleSheetRowId: Number, // To track row in Google Sheets for updates
+        // Denormalized user data for faster admin filtering
+        userRegion: {
+            type: String,
+            index: true,
+        },
+        userBranch: {
+            type: String,
+            index: true,
+        },
     },
     { timestamps: true }
 );

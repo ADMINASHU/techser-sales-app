@@ -7,7 +7,6 @@ import Customer from "@/models/Customer";
 import User from "@/models/User";
 import SystemSetting from "@/models/SystemSetting";
 import { revalidatePath } from "next/cache";
-import { appendEntryToSheet, updateEntryInSheet } from "@/lib/googleSheets";
 import { triggerNotification } from "@/lib/knock";
 
 // Helper for notifications
@@ -89,42 +88,13 @@ export async function customerStampIn(customerId, location) {
             stampIn: {
                 time: new Date(),
                 location: location
-            }
+            },
+            // Denormalized user data
+            userRegion: session.user.region,
+            userBranch: session.user.branch,
         });
 
-        // Sync to Google Sheets & Notify in parallel
-        // Sync to Google Sheets
-        // const tasks = [notifyAdmins("Stamped In", entry, session.user)];
-        const tasks = [];
-        let sheetPromise = Promise.resolve(null);
-
-        // Fire-and-forget Google Sheet Sync
-        (async () => {
-            try {
-                const liveSyncSetting = await SystemSetting.findOne({ key: "liveSync" });
-                // Default to FALSE if setting is missing, per user request
-                const shouldSync = liveSyncSetting ? liveSyncSetting.value : false; 
-                
-                if (!shouldSync) return;
-
-                const entryData = entry.toObject();
-                    // Explicitly attach the full customer object we already fetched
-                    entryData.customerId = customer.toObject(); 
-                    entryData.userEmail = session.user.email;
-                    entryData.userName = session.user.name;
-                    entryData.userRegion = session.user.region;
-                    entryData.userBranch = session.user.branch;
-                    
-                    const sheetResponse = await appendEntryToSheet(entryData);
-                    
-                    if (sheetResponse && sheetResponse.rowId) {
-                        entry.googleSheetRowId = sheetResponse.rowId;
-                        await entry.save();
-                    }
-                } catch (err) {
-                    console.error("Background Sheet Sync Error:", err);
-                }
-            })();
+        // No background tasks - Google Sheets integration removed
 
         revalidatePath("/customer-log");
         revalidatePath("/entries");
@@ -165,36 +135,7 @@ export async function customerStampOut(customerId, location) {
             return { error: "No active stamp-in found for this customer" };
         }
 
-        // const tasks = [notifyAdmins("Stamped Out", entry, session.user)];
-        const tasks = [];
-
-        // Sync Update to Sheet (Background)
-        if (entry.googleSheetRowId) {
-            (async () => {
-                try {
-                    const liveSyncSetting = await SystemSetting.findOne({ key: "liveSync" });
-                    // Default to FALSE if setting is missing
-                    const isLiveSyncOn = liveSyncSetting ? liveSyncSetting.value : false;
-
-                    if (isLiveSyncOn) {
-                        // Fetch full entry details ONLY if we are actually syncing
-                        const fullEntry = await Entry.findById(entry._id)
-                            .populate("userId", "name email region branch")
-                            .populate("customerId");
-
-                        if (!fullEntry) return;
-
-                        const entryData = { ...fullEntry.toObject() };
-                        entryData.userName = fullEntry.userId?.name || session.user.name;
-                        entryData.userRegion = fullEntry.userId?.region || session.user.region;
-                        entryData.userBranch = fullEntry.userId?.branch || session.user.branch;
-                        await updateEntryInSheet(entryData);
-                    }
-                } catch(err) {
-                    console.error("Background Sheet Update Error:", err);
-                }
-            })();
-        }
+        // No background tasks - Google Sheets integration removed
 
         revalidatePath("/customer-log");
         revalidatePath("/entries");

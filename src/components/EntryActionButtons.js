@@ -63,7 +63,7 @@ export default function EntryActionButtons({ entry, role }) {
                 if (res?.error) {
                     toast.error(res.error);
                 } else {
-                    // toast.success(actionType === "in" ? "Stamped In!" : "Stamped Out!");
+                    toast.success(actionType === "in" ? "Stamped In!" : "Stamped Out!");
                     router.refresh();
                 }
             },

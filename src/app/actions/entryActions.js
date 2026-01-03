@@ -6,7 +6,6 @@ import Entry from "@/models/Entry";
 import Customer from "@/models/Customer"; // Ensure Customer model is registered
 import SystemSetting from "@/models/SystemSetting";
 import { revalidatePath } from "next/cache";
-import { appendEntryToSheet } from "@/lib/googleSheets";
 
 import { z } from "zod";
 
@@ -56,38 +55,12 @@ export async function createEntry(formData) {
             // Explicit default to Now if undefined
             entryDate: entryDate || new Date(),
             status: "Not Started",
+            // Denormalized user data for faster admin filtering
+            userRegion: session.user.region,
+            userBranch: session.user.branch,
         });
 
-        // Parallelize Side Effects (Notification & Sheet Sync)
-        const sideEffects = [];
-
-        // 1. Notify Admins
-        // 1. Notify Admins - REMOVED per user request (only Stamp In/Out interactions matter)
-        // sideEffects.push(notifyAdmins("Created Entry", entry, session.user));
-
-        // 2. Sheet Sync (Conditional)
-        sideEffects.push((async () => {
-            const liveSyncSetting = await SystemSetting.findOne({ key: "liveSync" });
-            const isLiveSyncOn = liveSyncSetting ? liveSyncSetting.value : true;
-
-            if (isLiveSyncOn) {
-                const entryWithCustomer = await Entry.findById(entry._id).populate("customerId");
-                const entryData = entryWithCustomer.toObject();
-                entryData.userEmail = session.user.email;
-                entryData.userName = session.user.name;
-                entryData.userRegion = session.user.region;
-                entryData.userBranch = session.user.branch;
-                const sheetResponse = await appendEntryToSheet(entryData);
-
-                if (sheetResponse && sheetResponse.rowId) {
-                    entry.googleSheetRowId = sheetResponse.rowId;
-                    await entry.save();
-                }
-            }
-        })());
-
-        // Wait for all side effects to complete (or fail) without blocking each other
-        await Promise.allSettled(sideEffects);
+        // No side effects needed - Google Sheets integration removed
 
         revalidatePath("/entries");
         // revalidatePath("/dashboard"); // Removed to prevent Observer refresh in dev mode
@@ -159,7 +132,6 @@ export async function updateEntry(id, formData) {
         return { error: "Failed to update entry" };
     }
 }
-import { updateEntryInSheet } from "@/lib/googleSheets";
 import { triggerNotification } from "@/lib/knock";
 import User from "@/models/User";
 // import admin from "@/lib/firebaseAdmin";
@@ -234,40 +206,7 @@ export async function stampIn(entryId, location) {
             return { success: true };
         }
 
-        // Parallelize Side Effects
-        const sideEffects = [];
-
-        // 1. Notify
-        // 1. Notify - REMOVED per user request to reduce lag
-        // sideEffects.push(notifyAdmins("Stamped In", entry, session.user));
-
-        // 2. Sync
-        // 2. Sync (Background)
-        if (entry.googleSheetRowId) {
-            (async () => {
-                try {
-                    const liveSyncSetting = await SystemSetting.findOne({ key: "liveSync" });
-                    const isLiveSyncOn = liveSyncSetting ? liveSyncSetting.value : false; // Default OFF
-
-                    // PRE-FETCH Full Entry if we are possibly going to sync
-                    // Actually, we can check liveSync first, then fetch entry only if needed
-                    if (isLiveSyncOn) {
-                         const fullEntry = await Entry.findById(entryId).populate("customerId");
-                         if (fullEntry) {
-                            const entryData = { ...fullEntry.toObject() };
-                            entryData.userName = entry.userId?.name || session.user.name;
-                            entryData.userRegion = entry.userId?.region || session.user.region;
-                            entryData.userBranch = entry.userId?.branch || session.user.branch;
-                            await updateEntryInSheet(entryData);
-                         }
-                    }
-                } catch(e) {
-                    console.error("Background StampIn Sync Error:", e);
-                }
-            })();
-        }
-        
-        // Removed await Promise.allSettled(sideEffects);
+        // No background tasks - Google Sheets integration removed
 
         revalidatePath(`/entries`);
         // revalidatePath("/dashboard");
@@ -305,44 +244,7 @@ export async function stampOut(entryId, location) {
             return { success: true };
         }
 
-        // Parallelize Side Effects
-        const sideEffects = [];
-
-        // 1. Notify
-        // 1. Notify - REMOVED per user request to reduce lag
-        // sideEffects.push(notifyAdmins("Stamped Out", entry, session.user));
-
-        // 2. Sync
-        // 2. Sync (Background)
-        if (entry.googleSheetRowId) {
-            (async () => {
-                try {
-                // Fetch Setting
-                const liveSyncSetting = await SystemSetting.findOne({ key: "liveSync" });
-                const isLiveSyncOn = liveSyncSetting ? liveSyncSetting.value : false; // Default OFF
-
-                if (isLiveSyncOn) {
-                    // Fetch full entry with user population only if syncing
-                    const fullEntry = await Entry.findById(entryId)
-                        .populate("customerId")
-                        .populate("userId", "name email region branch");
-
-                    if (fullEntry) {
-                         const entryData = { ...fullEntry.toObject() };
-                         // Use fullEntry.userId since we populated it here
-                         entryData.userName = fullEntry.userId?.name || session.user.name;
-                         entryData.userRegion = fullEntry.userId?.region || session.user.region;
-                         entryData.userBranch = fullEntry.userId?.branch || session.user.branch;
-                         await updateEntryInSheet(entryData);
-                    }
-                }
-                } catch(e) {
-                    console.error("Background StampOut Sync Error:", e);
-                }
-            })();
-        }
-
-        // Removed await Promise.allSettled(sideEffects);
+        // No background tasks - Google Sheets integration removed
 
         revalidatePath(`/entries`);
         // revalidatePath("/dashboard");
@@ -448,13 +350,12 @@ export async function fetchEntries({ page = 1, limit = 30, filters = {}, skip: c
             ];
         }
 
-        // 5. Region & Branch Filters
-        if (!query.userId && ((filters.region && filters.region !== "all") || (filters.branch && filters.branch !== "all"))) {
-            let userQuery = {};
-            if (filters.region && filters.region !== "all") userQuery.region = filters.region;
-            if (filters.branch && filters.branch !== "all") userQuery.branch = filters.branch;
-            const matchingUsers = await User.find(userQuery, "_id").lean();
-            query.userId = { $in: matchingUsers.map(u => u._id) };
+        // 5. Region & Branch Filters (Optimized with denormalized fields)
+        if (filters.region && filters.region !== "all") {
+            query.userRegion = filters.region;
+        }
+        if (filters.branch && filters.branch !== "all") {
+            query.userBranch = filters.branch;
         }
 
         // Fetch Entries

@@ -158,7 +158,7 @@ function MapInterface({ location, destinationName, stampInLocation, stampOutLoca
                     options={{
                         disableDefaultUI: false,
                         zoomControl: true,
-                        fullscreenControl: false, // Prevent overlap with Modal Close button
+                        fullscreenControl: true, // Enable fullscreen button
                     }}
                 >
                     {/* Radius Circle */}
