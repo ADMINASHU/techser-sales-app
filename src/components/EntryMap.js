@@ -122,6 +122,14 @@ function MapInterface({ location, destinationName, stampInLocation, stampOutLoca
         window.open(url, "_blank");
     };
 
+    const formatDist = (dist) => {
+        if (!dist) return "0 m";
+        if (dist > 1000) {
+            return (dist / 1000).toFixed(1) + " km";
+        }
+        return Math.round(dist) + " m";
+    };
+
     return (
         <div className="space-y-3 h-full flex flex-col">
             <div className={cn("rounded-md overflow-hidden relative border h-[300px] w-full grow", className)}>
@@ -135,7 +143,7 @@ function MapInterface({ location, destinationName, stampInLocation, stampOutLoca
                                     <div className="w-2.5 h-2.5 rounded-full bg-green-500 shadow-sm"></div>
                                     <span className="font-semibold text-gray-700">IN</span>
                                 </div>
-                                <span className="font-bold text-gray-900">{Math.round(distances.in)} m</span>
+                                <span className="font-bold text-gray-900">{formatDist(distances.in)}</span>
                             </div>
                         )}
                         {distances.out !== null && (
@@ -144,7 +152,7 @@ function MapInterface({ location, destinationName, stampInLocation, stampOutLoca
                                     <div className="w-2.5 h-2.5 rounded-full bg-orange-500 shadow-sm"></div>
                                     <span className="font-semibold text-gray-700">OUT</span>
                                 </div>
-                                <span className="font-bold text-gray-900">{Math.round(distances.out)} m</span>
+                                <span className="font-bold text-gray-900">{formatDist(distances.out)}</span>
                             </div>
                         )}
                     </div>

@@ -2,7 +2,6 @@ import { useState } from "react";
 import {
     Dialog,
     DialogContent,
-    DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
@@ -57,12 +56,13 @@ export default function UserProfileModal({ user, open, onOpenChange, showActions
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="bg-card border-white/10 text-white sm:max-w-2xl p-0 overflow-hidden gap-0">
+                <DialogTitle className="sr-only">User Details</DialogTitle>
                 <div className="flex flex-col md:flex-row h-full">
 
                     {/* Left Sidebar: ID Card style */}
-                    <div className="w-full md:w-1/3 bg-white/[0.02] border-b md:border-b-0 md:border-r border-white/10 p-8 flex flex-col items-center justify-center text-center relative overflow-hidden">
+                    <div className="w-full md:w-1/3 bg-white/2 border-b md:border-b-0 md:border-r border-white/10 p-8 flex flex-col items-center justify-center text-center relative overflow-hidden">
                         {/* Background Accent */}
-                        <div className="absolute top-0 inset-x-0 h-32 bg-gradient-to-b from-violet-500/10 to-transparent pointer-events-none" />
+                        <div className="absolute top-0 inset-x-0 h-32 bg-linear-to-b from-violet-500/10 to-transparent pointer-events-none" />
 
                         <Avatar className="h-32 w-32 ring-4 ring-white/5 shadow-2xl mb-6 relative z-10">
                             <AvatarImage src={user.image} alt={user.name} className="object-cover" />
@@ -96,13 +96,7 @@ export default function UserProfileModal({ user, open, onOpenChange, showActions
 
                     {/* Right Content: Details */}
                     <div className="w-full md:w-2/3 flex flex-col">
-                        <div className="p-6 pb-2 border-b border-white/5">
-                            <DialogHeader>
-                                <DialogTitle className="text-xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-                                    User Details
-                                </DialogTitle>
-                            </DialogHeader>
-                        </div>
+
 
                         <div className="p-6 flex-1 overflow-y-auto">
                             <div className="grid grid-cols-2 gap-x-6 gap-y-6">

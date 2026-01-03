@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import KnockClientProvider from "@/components/KnockClientProvider";
@@ -10,6 +11,18 @@ export default async function ProtectedLayout({ children }) {
     if (!session) {
         redirect("/login");
     }
+
+    const headersList = await headers();
+    const pathname = headersList.get("x-invoke-path") || "";
+
+    const hasProfile = session.user.contactNumber && session.user.address;
+    const isSetupPage = pathname.endsWith("/setup");
+
+    if (!hasProfile && !isSetupPage) {
+        redirect("/setup");
+    }
+    
+
 
     return (
         <KnockClientProvider session={session}>

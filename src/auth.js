@@ -62,6 +62,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                         region: user.region,
                         branch: user.branch,
                         viewPreference: user.viewPreference,
+                        contactNumber: user.contactNumber,
+                        address: user.address,
                     };
                 } catch (error) {
                     //   console.error("Auth error:", error);
@@ -81,6 +83,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 // Add Region and Branch updates
                 if (session.region) token.region = session.region;
                 if (session.branch) token.branch = session.branch;
+                if (session.contactNumber) token.contactNumber = session.contactNumber;
+                if (session.address) token.address = session.address;
 
                 if (session.image) {
                      // If session update provides a new image (e.g. after upload), use it or the URL
@@ -120,6 +124,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                         token.region = dbUser.region;
                         token.branch = dbUser.branch;
                         token.viewPreference = dbUser.viewPreference;
+                        token.contactNumber = dbUser.contactNumber;
+                        token.address = dbUser.address;
 
                         // Only set image URL if user has an image
                         token.image = hasImage ? `/api/user/image?v=${dbUser.updatedAt?.getTime() || Date.now()}` : null;
@@ -134,6 +140,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     token.region = user.region;
                     token.branch = user.branch;
                     token.viewPreference = user.viewPreference;
+                    token.contactNumber = user.contactNumber;
+                    token.address = user.address;
                     token.image = user.image; // Already set to URL in authorize()
                 }
             }
@@ -147,6 +155,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 session.user.region = token.region;
                 session.user.branch = token.branch;
                 session.user.viewPreference = token.viewPreference;
+                session.user.contactNumber = token.contactNumber;
+                session.user.address = token.address;
                 session.user.image = token.image;
             }
             return session;

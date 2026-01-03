@@ -79,7 +79,7 @@ export default async function EntryListContainer({ searchParams, session, view }
         .sort({ entryDate: -1 })
         .skip(skip)
         .limit(limit)
-        .populate("userId", "name email region branch role designation image status")
+        .populate("userId", "name email region branch role designation image status contactNumber address")
         .populate("customerId", "name customerAddress contactPerson contactNumber location")
         .lean(); // Use lean for performance since we serialize to JSON anyway
 

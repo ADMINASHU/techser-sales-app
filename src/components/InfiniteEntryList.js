@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+
+import { useState, useEffect, useMemo, useCallback } from "react";
 import EntryCard from "@/components/EntryCard";
 import EntryTableRow from "@/components/EntryTableRow";
 import { fetchEntries } from "@/app/actions/entryActions";
@@ -17,7 +18,7 @@ export default function InfiniteEntryList({ initialEntries, searchParams, isAdmi
     useEffect(() => {
         setHasMore(initialEntries.length > 0);
         setEntries(initialEntries);
-    }, [initialEntries, searchParams]);
+    }, [initialEntries]);
 
     // Group entries by date
     const groupedEntries = useMemo(() => {
@@ -38,7 +39,7 @@ export default function InfiniteEntryList({ initialEntries, searchParams, isAdmi
             }));
     }, [entries]);
 
-    const loadMore = async () => {
+    const loadMore = useCallback(async () => {
         if (loading || !hasMore) return;
 
         setLoading(true);
@@ -68,7 +69,7 @@ export default function InfiniteEntryList({ initialEntries, searchParams, isAdmi
         } finally {
             setLoading(false);
         }
-    };
+    }, [entries, loading, hasMore, searchParams]);
 
     const Footer = () => {
         return loading && hasMore ? (

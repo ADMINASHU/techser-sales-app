@@ -1,11 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { formatInIST } from "@/lib/utils";
+import { formatInIST, calculateDistance } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import DurationDisplay from "@/components/DurationDisplay";
 import DeleteEntryButton from "@/components/DeleteEntryButton";
+import { ShieldAlert } from "lucide-react";
 import Link from "next/link";
 
 export default function EntryTableRow({ entry, isAdmin, serialNumber }) {
@@ -20,10 +21,37 @@ export default function EntryTableRow({ entry, isAdmin, serialNumber }) {
         return formatInIST(isoString, "h:mm a");
     };
 
+    // Distance Calculation Logic
+    const customerLoc = entry.customerId?.location || entry.location;
+    const stampInLoc = entry.stampIn?.location;
+    const stampOutLoc = entry.stampOut?.location;
+
+    let inDistance = null;
+    let outDistance = null;
+
+    if (customerLoc?.lat && customerLoc?.lng) {
+        if (stampInLoc?.lat && stampInLoc?.lng) {
+            inDistance = calculateDistance(customerLoc.lat, customerLoc.lng, stampInLoc.lat, stampInLoc.lng);
+        }
+        if (stampOutLoc?.lat && stampOutLoc?.lng) {
+            outDistance = calculateDistance(customerLoc.lat, customerLoc.lng, stampOutLoc.lat, stampOutLoc.lng);
+        }
+    }
+
+    const isUnverified = (inDistance !== null && inDistance > 100) || (outDistance !== null && outDistance > 100);
+
+    const formatDist = (meters) => {
+        if (meters === null) return "-";
+        if (meters > 1000) return `${(meters / 1000).toFixed(1)} km`;
+        return `${meters} m`;
+    };
+
     return (
         <tr
             onClick={handleRowClick}
-            className="hover:bg-white/5 transition-colors group cursor-pointer relative text-sm"
+            className={`transition-colors group cursor-pointer relative text-sm ${
+                isAdmin && isUnverified ? "bg-red-500/5 hover:bg-red-500/10" : "hover:bg-white/5"
+            }`}
         >
             {/* Serial Number */}
             <td className="px-6 py-4 text-gray-400 font-mono">
@@ -54,7 +82,10 @@ export default function EntryTableRow({ entry, isAdmin, serialNumber }) {
             {/* Visited By */}
             {isAdmin && (
                 <td className="px-6 py-4 text-gray-300">
-                    <div className="font-medium text-white">{entry.userId?.name || "Unknown"}</div>
+                    <div className="flex items-center gap-2">
+                        {isUnverified && <ShieldAlert className="w-4 h-4 text-red-500 shrink-0" />}
+                        <div className="font-medium text-white">{entry.userId?.name || "Unknown"}</div>
+                    </div>
                 </td>
             )}
 
@@ -103,6 +134,20 @@ export default function EntryTableRow({ entry, isAdmin, serialNumber }) {
                     <div className="text-xs text-gray-500 group-hover:text-gray-400 transition-colors whitespace-pre-wrap">
                         {entry.customerId?.customerAddress || entry.customerAddress || "No address"}
                     </div>
+                    {isAdmin && (inDistance !== null || outDistance !== null) && (
+                        <div className="mt-1 flex gap-3 text-xs font-mono">
+                            {inDistance !== null && (
+                                <span className={inDistance > 100 ? "text-red-400 font-bold" : "text-emerald-400"}>
+                                    In: {formatDist(inDistance)}
+                                </span>
+                            )}
+                            {outDistance !== null && (
+                                <span className={outDistance > 100 ? "text-red-400 font-bold" : "text-emerald-400"}>
+                                    Out: {formatDist(outDistance)}
+                                </span>
+                            )}
+                        </div>
+                    )}
                 </div>
             </td>
 
