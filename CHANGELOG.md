@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.5.0](https://github.com/ADMINASHU/techser-sales-app/compare/v1.4.0...v1.5.0) (2026-01-03)
+
+
+### Features
+
+* Add new Navbar and CustomerActionCard components for site navigation and customer check-in/out functionality. ([80fda8f](https://github.com/ADMINASHU/techser-sales-app/commit/80fda8f8081d0515fcb891add59a5723715bd29c))
+* Implement EntryMap component displaying Google Maps with location, stamp markers, and distance info. ([3cd7580](https://github.com/ADMINASHU/techser-sales-app/commit/3cd75804a830ecabda7cfdcfad471e31371377e2))
+* implement NextAuth authentication with Google and credentials providers, and a dynamic Navbar component. ([57de77d](https://github.com/ADMINASHU/techser-sales-app/commit/57de77dd06bcf5ba7ef00d0b2d4132a6e15a88e1))
+
+
+### Performance Improvements
+
+* optimize network performance and fix authentication issues ([f175ec3](https://github.com/ADMINASHU/techser-sales-app/commit/f175ec308c286c882f9c207a1f4497eeae650fb2))
+
 ### [1.3.1](https://github.com/ADMINASHU/techser-sales-app/compare/v1.3.0...v1.3.1) (2026-01-02)
 
 
