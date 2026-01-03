@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.5.1](https://github.com/ADMINASHU/techser-sales-app/compare/v1.5.0...v1.5.1) (2026-01-03)
+
+
+### Bug Fixes
+
+* resolve admin log display issues, map distance formatting, and accessibility errors ([6a5075a](https://github.com/ADMINASHU/techser-sales-app/commit/6a5075abc5e3fd4f547dbee2403984db2f1dcfa9))
+
 ## [1.5.0](https://github.com/ADMINASHU/techser-sales-app/compare/v1.4.0...v1.5.0) (2026-01-03)
 
 
