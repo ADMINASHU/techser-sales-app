@@ -7,7 +7,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User, Mail, MapPin, Phone, Shield, Briefcase, Activity, Check, X, Loader2 } from "lucide-react";
+import { Mail, MapPin, Phone, Shield, Activity, Check, X, Loader2 } from "lucide-react";
 import { verifyUser, declineUser, updateUserRole } from "@/app/actions/adminActions";
 import { toast } from "sonner";
 
@@ -40,7 +40,7 @@ export default function UserProfileModal({ user, open, onOpenChange, showActions
                 {Icon && <Icon className="w-3.5 h-3.5" />}
                 {label}
             </div>
-            <div className="text-sm font-medium text-gray-200 break-words pl-5.5">
+            <div className="text-sm font-medium text-gray-200 wrap-break-word pl-5.5">
                 {value}
             </div>
         </div>

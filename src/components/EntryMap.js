@@ -2,9 +2,7 @@
 
 import { useLoadScript, GoogleMap, MarkerF, CircleF } from "@react-google-maps/api";
 import { useMemo, useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Loader2, Navigation, MapPin } from "lucide-react";
-import { toast } from "sonner";
+import { Loader2, MapPin } from "lucide-react";
 
 import { cn } from "@/lib/utils"; // [NEW]
 
