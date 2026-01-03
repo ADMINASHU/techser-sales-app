@@ -159,6 +159,7 @@ function MapInterface({ location, destinationName, stampInLocation, stampOutLoca
                         disableDefaultUI: false,
                         zoomControl: true,
                         fullscreenControl: true, // Enable fullscreen button
+                        streetViewControl: false, // Hide camera/street view button
                     }}
                 >
                     {/* Radius Circle */}
