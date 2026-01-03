@@ -31,10 +31,13 @@ export async function createCustomer(formData) {
             contactNumber,
             region,
             branch,
-            isActive: isActive === "true" || isActive === true,
+            // Default to true if not provided (allows model default to work)
+            isActive: isActive !== undefined ? (isActive === "true" || isActive === true) : true,
         });
 
+
         revalidatePath("/customers");
+        revalidatePath("/customer-log"); // Ensure check-in/out page shows new customer immediately
         return { success: true, id: customer._id.toString() };
     } catch (error) {
         console.error("Create Customer Error:", error);
