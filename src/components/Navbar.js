@@ -18,7 +18,7 @@ import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { clsx } from "clsx";
 import { ModeToggle } from "@/components/ModeToggle";
-import NotificationFeed from "@/components/NotificationFeed";
+import NotificationBell from "@/components/NotificationBell";
 
 export default function Navbar() {
     const pathname = usePathname();
@@ -97,8 +97,8 @@ export default function Navbar() {
 
                     {/* Right Actions */}
                     <div className="hidden sm:flex items-center space-x-4">
-                        {session?.user?.id && process.env.NEXT_PUBLIC_KNOCK_FEED_ID && (
-                            <NotificationFeed />
+                        {session?.user?.id && (
+                            <NotificationBell />
                         )}
                         <div className="h-8 w-px bg-white/10 mx-2"></div>
 
@@ -151,8 +151,8 @@ export default function Navbar() {
 
                     {/* Mobile Menu Button */}
                     <div className="-mr-2 flex items-center gap-2 sm:hidden">
-                        {session?.user?.id && process.env.NEXT_PUBLIC_KNOCK_FEED_ID && (
-                            <NotificationFeed />
+                        {session?.user?.id && (
+                            <NotificationBell />
                         )}
                         <Button variant="ghost" className="text-white hover:bg-white/10" onClick={() => setIsOpen(!isOpen)}>
                             <span className="sr-only">Open main menu</span>

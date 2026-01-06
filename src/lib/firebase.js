@@ -30,4 +30,74 @@ if (typeof window !== "undefined" && getApps().length === 0) {
     });
 }
 
+/**
+ * Subscribe to push notifications and save FCM token to database
+ * @returns {Promise<string|null>} - FCM token or null if failed
+ */
+export async function subscribeToPushNotifications() {
+    try {
+        if (!messaging) {
+            console.warn("[FCM] Messaging not supported in this browser");
+            return null;
+        }
+
+        // Request notification permission
+        const permission = await Notification.requestPermission();
+        if (permission !== "granted") {
+            console.warn("[FCM] Notification permission denied");
+            return null;
+        }
+
+        // Register service worker
+        const registration = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
+        await navigator.serviceWorker.ready;
+
+        // Get FCM token
+        const vapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY;
+        const currentToken = await getToken(messaging, {
+            vapidKey,
+            serviceWorkerRegistration: registration
+        });
+
+        if (currentToken) {
+            // Save token to database
+            await fetch("/api/user/save-fcm-token", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ token: currentToken })
+            });
+
+            console.log("[FCM] Token registered successfully");
+            return currentToken;
+        } else {
+            console.warn("[FCM] No registration token available");
+            return null;
+        }
+    } catch (error) {
+        console.error("[FCM] Error subscribing to push notifications:", error);
+        return null;
+    }
+}
+
+/**
+ * Listen for foreground FCM messages
+ * @param {Function} callback - Callback function to handle received message
+ * @returns {Function} - Unsubscribe function
+ */
+export function onForegroundMessage(callback) {
+    if (!messaging) {
+        console.warn("[FCM] Messaging not supported");
+        return () => { };
+    }
+
+    const { onMessage } = require("firebase/messaging");
+
+    const unsubscribe = onMessage(messaging, (payload) => {
+        console.log("[FCM] Foreground message received:", payload);
+        callback(payload);
+    });
+
+    return unsubscribe;
+}
+
 export { messaging, getToken };

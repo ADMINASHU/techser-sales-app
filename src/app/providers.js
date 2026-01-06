@@ -1,13 +1,13 @@
 "use client";
 import { SessionProvider } from "next-auth/react";
-import KnockClientProvider from "@/components/KnockClientProvider";
+import FCMNotificationProvider from "@/components/FCMNotificationProvider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 
 export default function Providers({ children, session }) {
     return (
         <SessionProvider session={session}>
-            <KnockClientProvider>
+            <FCMNotificationProvider>
                 <ThemeProvider
                     attribute="class"
                     defaultTheme="dark"
@@ -17,7 +17,7 @@ export default function Providers({ children, session }) {
                     {children}
                     <Toaster />
                 </ThemeProvider>
-            </KnockClientProvider>
+            </FCMNotificationProvider>
         </SessionProvider>
     );
 }
