@@ -3,7 +3,7 @@
 import { KnockProvider, KnockFeedProvider, useKnockClient } from "@knocklabs/react";
 import { useSession } from "next-auth/react";
 import "@knocklabs/react/dist/index.css";
-import { useEffect, memo } from "react";
+import { useEffect, useRef, useMemo } from "react";
 
 import { toast } from "sonner";
 
@@ -63,13 +63,14 @@ const KNOCK_THEME = {
 const apiKey = process.env.NEXT_PUBLIC_KNOCK_PUBLIC_API_KEY;
 const feedId = process.env.NEXT_PUBLIC_KNOCK_FEED_ID;
 
-// Memoized component that only re-renders when userId changes
-const KnockProviderContent = memo(function KnockProviderContent({ userId, children }) {
+export default function KnockClientProvider({ children }) {
+    const { data: session } = useSession();
+    const userId = session?.user?.id;
+
     if (!userId) {
         return <>{children}</>;
     }
 
-    // Only render providers if we have the required configuration
     if (!apiKey || !feedId) {
         if (process.env.NODE_ENV === 'production') {
             console.warn("Knock configuration incomplete. Skipping provider initialization.");
@@ -77,28 +78,14 @@ const KnockProviderContent = memo(function KnockProviderContent({ userId, childr
         return <>{children}</>;
     }
 
+    // Render children inside the providers
+    // The key prop on KnockProvider forces remount when userId changes
     return (
-        <KnockProvider
-            apiKey={apiKey}
-            userId={userId}
-        >
-            <KnockFeedProvider
-                feedId={feedId}
-                colorMode="dark"
-                theme={KNOCK_THEME}
-            >
+        <KnockProvider apiKey={apiKey} userId={userId} key={userId}>
+            <KnockFeedProvider feedId={feedId} colorMode="dark" theme={KNOCK_THEME}>
                 {children}
                 <RealtimeNotificationListener />
             </KnockFeedProvider>
         </KnockProvider>
     );
-}, (prevProps, nextProps) => {
-    // Only re-render if userId changes
-    return prevProps.userId === nextProps.userId;
-});
-
-export default function KnockClientProvider({ children }) {
-    const { data: session } = useSession();
-    
-    return <KnockProviderContent userId={session?.user?.id}>{children}</KnockProviderContent>;
 }
