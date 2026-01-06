@@ -66,12 +66,6 @@ const feedId = process.env.NEXT_PUBLIC_KNOCK_FEED_ID;
 export default function KnockClientProvider({ children }) {
     const { data: session } = useSession();
     const userId = session?.user?.id;
-    const [isClient, setIsClient] = useState(false);
-
-    // Only initialize Knock on the client side
-    useEffect(() => {
-        setIsClient(true);
-    }, []);
 
     if (!userId) {
         return <>{children}</>;
@@ -84,12 +78,7 @@ export default function KnockClientProvider({ children }) {
         return <>{children}</>;
     }
 
-    // Don't render Knock providers during SSR
-    if (!isClient) {
-        return <>{children}</>;
-    }
-
-    // Render children inside the providers (client-side only)
+    // Render children inside the providers
     return (
         <KnockProvider apiKey={apiKey} userId={userId}>
             <KnockFeedProvider feedId={feedId} colorMode="dark" theme={KNOCK_THEME}>
