@@ -14,6 +14,7 @@ async function notifyAdmins(action, entry, actor) {
     try {
         const admins = await User.find({ role: "admin" }).select("_id");
         const adminIds = admins.map(a => a._id.toString());
+        console.log(`[NotifyAdmins] Found ${adminIds.length} admins to notify for ${action}`);
 
         if (adminIds.length > 0) {
             await sendNotificationToUsers({
@@ -27,7 +28,7 @@ async function notifyAdmins(action, entry, actor) {
                     action: String(action || ""),
                     customerName: String(entry.customerName || ""),
                     entryId: entry._id.toString(),
-                    location: String(entry.customerAddress || ""),
+                    location: String(entry.customerAddress || entry.stampIn?.location?.address || ""),
                     link: `/entries/${entry._id}`
                 }
             });
@@ -77,7 +78,7 @@ export async function customerStampIn(customerId, location) {
             };
             await existingEntry.save();
 
-            // await notifyAdmins("Stamped In", existingEntry, session.user);
+            await notifyAdmins("Stamped In", existingEntry, session.user);
             revalidatePath("/customer-log");
             return { success: true };
         }

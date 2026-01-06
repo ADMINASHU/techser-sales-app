@@ -44,6 +44,8 @@ export async function sendFCMNotification({ tokens, notification, data = {} }) {
     }
 
     try {
+        console.log(`[FCM] Sending to ${tokens.length} tokens...`);
+
         const message = {
             notification: {
                 title: notification.title,
@@ -79,17 +81,34 @@ export async function sendFCMNotification({ tokens, notification, data = {} }) {
             ...message
         });
 
-        console.log(`[FCM] Notification sent: ${response.successCount} successful, ${response.failureCount} failed`);
+        // Collect invalid/expired tokens for cleanup
+        const invalidTokens = [];
+        response.responses.forEach((resp, idx) => {
+            if (!resp.success) {
+                const errorCode = resp.error?.code;
+                console.log(`[FCM] Token ${idx} failed:`, errorCode);
+
+                // These error codes indicate the token is invalid and should be removed
+                if (errorCode === 'messaging/registration-token-not-registered' ||
+                    errorCode === 'messaging/invalid-registration-token' ||
+                    errorCode === 'messaging/invalid-argument') {
+                    invalidTokens.push(tokens[idx]);
+                }
+            }
+        });
+
+        console.log(`[FCM] Results: ${response.successCount} successful, ${response.failureCount} failed, ${invalidTokens.length} stale tokens identified`);
 
         return {
             success: true,
             successCount: response.successCount,
             failureCount: response.failureCount,
-            responses: response.responses
+            responses: response.responses,
+            invalidTokens // Return for cleanup by caller
         };
     } catch (error) {
         console.error("[FCM] Error sending notification:", error);
-        return { success: false, error: error.message };
+        return { success: false, error: error.message, invalidTokens: [] };
     }
 }
 
@@ -119,6 +138,8 @@ export async function sendNotificationToUsers({ userIds, notification, data = {}
             return acc;
         }, []);
 
+        console.log(`[FCM] Preparing to send to ${userIds.length} users, ${tokens.length} total tokens`);
+
         // Save notification to database for each user
         if (saveToDb) {
             const notificationDocs = userIds.map(userId => ({
@@ -139,7 +160,21 @@ export async function sendNotificationToUsers({ userIds, notification, data = {}
             return { success: true, successCount: 0, failureCount: 0, message: "No FCM tokens available" };
         }
 
-        return await sendFCMNotification({ tokens, notification, data });
+        const result = await sendFCMNotification({ tokens, notification, data });
+
+        // Clean up invalid tokens from database
+        if (result.invalidTokens && result.invalidTokens.length > 0) {
+            console.log(`[FCM] Removing ${result.invalidTokens.length} invalid tokens from database`);
+
+            await User.updateMany(
+                { _id: { $in: userIds } },
+                { $pull: { fcmTokens: { $in: result.invalidTokens } } }
+            );
+
+            console.log(`[FCM] Stale tokens cleaned up successfully`);
+        }
+
+        return result;
     } catch (error) {
         console.error("[FCM] Error sending notification to users:", error);
         return { success: false, error: error.message };
