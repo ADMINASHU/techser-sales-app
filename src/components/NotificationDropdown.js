@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { CheckCheck, Loader2 } from "lucide-react";
+import { CheckCheck, Loader2, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import NotificationItem from "./NotificationItem";
