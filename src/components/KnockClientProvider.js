@@ -84,7 +84,7 @@ export default function KnockClientProvider({ children }) {
         <KnockProvider apiKey={apiKey} userId={userId} key={userId}>
             <KnockFeedProvider feedId={feedId} colorMode="dark" theme={KNOCK_THEME}>
                 {children}
-                <RealtimeNotificationListener />
+                {/* <RealtimeNotificationListener /> */}
             </KnockFeedProvider>
         </KnockProvider>
     );
