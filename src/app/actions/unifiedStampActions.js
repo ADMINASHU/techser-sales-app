@@ -7,25 +7,30 @@ import Customer from "@/models/Customer";
 import User from "@/models/User";
 import SystemSetting from "@/models/SystemSetting";
 import { revalidatePath } from "next/cache";
-import { triggerNotification } from "@/lib/knock";
+import { sendNotificationToUsers } from "@/lib/fcmNotification";
 
 // Helper for notifications
 async function notifyAdmins(action, entry, actor) {
     try {
         const admins = await User.find({ role: "admin" }).select("_id");
-        const recipientIds = admins.map(a => a._id.toString());
+        const adminIds = admins.map(a => a._id.toString());
 
-        if (recipientIds.length > 0) {
-            await triggerNotification("entry-action", {
-                recipients: recipientIds,
-                actor: { id: actor.id, name: actor.name, email: actor.email },
+        if (adminIds.length > 0) {
+            await sendNotificationToUsers({
+                userIds: adminIds,
+                notification: {
+                    title: `New Activity: ${action}`,
+                    body: `${actor.name} ${action} for ${entry.customerName}`
+                },
                 data: {
+                    type: "entry-action",
                     action,
                     customerName: entry.customerName,
                     entryId: entry._id.toString(),
                     timestamp: new Date().toISOString(),
                     location: entry.customerAddress,
-                },
+                    link: `/entries/${entry._id}`
+                }
             });
         }
     } catch (error) {
@@ -114,22 +119,22 @@ export async function customerStampOut(customerId, location) {
 
         // Parallelize updates
         const entry = await Entry.findOneAndUpdate(
-                 {
-                     customerId,
-                     userId: session.user.id,
-                     status: "In Process"
-                 },
-                 {
-                     $set: {
-                         status: "Completed",
-                         stampOut: {
-                             time: new Date(),
-                             location: location,
-                         }
-                     }
-                 },
-                 { new: true, sort: { createdAt: -1 } }
-            ); // Removed critical-path populates
+            {
+                customerId,
+                userId: session.user.id,
+                status: "In Process"
+            },
+            {
+                $set: {
+                    status: "Completed",
+                    stampOut: {
+                        time: new Date(),
+                        location: location,
+                    }
+                }
+            },
+            { new: true, sort: { createdAt: -1 } }
+        ); // Removed critical-path populates
 
         if (!entry) {
             return { error: "No active stamp-in found for this customer" };

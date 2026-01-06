@@ -4,13 +4,8 @@ import { auth } from "@/auth";
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import { revalidatePath } from "next/cache";
-
-import { Knock } from "@knocklabs/node";
-
-// const knock = process.env.KNOCK_SECRET_API_KEY ? new Knock(process.env.KNOCK_SECRET_API_KEY) : null;
-
 import bcrypt from "bcryptjs";
-import { triggerNotification } from "@/lib/knock";
+import { sendNotificationToUsers } from "@/lib/fcmNotification";
 
 // ... existing code ...
 
@@ -62,12 +57,18 @@ export async function updateProfile(formData) {
             const adminIds = admins.map(a => a._id.toString());
 
             if (adminIds.length > 0) {
-                await triggerNotification("verification-request", {
-                    actor: { id: session.user.id, name: session.user.name, email: session.user.email },
-                    recipients: adminIds,
+                await sendNotificationToUsers({
+                    userIds: adminIds,
+                    notification: {
+                        title: "Verification Request",
+                        body: `${session.user.name} has requested account verification`
+                    },
                     data: {
+                        type: "verification-request",
+                        userId: session.user.id,
                         name: session.user.name,
                         email: session.user.email,
+                        link: "/users"
                     }
                 });
             }
