@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.1.0](https://github.com/ADMINASHU/techser-sales-app/compare/v2.0.1...v2.1.0) (2026-01-06)
+
+
+### Features
+
+* Add Firebase Cloud Messaging (FCM) for push notifications, including a service worker and server-side admin alerts for stamp events. ([a423f35](https://github.com/ADMINASHU/techser-sales-app/commit/a423f3525b326bbd1b8fb8c06e717b579d6832a4))
+* implement `AdminUserList` component with search, region/branch filtering, and infinite scroll. ([f58210e](https://github.com/ADMINASHU/techser-sales-app/commit/f58210e8875182642aa2ab9598107a3d10cc5f93))
+* Implement Firebase Cloud Messaging (FCM) for push notifications, including server-side sending, client-side service worker, and admin action integration. ([f5e418e](https://github.com/ADMINASHU/techser-sales-app/commit/f5e418ecc6c9dd8e845d4e748ec159fab49a9017))
+* implement real-time session management via FCM notifications ([c3e7d5f](https://github.com/ADMINASHU/techser-sales-app/commit/c3e7d5fba684aa6824f3cc0d06819a9284193e8f))
+
 ### [2.0.1](https://github.com/ADMINASHU/techser-sales-app/compare/v2.0.0...v2.0.1) (2026-01-06)
 
 ## [2.0.0](https://github.com/ADMINASHU/techser-sales-app/compare/v1.5.1...v2.0.0) (2026-01-06)
