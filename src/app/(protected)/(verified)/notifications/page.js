@@ -22,7 +22,14 @@ export default function NotificationsPage() {
         <div className="space-y-6">
             <h1 className="text-2xl font-bold">Notifications</h1>
             <Card className="min-h-[600px] p-4 glass-card">
-                <KnockFeedProvider feedId={feedId} colorMode="dark" theme={KNOCK_THEME}>
+                <KnockFeedProvider 
+                    feedId={feedId} 
+                    colorMode="dark" 
+                    theme={KNOCK_THEME}
+                    defaultFeedOptions={{
+                        auto_manage_socket_connection: false
+                    }}
+                >
                     <NotificationFeed />
                 </KnockFeedProvider>
             </Card>

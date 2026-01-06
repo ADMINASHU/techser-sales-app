@@ -3,7 +3,7 @@
 import { KnockProvider, KnockFeedProvider, useKnockClient } from "@knocklabs/react";
 import { useSession } from "next-auth/react";
 import "@knocklabs/react/dist/index.css";
-import { useEffect, useRef, useMemo, useState } from "react";
+import { useEffect } from "react";
 
 import { toast } from "sonner";
 
@@ -15,25 +15,27 @@ function PushNotificationManager() {
             try {
                 const channelId = process.env.NEXT_PUBLIC_KNOCK_PUSH_CHANNEL_ID;
                 if (!channelId) {
-                    if (process.env.NODE_ENV === 'production') {
-                        console.warn("Knock Push Channel ID not found");
-                    }
+                    console.warn("Knock Push Channel ID not found");
                     return;
                 }
 
+                // console.log("Requesting notification permission...");
                 const permission = await Notification.requestPermission();
                 if (permission !== "granted") {
-                    if (process.env.NODE_ENV === 'production') {
-                        console.warn("Notification permission denied");
-                    }
+                    console.warn("Notification permission denied");
                     toast.error("Notification permission denied. Enable them in browser settings.");
                     return;
                 }
 
+                // console.log("Permission granted. Registering service worker...");
                 const registration = await navigator.serviceWorker.register("/service-worker.js");
+                // console.log("Service Worker registered:", registration);
 
                 if (knock?.push) {
-                    await knock.push.register(channelId);
+                    // console.log("Registering push with Knock channel:", channelId);
+                    await knock.push.register(channelId); // Check if this requires specific options
+                    // console.log("Knock Push Registered Successfully");
+                    // toast.success("Push Notifications Enabled!"); // Too noisy for every login
                 }
             } catch (e) {
                 console.error("Failed to register push:", e);
@@ -52,36 +54,53 @@ function PushNotificationManager() {
 
 import RealtimeNotificationListener from "./RealtimeNotificationListener";
 
-const KNOCK_THEME = {
-    colors: {
-        background: "#0b0f19",
-        surface: "#1a1f2e",
-        primary: "#a855f7",
-    }
-};
-
-const apiKey = process.env.NEXT_PUBLIC_KNOCK_PUBLIC_API_KEY;
-const feedId = process.env.NEXT_PUBLIC_KNOCK_FEED_ID;
-
-export default function KnockClientProvider({ children }) {
+function KnockProviderContent({ children }) {
     const { data: session } = useSession();
-    const userId = session?.user?.id;
 
-    if (!userId) {
+    if (!session?.user?.id) {
         return <>{children}</>;
     }
 
-    if (!apiKey) {
-        if (process.env.NODE_ENV === 'production') {
-            console.warn("Knock API key not found. Skipping provider initialization.");
-        }
+    const apiKey = process.env.NEXT_PUBLIC_KNOCK_PUBLIC_API_KEY;
+    const feedId = process.env.NEXT_PUBLIC_KNOCK_FEED_ID;
+
+    // console.log("Knock Config Check:", {
+    //     hasApiKey: !!apiKey,
+    //     apiKeyPrefix: apiKey?.substring(0, 8),
+    //     hasFeedId: !!feedId,
+    //     userId: session.user.id
+    // });
+
+    // Only render providers if we have the required configuration
+    if (!apiKey || !feedId) {
+        console.warn("Knock configuration incomplete. Skipping provider initialization.");
         return <>{children}</>;
     }
 
-    // Only render KnockProvider (for authentication), not KnockFeedProvider
     return (
-        <KnockProvider apiKey={apiKey} userId={userId}>
-            {children}
+        <KnockProvider
+            apiKey={apiKey}
+            userId={session.user.id}
+        >
+            <KnockFeedProvider
+                feedId={feedId}
+                colorMode="dark"
+                theme={{
+                    colors: {
+                        background: "#0b0f19", // App deep navy --background
+                        surface: "#1a1f2e",    // App lighter navy --card
+                        primary: "#a855f7",    // Violet-500 equivalent for primary actions
+                    }
+                }}
+            >
+                {children}
+                <RealtimeNotificationListener />
+                {/* <PushNotificationManager /> DISABLED by user request */}
+            </KnockFeedProvider>
         </KnockProvider>
     );
+}
+
+export default function KnockClientProvider({ children }) {
+    return <KnockProviderContent>{children}</KnockProviderContent>;
 }
