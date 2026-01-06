@@ -19,6 +19,12 @@ export default function RealtimeNotificationListener() {
     const isAuthPage = pathname === "/login" || pathname === "/register";
 
     useEffect(() => {
+        console.log("[RealtimeListener] Effect Run", { 
+            hasClient: !!feedClient, 
+            isAuthPage, 
+            timestamp: Date.now() 
+        });
+
         if (!feedClient || isAuthPage) return;
 
         const onNotificationsReceived = async ({ items }) => {

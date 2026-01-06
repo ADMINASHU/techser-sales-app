@@ -64,6 +64,12 @@ const KNOCK_THEME = {
 
 function KnockProviderContent({ children }) {
     const { data: session } = useSession();
+    
+    console.log("[KnockProviderContent] Render", { 
+        hasSession: !!session, 
+        userId: session?.user?.id,
+        timestamp: Date.now() 
+    });
 
     if (!session?.user?.id) {
         return <>{children}</>;
