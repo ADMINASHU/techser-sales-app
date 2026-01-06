@@ -1,15 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { CheckCheck, Loader2, Bell } from "lucide-react";
+import { CheckCheck, Loader2, Bell, BellRing, BellOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import NotificationItem from "./NotificationItem";
+import { useNotification } from "./FCMNotificationProvider";
 
 export default function NotificationDropdown({ onMarkAllAsRead, onClose }) {
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
     const [markingAllRead, setMarkingAllRead] = useState(false);
+    const { permission, requestPermission, isSupported } = useNotification();
 
     useEffect(() => {
         fetchNotifications();
@@ -127,37 +129,68 @@ export default function NotificationDropdown({ onMarkAllAsRead, onClose }) {
                             </p>
                         )}
                     </div>
-                    <div className="flex items-center gap-2">
-                        {unreadCount > 0 && (
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={handleMarkAllRead}
-                                disabled={markingAllRead}
-                                className="text-violet-400 hover:text-violet-300 hover:bg-violet-500/10 h-8 text-xs"
-                            >
-                                {markingAllRead ? (
-                                    <Loader2 className="h-3 w-3 animate-spin mr-1" />
-                                ) : (
-                                    <CheckCheck className="h-3 w-3 mr-1" />
-                                )}
-                                Mark all read
-                            </Button>
-                        )}
-                        {notifications.length > 0 && (
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={handleClearAll}
-                                disabled={markingAllRead}
-                                className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-8 text-xs"
-                            >
-                                Clear All
-                            </Button>
-                        )}
-                    </div>
+                </div>
+                <div className="flex items-center gap-2">
+                    {unreadCount > 0 && (
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleMarkAllRead}
+                            disabled={markingAllRead}
+                            className="text-violet-400 hover:text-violet-300 hover:bg-violet-500/10 h-8 text-xs"
+                        >
+                            {markingAllRead ? (
+                                <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                            ) : (
+                                <CheckCheck className="h-3 w-3 mr-1" />
+                            )}
+                            Mark all read
+                        </Button>
+                    )}
+                    {notifications.length > 0 && (
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleClearAll}
+                            disabled={markingAllRead}
+                            className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-8 text-xs"
+                        >
+                            Clear All
+                        </Button>
+                    )}
                 </div>
             </div>
+
+            {/* Permission Request Banner */}
+            {permission !== "granted" && isSupported && (
+                <div className={`px-4 py-3 border-b border-white/5 ${permission === "denied" ? "bg-red-500/10" : "bg-blue-500/10"}`}>
+                    <div className="flex items-start gap-3">
+                        <div className={`p-2 rounded-full ${permission === "denied" ? "bg-red-500/20 text-red-400" : "bg-blue-500/20 text-blue-400"}`}>
+                            {permission === "denied" ? <BellOff className="w-4 h-4" /> : <BellRing className="w-4 h-4" />}
+                        </div>
+                        <div className="flex-1">
+                            <p className="text-sm font-medium text-white">
+                                {permission === "denied" ? "Notifications Blocked" : "Enable Notifications"}
+                            </p>
+                            <p className="text-xs text-gray-400 mt-1 mb-2">
+                                {permission === "denied"
+                                    ? "Please enable notifications in your browser settings to receive updates."
+                                    : "Get real-time updates for important activities."}
+                            </p>
+                            {permission !== "denied" && (
+                                <Button
+                                    size="sm"
+                                    onClick={requestPermission}
+                                    className="h-7 text-xs bg-blue-600 hover:bg-blue-700 text-white border-none w-full"
+                                >
+                                    Turn On
+                                </Button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )
+            }
 
             {/* Notifications List */}
             <ScrollArea className="flex-1" style={{ maxHeight: "400px" }}>
@@ -190,6 +223,6 @@ export default function NotificationDropdown({ onMarkAllAsRead, onClose }) {
                     </div>
                 )}
             </ScrollArea>
-        </div>
+        </div >
     );
 }

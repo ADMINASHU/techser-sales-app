@@ -11,8 +11,47 @@ import { LoadingButton } from "@/components/ui/LoadingButton";
 import DurationDisplay from "@/components/DurationDisplay";
 import { Timer } from "lucide-react";
 
+import PermissionRequestModal from "@/components/PermissionRequestModal";
+import { useNotification } from "@/components/FCMNotificationProvider";
+
 export default function CustomerActionCard({ customer, activeEntry, userId, hasActiveStampIn }) {
     const [loading, setLoading] = useState(false);
+    const [showPermissionModal, setShowPermissionModal] = useState(false);
+    const [pendingAction, setPendingAction] = useState(null); // "in" or "out"
+    const { permission: notificationPermission } = useNotification();
+
+    const handleStampClick = (type) => {
+        // Permission Check
+        const isLocationGranted = "geolocation" in navigator; // We'll do a loose check here, let the modal strict check
+        // Ideally we'd check permission state synchronously but navigator.permissions is async.
+        // So we'll rely on the modal to handle the strict "granted" check.
+
+        // Simpler check logic: simple heuristic + defer to modal
+        // If notification is not granted, definitely show modal. 
+        // For location, we default to showing modal if we're not sure, 
+        // but since we can't synchronously check strict 'granted' state easily without flashing,
+        // we'll optimistically try to stamp? 
+        // User requested: "if not allowed show then to enable".
+
+        // Let's rely on the fact that if we try to get location and it fails/denied, we handle it?
+        // NO, user wants to BLOCK action and show enable UI *before* or *if* denied.
+
+        // Strategy: trigger the Modal if Notification is NOT 'granted'. 
+        // For Location, we can't easily peek without async query. 
+        // Let's try to query location quietly first? Or just use the existing handleStamp logic 
+        // and if it fails due to permission, show modal?
+        // User said: "if notification and location both are not allowed".
+
+        // Let's force the modal if Notification is not granted.
+        if (notificationPermission !== "granted") {
+            setPendingAction(type);
+            setShowPermissionModal(true);
+            return;
+        }
+
+        // Proceed to try stamping (which involves location)
+        handleStamp(type);
+    };
 
     const handleStamp = async (type) => {
         setLoading(true);
@@ -23,8 +62,10 @@ export default function CustomerActionCard({ customer, activeEntry, userId, hasA
             return;
         }
 
+        // We use check logic inside geolocation to catch denial
         navigator.geolocation.getCurrentPosition(
             async (position) => {
+                // ... existing success logic ...
                 const { latitude, longitude } = position.coords;
                 const location = {
                     lat: latitude,
@@ -44,15 +85,28 @@ export default function CustomerActionCard({ customer, activeEntry, userId, hasA
                     toast.error(res.error);
                 } else {
                     toast.success(type === "in" ? "Stamped In!" : "Stamped Out!");
-                    // router.refresh() removed - server actions already call revalidatePath()
                 }
             },
             (error) => {
                 console.error(error);
-                toast.error("Unable to retrieve your location");
+                if (error.code === error.PERMISSION_DENIED) {
+                    // If location denied, show the modal to help them enable it
+                    setPendingAction(type);
+                    setShowPermissionModal(true);
+                } else {
+                    toast.error("Unable to retrieve your location");
+                }
                 setLoading(false);
             }
         );
+    };
+
+    // Resume action after modal success
+    const handlePermissionSuccess = () => {
+        if (pendingAction) {
+            handleStamp(pendingAction);
+            setPendingAction(null);
+        }
     };
 
     const isStampedIn = activeEntry && activeEntry.status === "In Process";
@@ -99,7 +153,7 @@ export default function CustomerActionCard({ customer, activeEntry, userId, hasA
                 {!isStampedIn && !isCompleted && (
                     <div className="flex-1 relative group/tooltip">
                         <LoadingButton
-                            onClick={() => handleStamp("in")}
+                            onClick={() => handleStampClick("in")}
                             loading={loading}
                             disabled={!canStampIn}
                             className={`w-full ${canStampIn
@@ -121,7 +175,7 @@ export default function CustomerActionCard({ customer, activeEntry, userId, hasA
 
                 {isStampedIn && (
                     <LoadingButton
-                        onClick={() => handleStamp("out")}
+                        onClick={() => handleStampClick("out")}
                         loading={loading}
                         className="flex-1 bg-linear-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-bold h-12 rounded-xl shadow-lg shadow-rose-500/20 border-0 transition-all duration-300 active:scale-[0.98] flex flex-row items-center justify-between px-4 group ring-1 ring-white/10"
                     >
@@ -154,6 +208,12 @@ export default function CustomerActionCard({ customer, activeEntry, userId, hasA
                     </Button>
                 )}
             </div>
+
+            <PermissionRequestModal
+                open={showPermissionModal}
+                onOpenChange={setShowPermissionModal}
+                onSuccess={handlePermissionSuccess}
+            />
         </div>
     );
 }

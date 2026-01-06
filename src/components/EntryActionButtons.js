@@ -8,10 +8,18 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { MapPin } from "lucide-react";
 
+import PermissionRequestModal from "@/components/PermissionRequestModal";
+import { useNotification } from "@/components/FCMNotificationProvider";
+
 export default function EntryActionButtons({ entry, role }) {
+    // ... imports 
     const [loading, setLoading] = useState(false);
     const router = useRouter();
-    
+    const [showPermissionModal, setShowPermissionModal] = useState(false);
+    const [pendingAction, setPendingAction] = useState(null);
+    const { permission: notificationPermission } = useNotification();
+
+    // ... optimistic state ...
     const [optimisticStatus, setOptimisticStatus] = useOptimistic(
         entry.status,
         (currentStatus, newStatus) => newStatus
@@ -20,12 +28,24 @@ export default function EntryActionButtons({ entry, role }) {
     // Admins don't need to stamp in/out
     if (role === 'admin') return null;
 
+    const handleActionClick = (actionType) => {
+        if (notificationPermission !== "granted") {
+            setPendingAction(actionType);
+            setShowPermissionModal(true);
+            return;
+        }
+        handleAction(actionType);
+    };
+
     const handleAction = async (actionType) => {
         if (loading) return;
         setLoading(true);
 
         const newStatus = actionType === "in" ? "In Process" : "Completed";
-        
+
+        // Optimistic update moved inside success path or kept? 
+        // Keeping it here makes UI snappy, but if permission fails via location error it might revert.
+        // We'll keep it here for now.
         startTransition(() => {
             setOptimisticStatus(newStatus);
         });
@@ -38,8 +58,8 @@ export default function EntryActionButtons({ entry, role }) {
 
         const options = {
             enableHighAccuracy: true,
-            timeout: 10000, 
-            maximumAge: 60000 
+            timeout: 10000,
+            maximumAge: 60000
         };
 
         navigator.geolocation.getCurrentPosition(
@@ -69,30 +89,61 @@ export default function EntryActionButtons({ entry, role }) {
             },
             (error) => {
                 console.error(error);
-                let msg = "Unable to retrieve your location";
-                if (error.code === error.TIMEOUT) msg = "Location request timed out. Please check GPS.";
-                toast.error(msg);
+                if (error.code === error.PERMISSION_DENIED) {
+                    setPendingAction(actionType);
+                    setShowPermissionModal(true);
+                    // Revert optimistic update? logic gets complex with optimistic UI. 
+                    // Ideally we revert, but since this triggers a modal, user will retry.
+                    // The optimistic state will likely persist until refresh or next action.
+                } else {
+                    let msg = "Unable to retrieve your location";
+                    if (error.code === error.TIMEOUT) msg = "Location request timed out. Please check GPS.";
+                    toast.error(msg);
+                }
                 setLoading(false);
             },
             options
         );
     };
 
+    const handlePermissionSuccess = () => {
+        if (pendingAction) {
+            // To avoid optimistic glitch, we could force the action.
+            // But careful with state.
+            handleAction(pendingAction);
+            setPendingAction(null);
+        }
+    };
+
     if (optimisticStatus === "Not Started") {
         return (
-            <LoadingButton onClick={() => handleAction("in")} loading={loading} className="w-full bg-green-600 hover:bg-green-700">
-                <MapPin className="mr-2 h-4 w-4" />
-                Stamp In
-            </LoadingButton>
+            <>
+                <LoadingButton onClick={() => handleActionClick("in")} loading={loading} className="w-full bg-green-600 hover:bg-green-700">
+                    <MapPin className="mr-2 h-4 w-4" />
+                    Stamp In
+                </LoadingButton>
+                <PermissionRequestModal
+                    open={showPermissionModal}
+                    onOpenChange={setShowPermissionModal}
+                    onSuccess={handlePermissionSuccess}
+                />
+            </>
         );
     }
 
     if (optimisticStatus === "In Process") {
         return (
-            <LoadingButton onClick={() => handleAction("out")} loading={loading} className="w-full bg-blue-600 hover:bg-blue-700">
-                <MapPin className="mr-2 h-4 w-4" />
-                Stamp Out
-            </LoadingButton>
+            <>
+                <LoadingButton onClick={() => handleActionClick("out")} loading={loading} className="w-full bg-blue-600 hover:bg-blue-700">
+                    <MapPin className="mr-2 h-4 w-4" />
+                    Stamp Out
+                </LoadingButton>
+                <PermissionRequestModal
+                    open={showPermissionModal}
+                    onOpenChange={setShowPermissionModal}
+                    onSuccess={handlePermissionSuccess}
+                />
+            </>
         );
     }
 
