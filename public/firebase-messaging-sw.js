@@ -19,15 +19,44 @@ const messaging = firebase.messaging();
 
 // Handle background messages
 messaging.onBackgroundMessage((payload) => {
+    const notificationType = payload.data?.type;
+
+    // For logout scenarios, send message to client
+    if (notificationType === "user-declined" || notificationType === "user-deleted") {
+        self.clients.matchAll({ type: 'window' }).then(clients => {
+            clients.forEach(client => {
+                client.postMessage({
+                    type: 'FORCE_LOGOUT',
+                    reason: notificationType === "user-declined" ? "declined" : "deleted",
+                    data: payload.data
+                });
+            });
+        });
+    }
+
+    // For session refresh scenarios
+    if (notificationType === "user-verified" || notificationType === "user-role-updated") {
+        self.clients.matchAll({ type: 'window' }).then(clients => {
+            clients.forEach(client => {
+                client.postMessage({
+                    type: 'REFRESH_SESSION',
+                    notificationType: notificationType,
+                    data: payload.data
+                });
+            });
+        });
+    }
+
+    // Show notification
     const notificationTitle = payload.notification?.title || 'Techser Sales';
     const notificationOptions = {
         body: payload.notification?.body || '',
         icon: '/icon-192x192.png',
         badge: '/icon-192x192.png',
         data: payload.data || {},
-        tag: payload.data?.tag || 'default',
+        tag: payload.data?.type || 'default',
         vibrate: [200, 100, 200],
-        requireInteraction: false
+        requireInteraction: notificationType === "user-declined" || notificationType === "user-deleted"
     };
 
     return self.registration.showNotification(notificationTitle, notificationOptions);

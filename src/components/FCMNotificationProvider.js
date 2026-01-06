@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { subscribeToPushNotifications, onForegroundMessage } from "@/lib/firebase";
 import { toast } from "sonner";
 
@@ -15,7 +15,7 @@ export const NotificationContext = createContext({
 export const useNotification = () => useContext(NotificationContext);
 
 export default function FCMNotificationProvider({ children }) {
-    const { data: session, status } = useSession();
+    const { data: session, status, update } = useSession();
     const [isSubscribed, setIsSubscribed] = useState(false);
     const [permission, setPermission] = useState("default");
     const [isSupported, setIsSupported] = useState(true);
@@ -33,9 +33,49 @@ export default function FCMNotificationProvider({ children }) {
 
     const handleForegroundMessage = useCallback((payload) => {
         const { notification, data } = payload;
+        const notificationType = data?.type;
 
-        if (notification) {
-            // Show toast notification
+        // Handle session-critical notifications
+        if (notificationType === "user-declined") {
+            signOut({ callbackUrl: "/verification?reason=declined" });
+            return;
+        }
+
+        if (notificationType === "user-deleted") {
+            signOut({ callbackUrl: "/verification?reason=deleted" });
+            return;
+        }
+
+        if (notificationType === "user-verified") {
+            // Refresh session and redirect to dashboard
+            update();
+            window.location.href = "/dashboard";
+
+            // Show toast
+            toast.success("Account Verified!", {
+                description: notification.body,
+                duration: 5000
+            });
+            return;
+        }
+
+        if (notificationType === "user-role-updated") {
+            // Refresh session to get new role
+            update();
+
+            toast.info("Role Updated", {
+                description: notification.body,
+                duration: 5000,
+                action: {
+                    label: "Reload",
+                    onClick: () => window.location.reload()
+                }
+            });
+            return;
+        }
+
+        // Regular notifications - show toast
+        if (notification?.title) {
             toast.info(notification.title, {
                 description: notification.body,
                 duration: 5000,
@@ -54,7 +94,7 @@ export default function FCMNotificationProvider({ children }) {
         window.dispatchEvent(new CustomEvent("fcm-notification", {
             detail: { notification, data }
         }));
-    }, []);
+    }, [update]);
 
     const setupForegroundListener = useCallback(() => {
         try {
@@ -111,6 +151,31 @@ export default function FCMNotificationProvider({ children }) {
             }
         }
     }, [status, session, permission, isSubscribed, setupForegroundListener, requestPermission]);
+
+    // Listen for service worker messages (background notifications)
+    useEffect(() => {
+        const handleSWMessage = (event) => {
+            const { type, reason, notificationType } = event.data || {};
+
+            if (type === 'FORCE_LOGOUT') {
+                signOut({ callbackUrl: `/verification?reason=${reason}` });
+            }
+
+            if (type === 'REFRESH_SESSION') {
+                update(); // Refresh NextAuth session
+
+                if (notificationType === 'user-verified') {
+                    window.location.href = '/dashboard';
+                }
+            }
+        };
+
+        navigator.serviceWorker?.addEventListener('message', handleSWMessage);
+
+        return () => {
+            navigator.serviceWorker?.removeEventListener('message', handleSWMessage);
+        };
+    }, [update]);
 
     return (
         <NotificationContext.Provider value={{ permission, requestPermission, isSupported }}>
