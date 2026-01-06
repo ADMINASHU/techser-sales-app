@@ -90,6 +90,28 @@ export default function NotificationDropdown({ onMarkAllAsRead, onClose }) {
         }
     };
 
+    const handleClearAll = async () => {
+        if (!confirm("Are you sure you want to delete all notifications? This cannot be undone.")) {
+            return;
+        }
+
+        try {
+            setMarkingAllRead(true); // Reuse loading state
+            const response = await fetch("/api/notifications/clear-all", {
+                method: "DELETE"
+            });
+
+            if (response.ok) {
+                setNotifications([]);
+                onMarkAllAsRead(); // Reset unread count
+            }
+        } catch (error) {
+            console.error("Error clearing all notifications:", error);
+        } finally {
+            setMarkingAllRead(false);
+        }
+    };
+
     const unreadCount = notifications.filter(n => !n.read).length;
 
     return (
@@ -105,22 +127,35 @@ export default function NotificationDropdown({ onMarkAllAsRead, onClose }) {
                             </p>
                         )}
                     </div>
-                    {unreadCount > 0 && (
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={handleMarkAllRead}
-                            disabled={markingAllRead}
-                            className="text-violet-400 hover:text-violet-300 hover:bg-violet-500/10 h-8 text-xs"
-                        >
-                            {markingAllRead ? (
-                                <Loader2 className="h-3 w-3 animate-spin mr-1" />
-                            ) : (
-                                <CheckCheck className="h-3 w-3 mr-1" />
-                            )}
-                            Mark all read
-                        </Button>
-                    )}
+                    <div className="flex items-center gap-2">
+                        {unreadCount > 0 && (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={handleMarkAllRead}
+                                disabled={markingAllRead}
+                                className="text-violet-400 hover:text-violet-300 hover:bg-violet-500/10 h-8 text-xs"
+                            >
+                                {markingAllRead ? (
+                                    <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                                ) : (
+                                    <CheckCheck className="h-3 w-3 mr-1" />
+                                )}
+                                Mark all read
+                            </Button>
+                        )}
+                        {notifications.length > 0 && (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={handleClearAll}
+                                disabled={markingAllRead}
+                                className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-8 text-xs"
+                            >
+                                Clear All
+                            </Button>
+                        )}
+                    </div>
                 </div>
             </div>
 
