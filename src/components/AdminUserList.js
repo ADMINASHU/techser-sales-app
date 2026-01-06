@@ -63,7 +63,8 @@ export default function AdminUserList({ initialData, locations = [] }) {
         }
         params.set("page", "1"); // Reset to page 1 on search
         router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-    }, [debouncedSearch, router, pathname]); // Intentionally exclude check to prevent loop, debouncedSearch drives it
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [debouncedSearch, router, pathname]); // Intentionally exclude searchParams to prevent loop
 
     // Handle Filter Changes
     const updateFilters = (key, value) => {

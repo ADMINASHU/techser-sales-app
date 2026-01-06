@@ -19,8 +19,6 @@ const messaging = firebase.messaging();
 
 // Handle background messages
 messaging.onBackgroundMessage((payload) => {
-    console.log('[FCM SW] Background message received:', JSON.stringify(payload));
-
     const notificationTitle = payload.notification?.title || 'Techser Sales';
     const notificationOptions = {
         body: payload.notification?.body || '',
@@ -32,7 +30,6 @@ messaging.onBackgroundMessage((payload) => {
         requireInteraction: false
     };
 
-    console.log('[FCM SW] Showing notification:', notificationTitle);
     return self.registration.showNotification(notificationTitle, notificationOptions);
 });
 

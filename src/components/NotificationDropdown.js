@@ -31,18 +31,9 @@ export default function NotificationDropdown({ onMarkAllAsRead, onClose }) {
     useEffect(() => {
         fetchNotifications();
 
-        // Listen for new notifications
-        const handleNewNotification = (event) => {
-            const { notification, data } = event.detail;
-            const newNotification = {
-                id: Date.now().toString(),
-                title: notification.title,
-                body: notification.body,
-                data: data || {},
-                createdAt: new Date().toISOString(),
-                read: false
-            };
-            setNotifications(prev => [newNotification, ...prev]);
+        // Listen for new notifications and refetch to get DB version
+        const handleNewNotification = () => {
+            fetchNotifications(); // Refetch from DB instead of manually adding
         };
 
         window.addEventListener("fcm-notification", handleNewNotification);
@@ -100,10 +91,6 @@ export default function NotificationDropdown({ onMarkAllAsRead, onClose }) {
     };
 
     const handleClearAll = async () => {
-        if (!confirm("Are you sure you want to delete all notifications? This cannot be undone.")) {
-            return;
-        }
-
         try {
             setMarkingAllRead(true); // Reuse loading state
             const response = await fetch("/api/notifications/clear-all", {

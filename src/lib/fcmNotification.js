@@ -44,7 +44,6 @@ export async function sendFCMNotification({ tokens, notification, data = {} }) {
     }
 
     try {
-        console.log(`[FCM] Sending to ${tokens.length} tokens...`);
 
         const message = {
             notification: {
@@ -86,7 +85,7 @@ export async function sendFCMNotification({ tokens, notification, data = {} }) {
         response.responses.forEach((resp, idx) => {
             if (!resp.success) {
                 const errorCode = resp.error?.code;
-                console.log(`[FCM] Token ${idx} failed:`, errorCode);
+
 
                 // These error codes indicate the token is invalid and should be removed
                 if (errorCode === 'messaging/registration-token-not-registered' ||
@@ -97,7 +96,6 @@ export async function sendFCMNotification({ tokens, notification, data = {} }) {
             }
         });
 
-        console.log(`[FCM] Results: ${response.successCount} successful, ${response.failureCount} failed, ${invalidTokens.length} stale tokens identified`);
 
         return {
             success: true,
@@ -138,7 +136,6 @@ export async function sendNotificationToUsers({ userIds, notification, data = {}
             return acc;
         }, []);
 
-        console.log(`[FCM] Preparing to send to ${userIds.length} users, ${tokens.length} total tokens`);
 
         // Save notification to database for each user
         if (saveToDb) {
@@ -164,14 +161,12 @@ export async function sendNotificationToUsers({ userIds, notification, data = {}
 
         // Clean up invalid tokens from database
         if (result.invalidTokens && result.invalidTokens.length > 0) {
-            console.log(`[FCM] Removing ${result.invalidTokens.length} invalid tokens from database`);
 
             await User.updateMany(
                 { _id: { $in: userIds } },
                 { $pull: { fcmTokens: { $in: result.invalidTokens } } }
             );
 
-            console.log(`[FCM] Stale tokens cleaned up successfully`);
         }
 
         return result;

@@ -14,7 +14,6 @@ async function notifyAdmins(action, entry, actor) {
     try {
         const admins = await User.find({ role: "admin" }).select("_id");
         const adminIds = admins.map(a => a._id.toString());
-        console.log(`[NotifyAdmins] Found ${adminIds.length} admins to notify for ${action}`);
 
         if (adminIds.length > 0) {
             await sendNotificationToUsers({
