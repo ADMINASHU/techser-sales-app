@@ -79,12 +79,10 @@ export default function KnockClientProvider({ children }) {
     }
 
     // Render children inside the providers
-    // The key prop on KnockProvider forces remount when userId changes
     return (
-        <KnockProvider apiKey={apiKey} userId={userId} key={userId}>
+        <KnockProvider apiKey={apiKey} userId={userId}>
             <KnockFeedProvider feedId={feedId} colorMode="dark" theme={KNOCK_THEME}>
                 {children}
-                {/* <RealtimeNotificationListener /> */}
             </KnockFeedProvider>
         </KnockProvider>
     );
