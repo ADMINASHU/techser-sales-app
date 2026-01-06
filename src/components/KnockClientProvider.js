@@ -3,7 +3,7 @@
 import { KnockProvider, KnockFeedProvider, useKnockClient } from "@knocklabs/react";
 import { useSession } from "next-auth/react";
 import "@knocklabs/react/dist/index.css";
-import { useEffect, useRef, useMemo } from "react";
+import { useEffect, useRef, useMemo, useState } from "react";
 
 import { toast } from "sonner";
 
@@ -66,6 +66,12 @@ const feedId = process.env.NEXT_PUBLIC_KNOCK_FEED_ID;
 export default function KnockClientProvider({ children }) {
     const { data: session } = useSession();
     const userId = session?.user?.id;
+    const [isClient, setIsClient] = useState(false);
+
+    // Only initialize Knock on the client side
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
 
     if (!userId) {
         return <>{children}</>;
@@ -78,7 +84,12 @@ export default function KnockClientProvider({ children }) {
         return <>{children}</>;
     }
 
-    // Render children inside the providers
+    // Don't render Knock providers during SSR
+    if (!isClient) {
+        return <>{children}</>;
+    }
+
+    // Render children inside the providers (client-side only)
     return (
         <KnockProvider apiKey={apiKey} userId={userId}>
             <KnockFeedProvider feedId={feedId} colorMode="dark" theme={KNOCK_THEME}>

@@ -29,11 +29,13 @@ export default function NotificationFeed() {
                     <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-600" />
                 )}
             </Button>
-            <NotificationFeedPopover
-                buttonRef={notifButtonRef}
-                isVisible={isVisible}
-                onClose={() => setIsVisible(false)}
-            />
+            {isVisible && (
+                <NotificationFeedPopover
+                    buttonRef={notifButtonRef}
+                    isVisible={isVisible}
+                    onClose={() => setIsVisible(false)}
+                />
+            )}
         </>
     );
 }
