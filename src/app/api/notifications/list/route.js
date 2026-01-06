@@ -28,8 +28,15 @@ export async function GET(req) {
 
         const total = await Notification.countDocuments({ userId: session.user.id });
 
+        // Serialize _id to id for React key compatibility
+        const serializedNotifications = notifications.map(notif => ({
+            ...notif,
+            id: notif._id.toString(),
+            _id: undefined // Remove _id to avoid confusion
+        }));
+
         return NextResponse.json({
-            notifications,
+            notifications: serializedNotifications,
             total,
             hasMore: skip + limit < total
         });
