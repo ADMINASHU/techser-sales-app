@@ -29,7 +29,7 @@ export default function InfiniteEntryList({ initialEntries, searchParams, isAdmi
             if (!groups[dateKey]) groups[dateKey] = [];
             groups[dateKey].push(entry);
         });
-        
+
         return Object.entries(groups)
             .sort((a, b) => new Date(b[0]) - new Date(a[0]))
             .map(([date, groupEntries]) => ({
@@ -80,13 +80,13 @@ export default function InfiniteEntryList({ initialEntries, searchParams, isAdmi
     };
 
     return (
-        <div className="pb-20 h-full min-h-[500px]"> 
+        <div className="pb-20 h-full min-h-[500px]">
             {/* GRID VIEW (Virtualized Groups) */}
             <div className={`h-full ${view === 'list' ? 'lg:hidden' : ''}`}>
-                 {entries.length === 0 ? (
+                {entries.length === 0 ? (
                     <EmptyState />
-                 ) : (
-                     <Virtuoso
+                ) : (
+                    <Virtuoso
                         useWindowScroll
                         data={groupedEntries}
                         endReached={loadMore}
@@ -110,8 +110,8 @@ export default function InfiniteEntryList({ initialEntries, searchParams, isAdmi
                                 </div>
                             </div>
                         )}
-                     />
-                 )}
+                    />
+                )}
             </div>
 
             {/* LIST VIEW (Table / Virtuoso) - Desktop Only via CSS */}
@@ -141,7 +141,7 @@ export default function InfiniteEntryList({ initialEntries, searchParams, isAdmi
                             itemContent={(index, entry) => (
                                 <div className="border-b border-white/5 hover:bg-white/5 transition-colors min-w-[800px]">
                                     <div className="grid grid-cols-[1fr] w-full">
-                                         <table className="w-full text-left text-sm text-gray-400 table-fixed">
+                                        <table className="w-full text-left text-sm text-gray-400 table-fixed">
                                             <tbody>
                                                 <EntryTableRow
                                                     entry={entry}
@@ -157,9 +157,12 @@ export default function InfiniteEntryList({ initialEntries, searchParams, isAdmi
                     </div>
                 )}
             </div>
-            
+
             {!hasMore && entries.length > 0 && (
-                <p className="text-center text-xs text-gray-500 py-4">No more entries</p>
+                <div className="flex flex-col items-center justify-center py-8 opacity-50">
+                    <div className="w-12 h-1 bg-white/10 rounded-full mb-3" />
+                    <p className="text-xs font-medium text-gray-400 uppercase tracking-widest">No more entries</p>
+                </div>
             )}
         </div>
     );

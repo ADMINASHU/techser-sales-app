@@ -9,41 +9,38 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover";
 import NotificationDropdown from "./NotificationDropdown";
+import useSWR from "swr";
+
+const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function NotificationBell() {
-    const [unreadCount, setUnreadCount] = useState(0);
     const [isOpen, setIsOpen] = useState(false);
 
+    // useSWR handles polling (refreshInterval) and auto-revalidation on focus
+    const { data, mutate } = useSWR("/api/notifications/unread-count", fetcher, {
+        refreshInterval: 30000,
+        revalidateOnFocus: true,
+        fallbackData: { count: 0 }
+    });
+
+    const unreadCount = data?.count || 0;
+
     useEffect(() => {
-        // Listen for new notifications
+        // Listen for new notifications to trigger instant refresh
         const handleNewNotification = () => {
-            setUnreadCount(prev => prev + 1);
+            mutate();
         };
 
         window.addEventListener("fcm-notification", handleNewNotification);
 
-        // Fetch initial unread count
-        fetchUnreadCount();
-
         return () => {
             window.removeEventListener("fcm-notification", handleNewNotification);
         };
-    }, []);
-
-    const fetchUnreadCount = async () => {
-        try {
-            const response = await fetch("/api/notifications/unread-count");
-            if (response.ok) {
-                const data = await response.json();
-                setUnreadCount(data.count || 0);
-            }
-        } catch (error) {
-            console.error("Error fetching unread count:", error);
-        }
-    };
+    }, [mutate]);
 
     const handleMarkAllAsRead = () => {
-        setUnreadCount(0);
+        // Optimistically update or just trigger revalidate
+        mutate({ count: 0 }, false);
     };
 
     return (

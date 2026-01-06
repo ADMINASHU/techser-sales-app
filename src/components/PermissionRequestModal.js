@@ -14,28 +14,30 @@ export default function PermissionRequestModal({ open, onOpenChange, onSuccess }
     const [checking, setChecking] = useState(true);
 
     useEffect(() => {
+        const checkLocationPermission = async () => {
+            setChecking(true);
+            if ("geolocation" in navigator) {
+                try {
+                    const result = await navigator.permissions.query({ name: 'geolocation' });
+                    setLocationGranted(result.state === 'granted');
+
+                    result.onchange = () => {
+                        setLocationGranted(result.state === 'granted');
+                    };
+                } catch (e) {
+                    // Fallback for browsers that don't support permissions query
+                    setLocationGranted(false);
+                }
+            }
+            setChecking(false);
+        };
+
         if (open) {
             checkLocationPermission();
         }
     }, [open]);
 
-    const checkLocationPermission = async () => {
-        setChecking(true);
-        if ("geolocation" in navigator) {
-            try {
-                const result = await navigator.permissions.query({ name: 'geolocation' });
-                setLocationGranted(result.state === 'granted');
 
-                result.onchange = () => {
-                    setLocationGranted(result.state === 'granted');
-                };
-            } catch (e) {
-                // Fallback for browsers that don't support permissions query
-                setLocationGranted(false);
-            }
-        }
-        setChecking(false);
-    };
 
     const requestLocation = () => {
         if ("geolocation" in navigator) {

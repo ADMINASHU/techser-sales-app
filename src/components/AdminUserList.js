@@ -73,18 +73,18 @@ export default function AdminUserList({ initialData, locations = [] }) {
         } else {
             params.delete(key);
         }
-        
+
         // Reset sub-filter if Region changes
         if (key === "region") {
             params.delete("branch");
             setBranch("all");
         }
-        
+
         params.set("page", "1");
         router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     };
 
-    const loadMore = async () => {
+    const loadMore = useCallback(async () => {
         if (loading || !hasMore) return;
         setLoading(true);
         try {
@@ -107,13 +107,13 @@ export default function AdminUserList({ initialData, locations = [] }) {
         } finally {
             setLoading(false);
         }
-    };
+    }, [loading, hasMore, page, debouncedSearch, region, branch]);
 
     useEffect(() => {
         if (inView && hasMore && !loading) {
             loadMore();
         }
-    }, [inView, hasMore, loading]);
+    }, [inView, hasMore, loading, loadMore]);
 
 
     // Derived branches

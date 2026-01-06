@@ -68,7 +68,8 @@ export default function Navbar() {
                     <div className="sm:hidden absolute left-1/2 -translate-x-1/2 flex items-center h-16">
                         <span className="text-lg font-bold bg-linear-to-r from-white to-gray-400 bg-clip-text text-transparent truncate max-w-[180px]">
                             {links.find(l => l.href === pathname)?.label ||
-                                (pathname === "/profile" ? "Profile" : "")}
+                                (pathname === "/profile" ? "Profile" :
+                                    pathname.startsWith("/entries/") && pathname.split("/").length > 2 ? "Visit Details" : "")}
                         </span>
                     </div>
 

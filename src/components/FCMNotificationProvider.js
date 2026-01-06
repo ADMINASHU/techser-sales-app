@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { subscribeToPushNotifications, onForegroundMessage } from "@/lib/firebase";
 import { toast } from "sonner";
@@ -24,65 +24,14 @@ export default function FCMNotificationProvider({ children }) {
         // Initial permission check
         if (typeof window !== "undefined") {
             if (!("Notification" in window)) {
-                setIsSupported(false);
+                setIsSupported(false); // eslint-disable-line react-hooks/set-state-in-effect
                 return;
             }
             setPermission(Notification.permission);
         }
     }, []);
 
-    useEffect(() => {
-        // Only initialize listener if we have permission
-        if (status === "authenticated" && session?.user && permission === "granted" && !isSubscribed) {
-            setupForegroundListener();
-        }
-    }, [status, session, permission, isSubscribed]);
-
-    const setupForegroundListener = () => {
-        try {
-            // Set up foreground message listener
-            const unsubscribe = onForegroundMessage((payload) => {
-                handleForegroundMessage(payload);
-            });
-
-            setIsSubscribed(true);
-
-            // Cleanup on unmount
-            return () => {
-                if (typeof unsubscribe === "function") {
-                    unsubscribe();
-                }
-            };
-        } catch (error) {
-            console.error("[FCM] Listener setup error:", error);
-        }
-    }
-
-    const requestPermission = async () => {
-        try {
-            if (!isSupported) return;
-
-            const token = await subscribeToPushNotifications();
-            if (token) {
-                console.log("[FCM] Successfully registered for push notifications");
-                setPermission("granted");
-                return true;
-            } else {
-                // Check if it was denied
-                if (Notification.permission === "denied") {
-                    setPermission("denied");
-                }
-            }
-        } catch (error) {
-            console.error("[FCM] Token registration failed:", error);
-            if (Notification.permission === "denied") {
-                setPermission("denied");
-            }
-        }
-        return false;
-    };
-
-    const handleForegroundMessage = (payload) => {
+    const handleForegroundMessage = useCallback((payload) => {
         const { notification, data } = payload;
 
         if (notification) {
@@ -105,7 +54,63 @@ export default function FCMNotificationProvider({ children }) {
         window.dispatchEvent(new CustomEvent("fcm-notification", {
             detail: { notification, data }
         }));
-    };
+    }, []);
+
+    const setupForegroundListener = useCallback(() => {
+        try {
+            // Set up foreground message listener
+            const unsubscribe = onForegroundMessage((payload) => {
+                handleForegroundMessage(payload);
+            });
+
+            setIsSubscribed(true);
+
+            // Cleanup on unmount
+            return () => {
+                if (typeof unsubscribe === "function") {
+                    unsubscribe();
+                }
+            };
+        } catch (error) {
+            console.error("[FCM] Listener setup error:", error);
+        }
+    }, [handleForegroundMessage]);
+
+    const requestPermission = useCallback(async () => {
+        try {
+            if (!isSupported) return;
+
+            const token = await subscribeToPushNotifications();
+            if (token) {
+                console.log("[FCM] Successfully registered for push notifications");
+                setPermission("granted");
+                return true;
+            } else {
+                // Check if it was denied
+                if (Notification.permission === "denied") {
+                    setPermission("denied");
+                }
+            }
+        } catch (error) {
+            console.error("[FCM] Token registration failed:", error);
+            if (Notification.permission === "denied") {
+                setPermission("denied");
+            }
+        }
+        return false;
+    }, [isSupported]);
+
+    useEffect(() => {
+        // Only initialize listener if we have permission
+        if (status === "authenticated" && session?.user && permission === "granted") {
+            // Ensure token is synced with backend even if already granted (e.g. new login, cleared DB)
+            if (!isSubscribed) {
+                // eslint-disable-next-line react-hooks/set-state-in-effect
+                setupForegroundListener();
+                requestPermission(); // Sync token
+            }
+        }
+    }, [status, session, permission, isSubscribed, setupForegroundListener, requestPermission]);
 
     return (
         <NotificationContext.Provider value={{ permission, requestPermission, isSupported }}>

@@ -159,11 +159,10 @@ async function notifyAdmins(action, entry, actor) {
                 },
                 data: {
                     type: "entry-action",
-                    action,
-                    customerName: entry.customerName,
+                    action: String(action || ""),
+                    customerName: String(entry.customerName || ""),
                     entryId: entry._id.toString(),
-                    timestamp: new Date().toISOString(),
-                    location: entry.customerAddress,
+                    location: String(entry.customerAddress || ""),
                     link: `/entries/${entry._id}`
                 }
             });

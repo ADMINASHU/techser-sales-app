@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { CheckCheck, Loader2, Bell, BellRing, BellOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -12,6 +12,21 @@ export default function NotificationDropdown({ onMarkAllAsRead, onClose }) {
     const [loading, setLoading] = useState(true);
     const [markingAllRead, setMarkingAllRead] = useState(false);
     const { permission, requestPermission, isSupported } = useNotification();
+
+    const fetchNotifications = useCallback(async () => {
+        try {
+            setLoading(true);
+            const response = await fetch("/api/notifications/list");
+            if (response.ok) {
+                const data = await response.json();
+                setNotifications(data.notifications || []);
+            }
+        } catch (error) {
+            console.error("Error fetching notifications:", error);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
 
     useEffect(() => {
         fetchNotifications();
@@ -32,25 +47,17 @@ export default function NotificationDropdown({ onMarkAllAsRead, onClose }) {
 
         window.addEventListener("fcm-notification", handleNewNotification);
 
+        // Refetch on focus to sync read status/new items
+        const handleFocus = () => fetchNotifications();
+        window.addEventListener("focus", handleFocus);
+
         return () => {
             window.removeEventListener("fcm-notification", handleNewNotification);
+            window.removeEventListener("focus", handleFocus);
         };
-    }, []);
+    }, [fetchNotifications]);
 
-    const fetchNotifications = async () => {
-        try {
-            setLoading(true);
-            const response = await fetch("/api/notifications/list");
-            if (response.ok) {
-                const data = await response.json();
-                setNotifications(data.notifications || []);
-            }
-        } catch (error) {
-            console.error("Error fetching notifications:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
+
 
     const handleMarkAllRead = async () => {
         try {
@@ -129,35 +136,36 @@ export default function NotificationDropdown({ onMarkAllAsRead, onClose }) {
                             </p>
                         )}
                     </div>
-                </div>
-                <div className="flex items-center gap-2">
-                    {unreadCount > 0 && (
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={handleMarkAllRead}
-                            disabled={markingAllRead}
-                            className="text-violet-400 hover:text-violet-300 hover:bg-violet-500/10 h-8 text-xs"
-                        >
-                            {markingAllRead ? (
-                                <Loader2 className="h-3 w-3 animate-spin mr-1" />
-                            ) : (
-                                <CheckCheck className="h-3 w-3 mr-1" />
-                            )}
-                            Mark all read
-                        </Button>
-                    )}
-                    {notifications.length > 0 && (
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={handleClearAll}
-                            disabled={markingAllRead}
-                            className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-8 text-xs"
-                        >
-                            Clear All
-                        </Button>
-                    )}
+
+                    <div className="flex items-center gap-2">
+                        {unreadCount > 0 && (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={handleMarkAllRead}
+                                disabled={markingAllRead}
+                                className="text-violet-400 hover:text-violet-300 hover:bg-violet-500/10 h-8 text-xs"
+                            >
+                                {markingAllRead ? (
+                                    <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                                ) : (
+                                    <CheckCheck className="h-3 w-3 mr-1" />
+                                )}
+                                Mark all read
+                            </Button>
+                        )}
+                        {notifications.length > 0 && (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={handleClearAll}
+                                disabled={markingAllRead}
+                                className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-8 text-xs"
+                            >
+                                Clear All
+                            </Button>
+                        )}
+                    </div>
                 </div>
             </div>
 
@@ -207,7 +215,7 @@ export default function NotificationDropdown({ onMarkAllAsRead, onClose }) {
                             No notifications yet
                         </p>
                         <p className="text-xs text-gray-500 mt-1">
-                            You'll be notified of important updates here
+                            You&apos;ll be notified of important updates here
                         </p>
                     </div>
                 ) : (
