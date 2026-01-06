@@ -140,7 +140,12 @@ export async function customerStampOut(customerId, location) {
             return { error: "No active stamp-in found for this customer" };
         }
 
-        // No background tasks - Google Sheets integration removed
+        // Notify admins about stamp out
+        await notifyAdmins("Stamped Out", entry, {
+            id: session.user.id,
+            name: session.user.name,
+            email: session.user.email
+        });
 
         revalidatePath("/customer-log");
         revalidatePath("/entries");

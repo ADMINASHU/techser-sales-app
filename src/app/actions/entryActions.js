@@ -231,14 +231,19 @@ export async function stampOut(entryId, location) {
                 }
             },
             { new: true }
-        ); // Removed populate("userId") from critical path
+        ).populate("userId", "name email"); // Populate for notification
 
         if (!entry) {
             // console.log(`[StampOut] Entry ${entryId} already completed or not in process. Skipping.`);
             return { success: true };
         }
 
-        // No background tasks - Google Sheets integration removed
+        // Notify admins about stamp out
+        await notifyAdmins("Stamped Out", entry, {
+            id: session.user.id,
+            name: session.user.name,
+            email: session.user.email
+        });
 
         revalidatePath(`/entries`);
         // revalidatePath("/dashboard");
