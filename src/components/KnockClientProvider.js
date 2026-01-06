@@ -71,19 +71,17 @@ export default function KnockClientProvider({ children }) {
         return <>{children}</>;
     }
 
-    if (!apiKey || !feedId) {
+    if (!apiKey) {
         if (process.env.NODE_ENV === 'production') {
-            console.warn("Knock configuration incomplete. Skipping provider initialization.");
+            console.warn("Knock API key not found. Skipping provider initialization.");
         }
         return <>{children}</>;
     }
 
-    // Render children inside the providers
+    // Only render KnockProvider (for authentication), not KnockFeedProvider
     return (
         <KnockProvider apiKey={apiKey} userId={userId}>
-            <KnockFeedProvider feedId={feedId} colorMode="dark" theme={KNOCK_THEME}>
-                {children}
-            </KnockFeedProvider>
+            {children}
         </KnockProvider>
     );
 }
