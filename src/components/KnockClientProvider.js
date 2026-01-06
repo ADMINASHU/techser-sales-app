@@ -3,7 +3,7 @@
 import { KnockProvider, KnockFeedProvider, useKnockClient } from "@knocklabs/react";
 import { useSession } from "next-auth/react";
 import "@knocklabs/react/dist/index.css";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
 import { toast } from "sonner";
 
@@ -84,7 +84,7 @@ function KnockProviderContent({ children }) {
         return <>{children}</>;
     }
 
-    return (
+    return useMemo(() => (
         <KnockProvider
             apiKey={apiKey}
             userId={session.user.id}
@@ -95,10 +95,10 @@ function KnockProviderContent({ children }) {
                 theme={KNOCK_THEME}
             >
                 {children}
-                <RealtimeNotificationListener />
+                {/* <RealtimeNotificationListener /> */}
             </KnockFeedProvider>
         </KnockProvider>
-    );
+    ), [apiKey, feedId, session.user.id, children]);
 }
 
 export default function KnockClientProvider({ children }) {
