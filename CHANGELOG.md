@@ -2,6 +2,43 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0](https://github.com/ADMINASHU/techser-sales-app/compare/v1.5.1...v2.0.0) (2026-01-06)
+
+
+### ⚠ BREAKING CHANGES
+
+* Users must re-grant notification permissions and configure FCM environment variables
+
+### Features
+
+* Add clear all notifications feature ([8fd666f](https://github.com/ADMINASHU/techser-sales-app/commit/8fd666f51320f75f7145796ab6833f42f3c308ed))
+* add EntryMap component to visualize customer and stamp locations with distance calculations ([deccd00](https://github.com/ADMINASHU/techser-sales-app/commit/deccd0065d305b46de187993ccc72e0dd335e3f8))
+* add Knock client provider for real-time and push notification management ([2e5e234](https://github.com/ADMINASHU/techser-sales-app/commit/2e5e2343b6a3cdae32804d78e9f7e46e6e4ef1fd))
+* Add Knock client provider to enable in-app and push notifications. ([dc9f605](https://github.com/ADMINASHU/techser-sales-app/commit/dc9f605a5b9d0bce1960931a2b72fb38f4b43675))
+* Add Knock notification provider with push notification management and real-time listening. ([06e2f35](https://github.com/ADMINASHU/techser-sales-app/commit/06e2f35af49279ca2b5c143c50c34ac0317fce8e))
+* Add KnockClientProvider for integrating Knock notification services, including push notification registration and realtime listening. ([7d90cb0](https://github.com/ADMINASHU/techser-sales-app/commit/7d90cb05e1981a1fb08857687985e4bcb4c76b75))
+* Add KnockClientProvider to initialize Knock notification services and register push notifications. ([29c13c4](https://github.com/ADMINASHU/techser-sales-app/commit/29c13c4be579ad05b0f537a6cc73e7516736fb70))
+* add protected layout with authentication and profile setup checks ([3fa952b](https://github.com/ADMINASHU/techser-sales-app/commit/3fa952b03dbc5e5bc35493180ae0da1c381018d9))
+* complete notification system migration and entry UI refinement ([6ac9fb1](https://github.com/ADMINASHU/techser-sales-app/commit/6ac9fb10ba6c3df945623eaa6b5522eed30b14d9))
+* Enforce permissions for stamping actions ([ae1d5bd](https://github.com/ADMINASHU/techser-sales-app/commit/ae1d5bda78a19fafa47a1bd32d54c2a578a99b60))
+* integrate Knock for real-time notifications, including push notification registration and a listener for user account and role updates. ([4b7bdf7](https://github.com/ADMINASHU/techser-sales-app/commit/4b7bdf7e661ca1597ba46784138138401435419a))
+* Introduce KnockClientProvider to set up real-time and push notification services. ([562676b](https://github.com/ADMINASHU/techser-sales-app/commit/562676b85600b9926c6d2b959d91b58d503d185a))
+* Replace Knock notifications with FCM push notifications ([b56019a](https://github.com/ADMINASHU/techser-sales-app/commit/b56019a4d80605d32bdaec4834fa2025f86017fb))
+* Send FCM notification to admins on stamp out with entry link ([647dcf1](https://github.com/ADMINASHU/techser-sales-app/commit/647dcf17b9bc223be77391e95a857524af36a8bc))
+
+
+### Bug Fixes
+
+* Add missing Bell icon import to NotificationDropdown ([cc24ebd](https://github.com/ADMINASHU/techser-sales-app/commit/cc24ebde800dba5ab185837ec6ee448973f5c8fc))
+* move KnockFeedProvider to component level to prevent WebSocket loop ([816a1c5](https://github.com/ADMINASHU/techser-sales-app/commit/816a1c50c4e9bd5122454886186b5fed0d79b9d2))
+* only render NotificationFeedPopover when visible to prevent WebSocket loop ([4055a61](https://github.com/ADMINASHU/techser-sales-app/commit/4055a614ccde153e3e8e59f23b88a615107f5051))
+* remove isClient check to fix useKnockFeed context error ([266ea6a](https://github.com/ADMINASHU/techser-sales-app/commit/266ea6a62f99773ef5e9e81bdbccc1ad3b0c48f4))
+* remove useKnockFeed from NotificationFeed to prevent WebSocket loop ([ecaa45b](https://github.com/ADMINASHU/techser-sales-app/commit/ecaa45be0674116410fdb0caafb3425f60370e25))
+* Replace Knock imports with FCM in server actions ([3f72796](https://github.com/ADMINASHU/techser-sales-app/commit/3f727967fb10d57ffeb8c5a1c421e75f5db89384))
+* revert to v1.0.0 Knock implementation ([32551c4](https://github.com/ADMINASHU/techser-sales-app/commit/32551c48b63cd20d2c3b1a8cf50d1a4ab17ff318))
+* revert to v1.3.0 Knock implementation that was working ([10950a7](https://github.com/ADMINASHU/techser-sales-app/commit/10950a7e7bc1fab36f0bac2dcb90e0540d7fb598))
+* Serialize notification _id to id for React key compatibility ([0f184c8](https://github.com/ADMINASHU/techser-sales-app/commit/0f184c8add96827ce2b8e2853a93f22584df054e))
+
 ### [1.5.1](https://github.com/ADMINASHU/techser-sales-app/compare/v1.5.0...v1.5.1) (2026-01-03)
 
 
