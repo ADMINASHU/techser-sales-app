@@ -3,7 +3,7 @@
 import { KnockProvider, KnockFeedProvider, useKnockClient } from "@knocklabs/react";
 import { useSession } from "next-auth/react";
 import "@knocklabs/react/dist/index.css";
-import { useEffect, useMemo } from "react";
+import { useEffect, memo } from "react";
 
 import { toast } from "sonner";
 
@@ -15,27 +15,25 @@ function PushNotificationManager() {
             try {
                 const channelId = process.env.NEXT_PUBLIC_KNOCK_PUSH_CHANNEL_ID;
                 if (!channelId) {
-                    console.warn("Knock Push Channel ID not found");
+                    if (process.env.NODE_ENV === 'production') {
+                        console.warn("Knock Push Channel ID not found");
+                    }
                     return;
                 }
 
-                // console.log("Requesting notification permission...");
                 const permission = await Notification.requestPermission();
                 if (permission !== "granted") {
-                    console.warn("Notification permission denied");
+                    if (process.env.NODE_ENV === 'production') {
+                        console.warn("Notification permission denied");
+                    }
                     toast.error("Notification permission denied. Enable them in browser settings.");
                     return;
                 }
 
-                // console.log("Permission granted. Registering service worker...");
                 const registration = await navigator.serviceWorker.register("/service-worker.js");
-                // console.log("Service Worker registered:", registration);
 
                 if (knock?.push) {
-                    // console.log("Registering push with Knock channel:", channelId);
-                    await knock.push.register(channelId); // Check if this requires specific options
-                    // console.log("Knock Push Registered Successfully");
-                    // toast.success("Push Notifications Enabled!"); // Too noisy for every login
+                    await knock.push.register(channelId);
                 }
             } catch (e) {
                 console.error("Failed to register push:", e);
@@ -62,32 +60,27 @@ const KNOCK_THEME = {
     }
 };
 
-function KnockProviderContent({ children }) {
-    const { data: session } = useSession();
-    
-    console.log("[KnockProviderContent] Render", { 
-        hasSession: !!session, 
-        userId: session?.user?.id,
-        timestamp: Date.now() 
-    });
+const apiKey = process.env.NEXT_PUBLIC_KNOCK_PUBLIC_API_KEY;
+const feedId = process.env.NEXT_PUBLIC_KNOCK_FEED_ID;
 
-    if (!session?.user?.id) {
+// Memoized component that only re-renders when userId changes
+const KnockProviderContent = memo(function KnockProviderContent({ userId, children }) {
+    if (!userId) {
         return <>{children}</>;
     }
-
-    const apiKey = process.env.NEXT_PUBLIC_KNOCK_PUBLIC_API_KEY;
-    const feedId = process.env.NEXT_PUBLIC_KNOCK_FEED_ID;
 
     // Only render providers if we have the required configuration
     if (!apiKey || !feedId) {
-        console.warn("Knock configuration incomplete. Skipping provider initialization.");
+        if (process.env.NODE_ENV === 'production') {
+            console.warn("Knock configuration incomplete. Skipping provider initialization.");
+        }
         return <>{children}</>;
     }
 
-    return useMemo(() => (
+    return (
         <KnockProvider
             apiKey={apiKey}
-            userId={session.user.id}
+            userId={userId}
         >
             <KnockFeedProvider
                 feedId={feedId}
@@ -95,12 +88,17 @@ function KnockProviderContent({ children }) {
                 theme={KNOCK_THEME}
             >
                 {children}
-                {/* <RealtimeNotificationListener /> */}
+                <RealtimeNotificationListener />
             </KnockFeedProvider>
         </KnockProvider>
-    ), [apiKey, feedId, session.user.id, children]);
-}
+    );
+}, (prevProps, nextProps) => {
+    // Only re-render if userId changes
+    return prevProps.userId === nextProps.userId;
+});
 
 export default function KnockClientProvider({ children }) {
-    return <KnockProviderContent>{children}</KnockProviderContent>;
+    const { data: session } = useSession();
+    
+    return <KnockProviderContent userId={session?.user?.id}>{children}</KnockProviderContent>;
 }
