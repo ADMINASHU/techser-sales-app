@@ -20,7 +20,7 @@ import AdminUserRow from "./AdminUserRow";
 import AdminUserCard from "./AdminUserCard";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-export default function AdminUserList({ initialData, locations = [] }) {
+export default function AdminUserList({ initialData, locations = [], currentUserRegion }) {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
@@ -33,7 +33,7 @@ export default function AdminUserList({ initialData, locations = [] }) {
 
     // Filters
     const [search, setSearch] = useState(searchParams.get("search") || "");
-    const [region, setRegion] = useState(searchParams.get("region") || "all");
+    const [region, setRegion] = useState(searchParams.get("region") || currentUserRegion || "all");
     const [branch, setBranch] = useState(searchParams.get("branch") || "all");
 
     // Debounce
@@ -152,9 +152,13 @@ export default function AdminUserList({ initialData, locations = [] }) {
                                 size="sm"
                                 onClick={() => {
                                     setSearch("");
-                                    setRegion("all");
+                                    setRegion(currentUserRegion || "all");
                                     setBranch("all");
-                                    router.push(pathname); // Reset URL completely
+                                    const params = new URLSearchParams();
+                                    if (currentUserRegion) {
+                                        params.set("region", currentUserRegion);
+                                    }
+                                    router.push(`${pathname}?${params.toString()}`); // Reset to admin's region
                                 }}
                                 className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-8 text-xs font-medium"
                             >
