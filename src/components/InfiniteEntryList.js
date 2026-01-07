@@ -3,13 +3,12 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import EntryCard from "@/components/EntryCard";
-import EntryTableRow from "@/components/EntryTableRow";
 import { fetchEntries } from "@/app/actions/entryActions";
 import { Loader2 } from "lucide-react";
 import { Virtuoso } from "react-virtuoso";
 import { format, isToday, isYesterday } from "date-fns";
 
-export default function InfiniteEntryList({ initialEntries, searchParams, isAdmin, view = "grid" }) {
+export default function InfiniteEntryList({ initialEntries, searchParams, isAdmin }) {
     const [entries, setEntries] = useState(initialEntries);
     const [hasMore, setHasMore] = useState(true);
     const [loading, setLoading] = useState(false);
@@ -80,8 +79,8 @@ export default function InfiniteEntryList({ initialEntries, searchParams, isAdmi
 
     return (
         <div className="pb-20 h-full min-h-[500px]">
-            {/* GRID VIEW (Virtualized Groups) */}
-            <div className={`h-full ${view === 'list' ? 'lg:hidden' : ''}`}>
+            {/* Entry List (Grid View) */}
+            <div className="h-full">
                 {entries.length === 0 ? (
                     <EmptyState />
                 ) : (
@@ -110,50 +109,6 @@ export default function InfiniteEntryList({ initialEntries, searchParams, isAdmi
                             </div>
                         )}
                     />
-                )}
-            </div>
-
-            {/* LIST VIEW (Table / Virtuoso) - Desktop Only via CSS */}
-            <div className={`hidden lg:${view === 'list' ? 'block' : 'hidden'} h-full rounded-xl overflow-hidden glass-panel border border-white/5 shadow-2xl`}>
-                {entries.length === 0 ? (
-                    <EmptyState />
-                ) : (
-                    <div className="w-full overflow-x-auto bg-white/5">
-                        <div className="flex bg-white/5 text-gray-200 uppercase tracking-wider font-semibold border-b border-white/5 text-sm min-w-[800px]">
-                            <div className="px-6 py-4 w-16 shrink-0">#</div>
-                            <div className="px-6 py-4 w-40 shrink-0">Date</div>
-                            <div className="px-6 py-4 w-40 shrink-0">Timings</div>
-                            {isAdmin && <div className="px-6 py-4 w-40 shrink-0">Visited By</div>}
-                            <div className="px-6 py-4 w-48 shrink-0">Status / Duration</div>
-                            {isAdmin && <div className="px-6 py-4 w-40 shrink-0">Region / Branch</div>}
-                            <div className="px-6 py-4 flex-1 min-w-[200px]">Customer</div>
-                            {!isAdmin && <div className="px-6 py-4 w-24 text-right shrink-0">Actions</div>}
-                        </div>
-
-                        <Virtuoso
-                            useWindowScroll
-                            data={entries}
-                            endReached={loadMore}
-                            components={{
-                                Footer: Footer
-                            }}
-                            itemContent={(index, entry) => (
-                                <div className="border-b border-white/5 hover:bg-white/5 transition-colors min-w-[800px]">
-                                    <div className="grid grid-cols-[1fr] w-full">
-                                        <table className="w-full text-left text-sm text-gray-400 table-fixed">
-                                            <tbody>
-                                                <EntryTableRow
-                                                    entry={entry}
-                                                    isAdmin={isAdmin}
-                                                    serialNumber={index + 1}
-                                                />
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            )}
-                        />
-                    </div>
                 )}
             </div>
 

@@ -128,31 +128,6 @@ export async function updateAvatar(base64Image) {
     }
 }
 
-export async function updateViewPreference(view) {
-    try {
-        const session = await auth();
-        if (!session) {
-            throw new Error("Unauthorized");
-        }
-
-        if (!["grid", "list"].includes(view)) {
-            throw new Error("Invalid view preference");
-        }
-
-        await dbConnect();
-
-        await User.findByIdAndUpdate(session.user.id, {
-            viewPreference: view,
-        });
-
-        revalidatePath("/entries");
-        revalidatePath("/settings");
-
-        return { success: true };
-    } catch (error) {
-        return { success: false, error: error.message };
-    }
-}
 
 export async function getCurrentUser() {
     const session = await auth();

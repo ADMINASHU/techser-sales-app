@@ -61,7 +61,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                         status: user.status,
                         region: user.region,
                         branch: user.branch,
-                        viewPreference: user.viewPreference,
                         contactNumber: user.contactNumber,
                         address: user.address,
                     };
@@ -79,7 +78,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 // console.log("[Auth] JWT Update Triggered:", session);
                 if (session.status) token.status = session.status;
                 if (session.role) token.role = session.role;
-                if (session.viewPreference) token.viewPreference = session.viewPreference;             
                 // Add Region and Branch updates
                 if (session.region) token.region = session.region;
                 if (session.branch) token.branch = session.branch;
@@ -87,7 +85,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 if (session.address) token.address = session.address;
 
                 if (session.image) {
-                     // If session update provides a new image (e.g. after upload), use it or the URL
+                    // If session update provides a new image (e.g. after upload), use it or the URL
                     token.image = session.image.startsWith("data:image")
                         ? `/api/user/image?v=${Date.now()}`
                         : session.image;
@@ -123,7 +121,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                         token.status = dbUser.status;
                         token.region = dbUser.region;
                         token.branch = dbUser.branch;
-                        token.viewPreference = dbUser.viewPreference;
                         token.contactNumber = dbUser.contactNumber;
                         token.address = dbUser.address;
 
@@ -139,7 +136,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     token.status = user.status;
                     token.region = user.region;
                     token.branch = user.branch;
-                    token.viewPreference = user.viewPreference;
                     token.contactNumber = user.contactNumber;
                     token.address = user.address;
                     token.image = user.image; // Already set to URL in authorize()
@@ -148,13 +144,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 // If not signing in (subsequent requests), fetch fresh data from DB to ensure role/status is up-to-date
                 try {
                     await dbConnect();
-                    const dbUser = await User.findById(token.id).select("role status region branch viewPreference contactNumber address image");
+                    const dbUser = await User.findById(token.id).select("role status region branch contactNumber address image");
                     if (dbUser) {
                         token.role = dbUser.role;
                         token.status = dbUser.status;
                         token.region = dbUser.region;
                         token.branch = dbUser.branch;
-                        token.viewPreference = dbUser.viewPreference;
                         token.contactNumber = dbUser.contactNumber;
                         token.address = dbUser.address;
                         // Keep existing image URL logic if possible, or just trust the session one unless explicitly needed
@@ -175,7 +170,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 session.user.status = token.status;
                 session.user.region = token.region;
                 session.user.branch = token.branch;
-                session.user.viewPreference = token.viewPreference;
                 session.user.contactNumber = token.contactNumber;
                 session.user.address = token.address;
                 session.user.image = token.image;

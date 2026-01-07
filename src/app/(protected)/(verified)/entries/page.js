@@ -2,7 +2,6 @@ import { Suspense } from "react";
 import { auth } from "@/auth";
 import { getFilters } from "@/app/actions/reportActions";
 import EntryFilters from "@/components/EntryFilters";
-import ViewToggle from "@/components/ViewToggle";
 import EntryListContainer from "@/components/EntryListContainer";
 import EntriesSkeleton from "@/components/skeletons/EntriesSkeleton";
 
@@ -13,7 +12,6 @@ export default async function EntriesPage({ searchParams }) {
     const filtersData = await getFilters();
 
     const params = await searchParams;
-    const view = params.view || session?.user?.viewPreference || "grid";
     const isAdmin = session.user.role === "admin";
 
     return (
@@ -32,19 +30,13 @@ export default async function EntriesPage({ searchParams }) {
                         defaultRegion={isAdmin ? session.user.region : undefined}
                     />
                 </Suspense>
-
-                {/* View Toggle - Aligned Right */}
-                <div className="hidden md:flex justify-end">
-                    <ViewToggle />
-                </div>
             </div>
 
             {/* Streamed Entry List */}
-            <Suspense fallback={<EntriesSkeleton view={view} />}>
-                <EntryListContainer 
-                    searchParams={params} 
-                    session={session} 
-                    view={view} 
+            <Suspense fallback={<EntriesSkeleton />}>
+                <EntryListContainer
+                    searchParams={params}
+                    session={session}
                 />
             </Suspense>
         </div>

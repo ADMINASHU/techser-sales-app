@@ -2,12 +2,12 @@ import dbConnect from "@/lib/db";
 import Entry from "@/models/Entry";
 import InfiniteEntryList from "@/components/InfiniteEntryList";
 
-export default async function EntryListContainer({ searchParams, session, view }) {
+export default async function EntryListContainer({ searchParams, session }) {
     await dbConnect();
 
     const params = await searchParams;
     const page = parseInt(params.page) || 1;
-    
+
     // Reduced from 18 to 12 for better mobile performance
     // Users can scroll to load more via infinite scroll
     const limit = 12;
@@ -92,7 +92,6 @@ export default async function EntryListContainer({ searchParams, session, view }
             initialEntries={serializedEntries}
             searchParams={params}
             isAdmin={isAdmin}
-            view={view}
         />
     );
 }

@@ -45,11 +45,6 @@ const UserSchema = new mongoose.Schema(
             type: [String], // Array to support multiple devices
             default: [],
         },
-        viewPreference: {
-            type: String,
-            enum: ["grid", "list"],
-            default: "grid",
-        },
     },
     { timestamps: true }
 );
