@@ -17,7 +17,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { clsx } from "clsx";
-import { ModeToggle } from "@/components/ModeToggle";
 import NotificationBell from "@/components/NotificationBell";
 
 export default function Navbar() {

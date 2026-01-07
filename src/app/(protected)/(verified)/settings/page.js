@@ -2,7 +2,6 @@ import { auth } from "@/auth";
 import { getLocations } from "@/app/actions/settingsActions";
 import LocationManager from "@/components/LocationManager";
 import { redirect } from "next/navigation";
-import ViewPreferenceToggle from "@/components/ViewPreferenceToggle";
 
 export const dynamic = 'force-dynamic';
 
@@ -39,16 +38,6 @@ export default async function SettingsPage() {
                     <LocationManager initialLocations={locations} />
                 </div>
 
-                <div className="pt-6 border-t border-white/10">
-                    <h2 className="text-xl font-semibold mb-4">App Preferences</h2>
-                    <div className="glass-panel p-6 rounded-xl flex items-center justify-between">
-                        <div>
-                            <h3 className="text-lg font-medium text-white">Default View</h3>
-                            <p className="text-sm text-gray-400">Choose how you want to see lists by default.</p>
-                        </div>
-                        <ViewPreferenceToggle />
-                    </div>
-                </div>
             </div>
         </div>
     );

@@ -3,7 +3,6 @@
 import { auth } from "@/auth";
 import dbConnect from "@/lib/db";
 import Location from "@/models/Location";
-import SystemSetting from "@/models/SystemSetting";
 import { revalidatePath } from "next/cache";
 
 async function checkAdmin() {
@@ -37,7 +36,7 @@ export async function addRegion(name) {
         revalidatePath("/admin/dashboard");
         return { success: true };
     } catch (error) {
-         if (error.code === 11000) return { error: "Region already exists" };
+        if (error.code === 11000) return { error: "Region already exists" };
         return { error: "Failed to add region" };
     }
 }
@@ -65,7 +64,7 @@ export async function addBranch(regionId, branchName) {
         await Location.findByIdAndUpdate(regionId, {
             $addToSet: { branches: branchName.trim() }
         });
-        
+
         revalidatePath("/admin/settings");
         revalidatePath("/admin/dashboard");
         return { success: true };
@@ -82,7 +81,7 @@ export async function removeBranch(regionId, branchName) {
         await Location.findByIdAndUpdate(regionId, {
             $pull: { branches: branchName }
         });
-        
+
         revalidatePath("/admin/settings");
         revalidatePath("/admin/dashboard");
         return { success: true };
