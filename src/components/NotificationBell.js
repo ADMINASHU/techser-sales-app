@@ -26,11 +26,8 @@ export default function NotificationBell() {
 
     const unreadCount = data?.count || 0;
 
-    // Detect client-side mounting to prevent hydration mismatch
-    // This is a valid pattern for client-only state initialization
     useEffect(() => {
         setMounted(true);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -51,7 +48,6 @@ export default function NotificationBell() {
         mutate({ count: 0 }, false);
     };
 
-    // Don't render Radix UI components until mounted on client
     if (!mounted) {
         return (
             <Button

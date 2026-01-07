@@ -32,43 +32,44 @@ export default function EntryFilters({ users = [], locations = [], isAdmin, show
         ? Array.from(new Set(locations.flatMap(l => l.branches))).sort()
         : (locations.find(l => l.name === selectedRegion)?.branches.sort() || []);
 
-    // Reset branch if region changes
-
 
     // Update URL when filters change
-    useEffect(() => {
+    // Helper to update URL
+    const updateUrl = (updates) => {
         const params = new URLSearchParams(searchParams);
-        let hasChanges = false;
-
-        const updateParam = (key, value) => {
-            const current = params.get(key);
+        Object.entries(updates).forEach(([key, value]) => {
             if (value !== "all" && value !== "") {
-                if (current !== value) {
-                    params.set(key, value);
-                    hasChanges = true;
-                }
+                params.set(key, value);
             } else {
-                if (params.has(key)) {
-                    params.delete(key);
-                    hasChanges = true;
-                }
+                params.delete(key);
             }
-        };
+        });
+        params.set("page", "1");
+        router.push(`${pathname}?${params.toString()}`);
+    };
 
-        updateParam("user", selectedUser);
-        updateParam("region", selectedRegion);
-        updateParam("branch", selectedBranch);
-        updateParam("status", selectedStatus);
-        updateParam("month", selectedMonth);
-        updateParam("year", selectedYear);
-        updateParam("search", debouncedSearch);
+    // Handlers for direct updates
+    const handleUserChange = (val) => { setSelectedUser(val); updateUrl({ user: val }); };
+    const handleRegionChange = (val) => { setSelectedRegion(val); setSelectedBranch("all"); updateUrl({ region: val, branch: "all" }); };
+    const handleBranchChange = (val) => { setSelectedBranch(val); updateUrl({ branch: val }); };
+    const handleStatusChange = (val) => { setSelectedStatus(val); updateUrl({ status: val }); };
+    const handleMonthChange = (val) => { setSelectedMonth(val); updateUrl({ month: val }); };
+    const handleYearChange = (val) => { setSelectedYear(val); updateUrl({ year: val }); };
 
-        // Only push if params actually changed
-        if (hasChanges) {
+    // Search effect (debounced)
+    useEffect(() => {
+        const currentSearch = searchParams.get("search") || "";
+        if (debouncedSearch !== currentSearch) {
+            const params = new URLSearchParams(searchParams);
+            if (debouncedSearch) {
+                params.set("search", debouncedSearch);
+            } else {
+                params.delete("search");
+            }
             params.set("page", "1");
             router.push(`${pathname}?${params.toString()}`);
         }
-    }, [selectedUser, selectedRegion, selectedBranch, selectedStatus, selectedMonth, selectedYear, debouncedSearch, router, pathname, searchParams]);
+    }, [debouncedSearch, router, pathname, searchParams]);
 
     const clearFilters = () => {
         setSelectedUser("all");
@@ -78,6 +79,7 @@ export default function EntryFilters({ users = [], locations = [], isAdmin, show
         setSelectedMonth("all");
         setSelectedYear("all");
         setSearch("");
+        router.push(pathname); // Clear all params
     };
 
     const months = [
@@ -89,8 +91,6 @@ export default function EntryFilters({ users = [], locations = [], isAdmin, show
 
     const statuses = ["In Process", "Completed"];
     const years = ["2025", "2026", "2027", "2028", "2029", "2030"];
-
-
 
     const [mounted, setMounted] = useState(false);
 
@@ -129,7 +129,7 @@ export default function EntryFilters({ users = [], locations = [], isAdmin, show
                         {showStatus && (
                             <div className="space-y-1.5">
                                 <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">Status</span>
-                                <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                                <Select value={selectedStatus} onValueChange={handleStatusChange}>
                                     <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
                                         <SelectValue placeholder="Status" />
                                     </SelectTrigger>
@@ -148,7 +148,7 @@ export default function EntryFilters({ users = [], locations = [], isAdmin, show
                             <>
                                 <div className="space-y-1.5">
                                     <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">Account</span>
-                                    <Select value={selectedUser} onValueChange={setSelectedUser}>
+                                    <Select value={selectedUser} onValueChange={handleUserChange}>
                                         <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
                                             <SelectValue placeholder="User" />
                                         </SelectTrigger>
@@ -163,10 +163,7 @@ export default function EntryFilters({ users = [], locations = [], isAdmin, show
 
                                 <div className="space-y-1.5">
                                     <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">Region</span>
-                                    <Select value={selectedRegion} onValueChange={(val) => {
-                                        setSelectedRegion(val);
-                                        setSelectedBranch("all");
-                                    }}>
+                                    <Select value={selectedRegion} onValueChange={handleRegionChange}>
                                         <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
                                             <SelectValue placeholder="Region" />
                                         </SelectTrigger>
@@ -183,7 +180,7 @@ export default function EntryFilters({ users = [], locations = [], isAdmin, show
 
                                 <div className="space-y-1.5">
                                     <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">Branch</span>
-                                    <Select value={selectedBranch} onValueChange={setSelectedBranch}>
+                                    <Select value={selectedBranch} onValueChange={handleBranchChange}>
                                         <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
                                             <SelectValue placeholder="Branch" />
                                         </SelectTrigger>
@@ -203,7 +200,7 @@ export default function EntryFilters({ users = [], locations = [], isAdmin, show
                         {/* Month */}
                         <div className="space-y-1.5">
                             <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">Month</span>
-                            <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                            <Select value={selectedMonth} onValueChange={handleMonthChange}>
                                 <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
                                     <SelectValue placeholder="Month" />
                                 </SelectTrigger>
@@ -219,7 +216,7 @@ export default function EntryFilters({ users = [], locations = [], isAdmin, show
                         {/* Year */}
                         <div className="space-y-1.5">
                             <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">Year</span>
-                            <Select value={selectedYear} onValueChange={setSelectedYear}>
+                            <Select value={selectedYear} onValueChange={handleYearChange}>
                                 <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
                                     <SelectValue placeholder="Year" />
                                 </SelectTrigger>
