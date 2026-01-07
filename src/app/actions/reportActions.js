@@ -5,6 +5,7 @@ import dbConnect from "@/lib/db";
 import Entry from "@/models/Entry";
 import User from "@/models/User";
 import Location from "@/models/Location";
+import "@/models/Customer"; // Register Customer model
 import { formatInIST } from "@/lib/utils";
 
 // Helper: Calculate distance between two coordinates in km (Haversine formula)
@@ -152,7 +153,7 @@ const getCachedSystemStats = unstable_cache(
     async () => {
         // ... (data fetching logic)
         await dbConnect();
-        
+
         const [totalAdmins, verifiedAdmins, totalUsers, verifiedUsers, locations] = await Promise.all([
             User.countDocuments({ role: "admin" }),
             User.countDocuments({ role: "admin", status: "verified" }),
@@ -178,7 +179,7 @@ const getCachedSystemStats = unstable_cache(
 export async function getSystemStats() {
     const session = await auth();
     if (!session || session.user.role !== "admin") {
-         throw new Error("Unauthorized");
+        throw new Error("Unauthorized");
     }
     return getCachedSystemStats();
 }

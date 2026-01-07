@@ -53,10 +53,4 @@ const UserSchema = new mongoose.Schema(
 UserSchema.index({ createdAt: -1 });
 UserSchema.index({ role: 1, region: 1 }); // Optimize admin lookup by region
 
-if (process.env.NODE_ENV === "development") {
-    if (mongoose.models.User) {
-        delete mongoose.models.User;
-    }
-}
-
 export default mongoose.models.User || mongoose.model("User", UserSchema);
