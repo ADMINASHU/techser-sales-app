@@ -8,10 +8,15 @@ import User from "@/models/User";
 import { revalidatePath } from "next/cache";
 import { sendNotificationToUsers } from "@/lib/fcmNotification";
 
+
 // Helper for notifications
 async function notifyAdmins(action, entry, actor) {
   try {
-    const admins = await User.find({ role: "admin" }).select("_id");
+    // Only notify admins in the same region as the entry
+    const admins = await User.find({
+      role: "admin",
+      region: entry.userRegion
+    }).select("_id");
     const adminIds = admins.map((a) => a._id.toString());
 
     if (adminIds.length > 0) {
@@ -22,19 +27,13 @@ async function notifyAdmins(action, entry, actor) {
           body: `${actor.name} ${action} for ${entry.customerName}`,
         },
         data: {
-          type: "entry-action",
-          action: String(action || ""),
-          customerName: String(entry.customerName || ""),
-          entryId: entry._id.toString(),
-          location: String(
-            entry.customerAddress || entry.stampIn?.location?.address || ""
-          ),
           link: `/entries/${entry._id}`,
         },
       });
     }
   } catch (error) {
     console.error("Failed to send notification:", error);
+
   }
 }
 

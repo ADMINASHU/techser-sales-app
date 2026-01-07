@@ -20,6 +20,11 @@ export default async function EntryDetailPage({ params, searchParams }) {
     const session = await auth();
     if (!session) redirect("/login");
 
+    // Only admins can access entry detail pages
+    if (session.user.role !== "admin") {
+        redirect("/entries");
+    }
+
     await dbConnect();
 
     // Validate ID
@@ -45,7 +50,6 @@ export default async function EntryDetailPage({ params, searchParams }) {
 
     const backLink = from === "dashboard" ? "/dashboard" : "/entries";
     const backText = from === "dashboard" ? "Back to Dashboard" : "Back to List";
-    const isAdmin = session.user.role === 'admin';
 
     // Fallback logic from Modal
     const displayLocation = entry.customerId?.location || entry.location;
@@ -127,9 +131,7 @@ export default async function EntryDetailPage({ params, searchParams }) {
                         </div>
                     </div>
 
-                    {/* Bottom Section */}
                     <div className="mt-8 pt-6 border-t border-white/5 space-y-4">
-                        {/* Timestamps */}
                         <div className="space-y-2 bg-white/5 p-4 rounded-xl border border-white/5">
                             <div className="flex justify-between items-center text-xs">
                                 <span className="text-gray-500 font-medium uppercase tracking-wider">Stamp In</span>

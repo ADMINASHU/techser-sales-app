@@ -153,7 +153,6 @@ export async function sendNotificationToUsers({ userIds, notification, data = {}
 
         // Send FCM notification
         if (tokens.length === 0) {
-            console.warn("[FCM] No FCM tokens found for specified users");
             return { success: true, successCount: 0, failureCount: 0, message: "No FCM tokens available" };
         }
 
@@ -171,7 +170,7 @@ export async function sendNotificationToUsers({ userIds, notification, data = {}
 
         return result;
     } catch (error) {
-        console.error("[FCM] Error sending notification to users:", error);
+     
         return { success: false, error: error.message };
     }
 }

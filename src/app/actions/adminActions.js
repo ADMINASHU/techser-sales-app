@@ -44,9 +44,7 @@ export async function verifyUser(userId) {
                 body: `Your account has been verified by ${adminSession.user.name || "Admin"}`
             },
             data: {
-                type: "user-verified",
-                adminName: adminSession.user.name || "Admin",
-                link: "/dashboard"
+                type: "user-verified"
             }
         });
 
@@ -72,8 +70,7 @@ export async function declineUser(userId) {
                 body: `Your account verification was declined by ${adminSession.user.name || "Admin"}`
             },
             data: {
-                type: "user-declined",
-                adminName: adminSession.user.name || "Admin"
+                type: "user-declined"
             }
         });
 
@@ -100,8 +97,7 @@ export async function deleteUser(userId) {
                 body: `Your account has been removed by ${adminSession.user.name || "Admin"}`
             },
             data: {
-                type: "user-deleted",
-                adminName: adminSession.user.name || "Admin"
+                type: "user-deleted"
             }
         });
 
@@ -134,16 +130,13 @@ export async function updateUserRole(userId, newRole) {
                 body: `Your role has been updated to ${newRole} by ${adminSession.user.name || "Admin"}`
             },
             data: {
-                type: "user-role-updated",
-                newRole: newRole,
-                adminName: adminSession.user.name || "Admin",
-                link: "/dashboard"
+                type: "user-role-updated"
             }
         });
 
         return { success: true };
     } catch (error) {
-        console.error("Update Role Error", error);
+
         return { error: "Failed to update role" };
     }
 }

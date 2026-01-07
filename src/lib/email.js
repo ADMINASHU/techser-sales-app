@@ -14,11 +14,6 @@ const transporter = nodemailer.createTransport({
 
 export async function sendEmail({ to, subject, html }) {
     if (!process.env.EMAIL_SERVER_HOST) {
-        // console.log("--------------------------------");
-        // console.log(`[MOCK EMAIL] To: ${to}`);
-        // console.log(`Subject: ${subject}`);
-        // console.log("Body:", html);
-        // console.log("--------------------------------");
         return { success: true };
     }
 
@@ -31,7 +26,6 @@ export async function sendEmail({ to, subject, html }) {
         });
         return { success: true };
     } catch (error) {
-        console.error("Email Error:", error);
         return { error: "Failed to send email" };
     }
 }
