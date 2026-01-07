@@ -144,6 +144,27 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     token.address = user.address;
                     token.image = user.image; // Already set to URL in authorize()
                 }
+            } else if (token.id) {
+                // If not signing in (subsequent requests), fetch fresh data from DB to ensure role/status is up-to-date
+                try {
+                    await dbConnect();
+                    const dbUser = await User.findById(token.id).select("role status region branch viewPreference contactNumber address image");
+                    if (dbUser) {
+                        token.role = dbUser.role;
+                        token.status = dbUser.status;
+                        token.region = dbUser.region;
+                        token.branch = dbUser.branch;
+                        token.viewPreference = dbUser.viewPreference;
+                        token.contactNumber = dbUser.contactNumber;
+                        token.address = dbUser.address;
+                        // Keep existing image URL logic if possible, or just trust the session one unless explicitly needed
+                        // For simplicity and perf, we might skip image re-fetch here if it's heavy, 
+                        // but role/status are critical.
+                        // If image change is needed, we usually rely on triggers or page refresh.
+                    }
+                } catch (error) {
+                    // console.error("Error refreshing token data:", error);
+                }
             }
             return token;
         },

@@ -110,9 +110,9 @@ export default function ProfileSetupPage() {
             await update({
                 region,
                 branch,
-                status: "pending" // Should still be pending until verification? Or whatever userActions sets.
-                // Assuming status doesn't change implicitly here unless userActions changes it. 
-                // But region/branch are critical.
+                contactNumber,
+                address,
+                status: "pending"
             });
             
             toast.success("Profile updated!");
@@ -206,9 +206,9 @@ export default function ProfileSetupPage() {
                         <Button
                             className="w-full h-12 bg-linear-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 text-white font-semibold rounded-xl shadow-lg shadow-blue-500/20 border-0 group disabled:opacity-50 disabled:cursor-not-allowed disabled:grayscale-[0.5]"
                             onClick={() => setStep(1)}
-                            disabled={!permissions.location || !permissions.notifications}
+                            disabled={!permissions.location}
                         >
-                            {!permissions.location || !permissions.notifications ? "Please Allow Permissions to Continue" : "Start Profile Setup"}
+                            Start Profile Setup
                             <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                         </Button>
                     </CardContent>

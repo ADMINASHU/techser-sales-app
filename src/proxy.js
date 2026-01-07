@@ -42,7 +42,15 @@ export function proxy(req) {
         );
     }
 
-    return NextResponse.next();
+    // Prepare response
+    const requestHeaders = new Headers(req.headers);
+    requestHeaders.set("x-invoke-path", pathname);
+
+    return NextResponse.next({
+        request: {
+            headers: requestHeaders,
+        },
+    });
 }
 
 export const config = {

@@ -30,7 +30,7 @@ export default function Navbar() {
     // This is a valid pattern for client-only state initialization
     useEffect(() => {
         setMounted(true);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+
     }, []);
 
     const isVerified = session?.user?.status === "verified" || session?.user?.role === "admin";

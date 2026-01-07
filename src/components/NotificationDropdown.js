@@ -172,7 +172,7 @@ export default function NotificationDropdown({ onMarkAllAsRead, onClose }) {
                                     ? "Please enable notifications in your browser settings to receive updates."
                                     : "Get real-time updates for important activities."}
                             </p>
-                            {permission !== "denied" && (
+                            {permission === "default" && (
                                 <Button
                                     size="sm"
                                     onClick={requestPermission}
