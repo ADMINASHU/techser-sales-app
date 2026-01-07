@@ -51,6 +51,7 @@ const UserSchema = new mongoose.Schema(
 
 // Add index for faster sorting by creation date
 UserSchema.index({ createdAt: -1 });
+UserSchema.index({ role: 1, region: 1 }); // Optimize admin lookup by region
 
 if (process.env.NODE_ENV === "development") {
     if (mongoose.models.User) {

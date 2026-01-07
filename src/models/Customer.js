@@ -36,6 +36,10 @@ const CustomerSchema = new mongoose.Schema(
             type: Boolean,
             default: true,
         },
+        entryCount: {
+            type: Number,
+            default: 0,
+        },
     },
     { timestamps: true }
 );
@@ -46,6 +50,7 @@ CustomerSchema.index({ region: 1, branch: 1 });
 CustomerSchema.index({ name: "text" });
 CustomerSchema.index({ location: "2dsphere" }); // Geospatial index for proximity queries
 CustomerSchema.index({ isActive: 1 }); // Index for active/inactive filtering
+CustomerSchema.index({ entryCount: -1 }); // Index for sorting by popularity
 
 // Handle model compilation error in development
 if (process.env.NODE_ENV !== "production" && mongoose.models.Customer) {

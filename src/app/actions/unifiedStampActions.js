@@ -60,7 +60,11 @@ export async function customerStampIn(customerId, location) {
     if (existingEntry)
       return { error: "Already stamped in for this customer today" };
 
-    // 4. Create new entry
+    // 4. Create new entry and Increment Customer Entry Count
+    // Execute DB writes in parallel where possible, or sequentially if strict consistency needed.
+    // Here we can run Entry.create and Customer.update in parallel?
+    // Safety first: Create entry, then update customer.
+
     const entry = await Entry.create({
       userId: session.user.id,
       customerId: customer._id,
@@ -76,11 +80,22 @@ export async function customerStampIn(customerId, location) {
       userBranch: session.user.branch,
     });
 
-    await notifyAdmins("Stamped In", entry, {
+    // Fire-and-forget logic for optimization:
+    // Update Customer count and Notify Admins can happen without blocking the return.
+    // However, Vercel Serverless needs `waitUntil` or await. Safe bet is `Promise.all`.
+
+    // We increment count effectively. 
+    const updateCustomerPromise = Customer.findByIdAndUpdate(customerId, { $inc: { entryCount: 1 } });
+
+    const notificationPromise = notifyAdmins("Stamped In", entry, {
       id: session.user.id,
       name: session.user.name,
       email: session.user.email,
     });
+
+    // We await them to ensure execution in serverless environment
+    await Promise.all([updateCustomerPromise, notificationPromise]);
+
     revalidatePath("/customer-log");
     return { success: true };
   } catch (error) {
@@ -119,6 +134,7 @@ export async function customerStampOut(customerId, location) {
     }
 
     // Notify admins about stamp out
+    // Perform this in parallel with any other cleanup if needed
     await notifyAdmins("Stamped Out", entry, {
       id: session.user.id,
       name: session.user.name,

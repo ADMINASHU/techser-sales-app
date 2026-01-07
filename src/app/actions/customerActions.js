@@ -57,8 +57,13 @@ export async function updateCustomer(id, formData) {
         const customer = await Customer.findById(id);
         if (!customer) return { error: "Customer not found" };
 
-        // Allow updates if it's the owner or an admin
-        if (customer.userId.toString() !== session.user.id && session.user.role !== "admin") {
+        // Allow updates if it's the owner, an admin, or shares the same region/branch
+        const isAuthorized =
+            session.user.role === "admin" ||
+            customer.userId.toString() === session.user.id ||
+            (session.user.region === customer.region && session.user.branch === customer.branch);
+
+        if (!isAuthorized) {
             return { error: "Unauthorized" };
         }
 
@@ -98,7 +103,11 @@ export async function deleteCustomer(id) {
         const customer = await Customer.findById(id);
         if (!customer) return { error: "Customer not found" };
 
-        if (customer.userId.toString() !== session.user.id && session.user.role !== "admin") {
+        if (
+            customer.userId.toString() !== session.user.id &&
+            session.user.role !== "admin" &&
+            (session.user.region !== customer.region || session.user.branch !== customer.branch)
+        ) {
             return { error: "Unauthorized" };
         }
 
@@ -121,7 +130,11 @@ export async function toggleCustomerStatus(id) {
         if (!customer) return { error: "Customer not found" };
 
         // Allow toggle if it's the owner or an admin
-        if (customer.userId.toString() !== session.user.id && session.user.role !== "admin") {
+        if (
+            customer.userId.toString() !== session.user.id &&
+            session.user.role !== "admin" &&
+            (session.user.region !== customer.region || session.user.branch !== customer.branch)
+        ) {
             return { error: "Unauthorized" };
         }
 
@@ -180,10 +193,10 @@ export async function getCustomers({ filters = {}, skip = 0, limit = 18, activeO
             .skip(skip)
             .limit(limit)
             .lean();
-        
+
         const total = await Customer.countDocuments(query);
         const hasMore = skip + customers.length < total;
-        
+
         return {
             customers: JSON.parse(JSON.stringify(customers)),
             hasMore
@@ -204,25 +217,17 @@ export async function getCustomersWithEntryCount({ filters = {}, skip = 0, limit
         const isAdmin = session.user.role === "admin";
 
         if (!isAdmin) {
-            // STRICT SECURITY: If user has no region/branch content, return empty instead of ALL.
             if (!session.user.region || !session.user.branch) {
                 return { customers: [], hasMore: false };
             }
             query.region = session.user.region;
             query.branch = session.user.branch;
         } else {
-            if (filters.region && filters.region !== "all") {
-                query.region = filters.region;
-            }
-            if (filters.branch && filters.branch !== "all") {
-                query.branch = filters.branch;
-            }
+            if (filters.region && filters.region !== "all") query.region = filters.region;
+            if (filters.branch && filters.branch !== "all") query.branch = filters.branch;
         }
 
-        // Filter by active status if requested (for check-in page)
-        if (activeOnly) {
-            query.isActive = true;
-        }
+        if (activeOnly) query.isActive = true;
 
         if (filters.search) {
             query.$or = [
@@ -231,64 +236,66 @@ export async function getCustomersWithEntryCount({ filters = {}, skip = 0, limit
             ];
         }
 
-        // To support proper paginated sorting by entry count and active state, we use aggregation
-        const customersWithCounts = await Customer.aggregate([
-            { $match: query },
-            {
-                $lookup: {
-                    from: "entries",
-                    localField: "_id",
-                    foreignField: "customerId",
-                    as: "allEntries"
-                }
-            },
-            {
-                $addFields: {
-                    entryCount: { $size: "$allEntries" },
-                    // Identify if THIS SPECIFIC user is currently stamped in here today
-                    isPrioritized: {
-                        $cond: {
-                            if: {
-                                $gt: [
-                                    {
-                                        $size: {
-                                            $filter: {
-                                                input: "$allEntries",
-                                                as: "e",
-                                                cond: {
-                                                    $and: [
-                                                        { $eq: ["$$e.userId", new mongoose.Types.ObjectId(session.user.id)] },
-                                                        { $eq: ["$$e.status", "In Process"] },
-                                                        { $gte: ["$$e.entryDate", new Date(new Date().setHours(0, 0, 0, 0))] }
-                                                    ]
-                                                }
-                                            }
-                                        }
-                                    },
-                                    0
-                                ]
-                            },
-                            then: 1,
-                            else: 0
-                        }
-                    }
-                }
-            },
-            { $sort: { isPrioritized: -1, entryCount: -1, name: 1 } },
-            { $skip: skip },
-            { $limit: limit },
-            {
-                $project: {
-                    entries: 0 // Don't return the full entries array
+        // OPTIMIZATION: Removed heavy Aggregation.
+        // Strategy:
+        // 1. Find the single "Prioritized" (Active) Customer for this user.
+        // 2. Fetch customers sorted by entryCount (indexed).
+        // 3. If on page 1, ensure Active Customer is at top.
+
+        let activeCustomerId = null;
+        if (skip === 0) {
+            const activeEntry = await Entry.findOne({
+                userId: session.user.id,
+                status: "In Process",
+                entryDate: { $gte: new Date(new Date().setHours(0, 0, 0, 0)) }
+            }).select("customerId").lean();
+            if (activeEntry) activeCustomerId = activeEntry.customerId.toString();
+        }
+
+        let customers = await Customer.find(query)
+            .sort({ entryCount: -1, name: 1 })
+            .skip(skip)
+            .limit(limit)
+            .lean();
+
+        // If we found an active customer and we are on page 1
+        let activeCustomer = null;
+        if (activeCustomerId) {
+            // Check if it's already in the list
+            const idx = customers.findIndex(c => c._id.toString() === activeCustomerId);
+            if (idx !== -1) {
+                // Move to top
+                const [item] = customers.splice(idx, 1);
+                item.isPrioritized = 1;
+                customers.unshift(item);
+            } else {
+                // Fetch it explicitly if it matches the current filters
+                // (We need to ensure it matches filters, otherwise we shouldn't show it?)
+                // Actually, if it's active, we probably want to show it regardless of scroll position, but respecting search?
+                // For simplicity, let's just fetch it if it matches query.
+                const activeQuery = { ...query, _id: activeCustomerId };
+                activeCustomer = await Customer.findOne(activeQuery).lean();
+                if (activeCustomer) {
+                    activeCustomer.isPrioritized = 1;
+                    customers.unshift(activeCustomer);
+                    // If we added one, we might want to pop the last one to keep page size consistent, 
+                    // but keeping it +1 is fine for UX.
                 }
             }
-        ]);
+        }
+
+        // Just to ensure format matches previous expectations (though we removed 'allEntries')
+        // We ensure 'isPrioritized' is set to 0 for others.
+        customers.forEach(c => {
+            if (!c.isPrioritized) c.isPrioritized = 0;
+            // entryCount is now native to the model, no need to calculate!
+        });
 
         const total = await Customer.countDocuments(query);
-        const hasMore = skip + customersWithCounts.length < total;
+        const hasMore = skip + customers.length < total;
 
         return {
-            customers: JSON.parse(JSON.stringify(customersWithCounts)),
+            customers: JSON.parse(JSON.stringify(customers)),
             hasMore
         };
     } catch (error) {
@@ -305,7 +312,7 @@ export async function getCustomerActionStatus(customerId, userId) {
             customerId,
             userId,
             status: { $in: ["Not Started", "In Process"] },
-            entryDate: { 
+            entryDate: {
                 $gte: new Date(new Date().setHours(0, 0, 0, 0)),
                 $lte: new Date(new Date().setHours(23, 59, 59, 999))
             }

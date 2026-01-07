@@ -57,7 +57,7 @@ const EntrySchema = new mongoose.Schema(
 );
 
 // Index for easier filtering
-EntrySchema.index({ userId: 1, status: 1 });
+EntrySchema.index({ userId: 1, customerId: 1, status: 1 }); // Optimized for conflict check
 EntrySchema.index({ userId: 1, entryDate: -1 }); // Fast user history lookup (Compound)
 EntrySchema.index({ "stampIn.location": "2dsphere" }); // Geo queries
 EntrySchema.index({ "stampIn.time": -1 });
