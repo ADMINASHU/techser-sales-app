@@ -7,7 +7,6 @@ import { revalidatePath } from "next/cache";
 import bcrypt from "bcryptjs";
 import { sendNotificationToUsers } from "@/lib/fcmNotification";
 
-// ... existing code ...
 
 import { z } from "zod";
 
@@ -79,7 +78,6 @@ export async function updateProfile(formData) {
 
         return { success: true };
     } catch (error) {
-        console.error("Profile Update Error:", error);
         return { error: `Failed to update profile: ${error.message}` };
     }
 }
@@ -126,7 +124,6 @@ export async function updateAvatar(base64Image) {
 
         return { success: true };
     } catch (error) {
-        console.error("Update Avatar Error:", error);
         return { error: "Failed to update avatar" };
     }
 }
@@ -153,7 +150,6 @@ export async function updateViewPreference(view) {
 
         return { success: true };
     } catch (error) {
-        console.error("Failed to update view preference:", error);
         return { success: false, error: error.message };
     }
 }

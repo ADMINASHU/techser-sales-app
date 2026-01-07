@@ -1,6 +1,4 @@
 "use server";
-
-import { auth } from "@/auth";
 import dbConnect from "@/lib/db";
 import Entry from "@/models/Entry";
 
@@ -48,7 +46,6 @@ export async function batchGetCustomerActionStatus(customerIds, userId) {
         // Serialize to plain objects for Client Components
         return JSON.parse(JSON.stringify(statusMap));
     } catch (error) {
-        console.error("Batch Get Customer Action Status Error:", error);
         return {};
     }
 }

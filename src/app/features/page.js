@@ -15,7 +15,6 @@ import {
     Map as MapIcon,
     CheckCircle2,
     UserPlus,
-    LayoutDashboard,
     Search,
     RefreshCcw,
     ArrowLeft

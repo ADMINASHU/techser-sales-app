@@ -192,7 +192,6 @@ export async function getUsers({ page = 1, limit = 10, search = "", region = "",
             totalUsers
         };
     } catch (error) {
-        console.error("Get Users Error", error);
         return { error: "Failed to fetch users", users: [], totalPages: 0 };
     }
 }

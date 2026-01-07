@@ -60,7 +60,6 @@ export async function checkDuplicateCustomer({ lat, lng, region, branch }) {
 
         return { nearbyCustomers: JSON.parse(JSON.stringify(nearbyCustomers)) };
     } catch (error) {
-        console.error("Check Duplicate Customer Error:", error);
         return { error: "Failed to check for duplicates" };
     }
 }

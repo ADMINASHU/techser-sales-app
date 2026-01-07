@@ -35,7 +35,7 @@ export default function Support() {
                             </div>
                             <Button asChild variant="outline" className="w-full border-white/10 hover:bg-white/5 text-white">
                                 <a href="mailto:ashutosh@techser.com">
-                                    support@techser.com
+                                    Email Us
                                 </a>
                             </Button>
                         </CardContent>
