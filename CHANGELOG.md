@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.1.1](https://github.com/ADMINASHU/techser-sales-app/compare/v2.1.0...v2.1.1) (2026-01-07)
+
+
+### Bug Fixes
+
+* prefill region filter to admin's region on user management page ([3ea51f3](https://github.com/ADMINASHU/techser-sales-app/commit/3ea51f3460732499cd72b51b4b74cfe3452b1dc8))
+* resolve hydration errors, add duration display, optimize mobile performance ([61a723f](https://github.com/ADMINASHU/techser-sales-app/commit/61a723f1727951c9384c3381a4a013848330c14d))
+
 ## [2.1.0](https://github.com/ADMINASHU/techser-sales-app/compare/v2.0.1...v2.1.0) (2026-01-06)
 
 
