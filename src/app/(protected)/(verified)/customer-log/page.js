@@ -22,16 +22,18 @@ export default async function CustomerLogPage({ searchParams }) {
         activeOnly: true // Only show active customers on check-in page
     });
 
-    // For the initial batch, check active entry status
-    const initialCustomersWithStatus = await Promise.all(
-        customers.map(async (customer) => {
-            const activeEntry = await getCustomerActionStatus(customer._id, session.user.id);
-            return {
-                ...customer,
-                activeEntry
-            };
-        })
-    );
+    // Import batch function at the top of the file
+    const { batchGetCustomerActionStatus } = await import("@/app/actions/batchCustomerActions");
+    
+    // Batch fetch active entry statuses for all initial customers
+    const customerIds = customers.map(c => c._id.toString());
+    const statusMap = await batchGetCustomerActionStatus(customerIds, session.user.id);
+    
+    // Attach activeEntry to each customer
+    const initialCustomersWithStatus = customers.map(customer => ({
+        ...customer,
+        activeEntry: statusMap[customer._id.toString()] || null
+    }));
 
     return (
         <div className="space-y-6">

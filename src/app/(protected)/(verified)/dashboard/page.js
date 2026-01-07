@@ -73,7 +73,11 @@ export default async function DashboardPage({ searchParams }) {
     const [totalEntries, completedEntries, recentEntries] = await Promise.all([
         Entry.countDocuments(query),
         Entry.countDocuments({ ...query, status: "Completed" }),
-        Entry.find({ userId: session.user.id }).sort({ createdAt: -1 }).limit(10)
+        Entry.find({ userId: session.user.id })
+            .select("entryDate status customerName createdAt")
+            .sort({ createdAt: -1 })
+            .limit(10)
+            .lean()
     ]);
 
     return (

@@ -56,8 +56,10 @@ export async function getReportData({ startDate, endDate, userId, region, branch
     }
 
     const entries = await Entry.find(query)
-        .populate("userId", "name email region branch role status image")
-        .populate("customerId"); // Populate customer data
+        .select("entryDate status userName userRegion userBranch customerName customerAddress contactPerson contactNumber stampIn stampOut location createdAt customerId userId")
+        .populate("userId", "name email region branch role status image designation contactNumber address")
+        .populate("customerId", "name customerAddress contactPerson contactNumber location") // Only populate needed customer fields
+        .lean(); // Use lean() for better performance
 
     // Format for Excel - Match Google Sheets column order exactly
     // Columns: Date | Status | Region | Branch | User Name | Customer Name | 
@@ -117,9 +119,11 @@ export async function getRawEntries({ startDate, endDate, userId, region, branch
 
     // We sort by createdAt -1 to get recent ones
     let queryBuilder = Entry.find(query)
-        .populate("userId", "name email region branch role status image")
-        .populate("customerId")
-        .sort({ createdAt: -1 });
+        .select("entryDate status userName userRegion userBranch customerName customerAddress contactPerson contactNumber stampIn stampOut location createdAt customerId userId")
+        .populate("userId", "name email region branch role status image designation contactNumber address")
+        .populate("customerId", "name customerAddress contactPerson contactNumber location") // Only populate needed fields
+        .sort({ createdAt: -1 })
+        .lean(); // Use lean() for better performance
 
     if (limit) {
         queryBuilder = queryBuilder.limit(limit);

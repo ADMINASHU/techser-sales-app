@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { clsx } from "clsx";
 import { ModeToggle } from "@/components/ModeToggle";
 import NotificationBell from "@/components/NotificationBell";
@@ -24,7 +24,14 @@ export default function Navbar() {
     const pathname = usePathname();
     const { data: session } = useSession();
     const [isOpen, setIsOpen] = useState(false);
+    const [mounted, setMounted] = useState(false);
 
+    // Detect client-side mounting to prevent hydration mismatch
+    // This is a valid pattern for client-only state initialization
+    useEffect(() => {
+        setMounted(true);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const isVerified = session?.user?.status === "verified" || session?.user?.role === "admin";
     // Admin is always verified effectively, or handles their own status.
@@ -104,49 +111,63 @@ export default function Navbar() {
                         <div className="h-8 w-px bg-white/10 mx-2"></div>
 
                         {session?.user && (
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" className="relative h-10 w-10 rounded-full ring-2 ring-white/10 hover:ring-white/30 transition-all p-0 overflow-hidden">
-                                        <Avatar className="h-full w-full">
-                                            {session?.user?.image && <AvatarImage src={session.user.image} alt={session.user.name} />}
-                                            <AvatarFallback className="bg-linear-to-br from-violet-500 to-fuchsia-500 text-white font-bold">
-                                                {session?.user?.name
-                                                    ? session.user.name.split(" ").map(n => n[0]).join("").slice(0, 2)
-                                                    : "U"
-                                                }
-                                            </AvatarFallback>
-                                        </Avatar>
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent className="w-72 glass-card mt-2 p-2" align="end" forceMount>
-                                    <div className="flex items-center gap-3 p-3 bg-white/5 rounded-lg mb-2 border border-white/5">
-                                        <Avatar className="h-10 w-10 border border-white/10">
-                                            {session?.user?.image && <AvatarImage src={session.user.image} />}
-                                            <AvatarFallback className="bg-linear-to-br from-violet-500 to-fuchsia-500 text-white font-bold">
-                                                {session?.user?.name
-                                                    ? session.user.name.split(" ").map(n => n[0]).join("").slice(0, 2)
-                                                    : "U"
-                                                }
-                                            </AvatarFallback>
-                                        </Avatar>
-                                        <div className="flex flex-col space-y-0.5">
-                                            <p className="text-sm font-semibold text-white">{session?.user?.name}</p>
-                                            <p className="text-xs text-gray-400 truncate max-w-[150px]">{session?.user?.email}</p>
+                            mounted ? (
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="ghost" className="relative h-10 w-10 rounded-full ring-2 ring-white/10 hover:ring-white/30 transition-all p-0 overflow-hidden">
+                                            <Avatar className="h-full w-full">
+                                                {session?.user?.image && <AvatarImage src={session.user.image} alt={session.user.name} />}
+                                                <AvatarFallback className="bg-linear-to-br from-violet-500 to-fuchsia-500 text-white font-bold">
+                                                    {session?.user?.name
+                                                        ? session.user.name.split(" ").map(n => n[0]).join("").slice(0, 2)
+                                                        : "U"
+                                                    }
+                                                </AvatarFallback>
+                                            </Avatar>
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent className="w-72 glass-card mt-2 p-2" align="end" forceMount>
+                                        <div className="flex items-center gap-3 p-3 bg-white/5 rounded-lg mb-2 border border-white/5">
+                                            <Avatar className="h-10 w-10 border border-white/10">
+                                                {session?.user?.image && <AvatarImage src={session.user.image} />}
+                                                <AvatarFallback className="bg-linear-to-br from-violet-500 to-fuchsia-500 text-white font-bold">
+                                                    {session?.user?.name
+                                                        ? session.user.name.split(" ").map(n => n[0]).join("").slice(0, 2)
+                                                        : "U"
+                                                    }
+                                                </AvatarFallback>
+                                            </Avatar>
+                                            <div className="flex flex-col space-y-0.5">
+                                                <p className="text-sm font-semibold text-white">{session?.user?.name}</p>
+                                                <p className="text-xs text-gray-400 truncate max-w-[150px]">{session?.user?.email}</p>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <DropdownMenuItem asChild>
-                                        <Link href="/profile" className="cursor-pointer py-2.5 px-3 rounded-md hover:bg-white/10 focus:bg-white/10 focus:text-white transition-colors flex items-center gap-2">
-                                            <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-                                            Profile Settings
-                                        </Link>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuSeparator className="bg-white/10 my-1" />
-                                    <DropdownMenuItem onClick={() => signOut()} className="cursor-pointer py-2.5 px-3 rounded-md text-red-400 hover:bg-red-500/10 focus:bg-red-500/10 focus:text-red-400 transition-colors flex items-center gap-2">
-                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-                                        Log out
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
+                                        <DropdownMenuItem asChild>
+                                            <Link href="/profile" className="cursor-pointer py-2.5 px-3 rounded-md hover:bg-white/10 focus:bg-white/10 focus:text-white transition-colors flex items-center gap-2">
+                                                <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                                                Profile Settings
+                                            </Link>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuSeparator className="bg-white/10 my-1" />
+                                        <DropdownMenuItem onClick={() => signOut()} className="cursor-pointer py-2.5 px-3 rounded-md text-red-400 hover:bg-red-500/10 focus:bg-red-500/10 focus:text-red-400 transition-colors flex items-center gap-2">
+                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                                            Log out
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            ) : (
+                                <Button variant="ghost" className="relative h-10 w-10 rounded-full ring-2 ring-white/10 p-0 overflow-hidden" disabled>
+                                    <Avatar className="h-full w-full">
+                                        {session?.user?.image && <AvatarImage src={session.user.image} alt={session.user.name} />}
+                                        <AvatarFallback className="bg-linear-to-br from-violet-500 to-fuchsia-500 text-white font-bold">
+                                            {session?.user?.name
+                                                ? session.user.name.split(" ").map(n => n[0]).join("").slice(0, 2)
+                                                : "U"
+                                            }
+                                        </AvatarFallback>
+                                    </Avatar>
+                                </Button>
+                            )
                         )}
                     </div>
 

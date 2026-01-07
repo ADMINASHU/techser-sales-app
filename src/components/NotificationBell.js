@@ -15,6 +15,7 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function NotificationBell() {
     const [isOpen, setIsOpen] = useState(false);
+    const [mounted, setMounted] = useState(false);
 
     // useSWR handles polling (refreshInterval) and auto-revalidation on focus
     const { data, mutate } = useSWR("/api/notifications/unread-count", fetcher, {
@@ -24,6 +25,13 @@ export default function NotificationBell() {
     });
 
     const unreadCount = data?.count || 0;
+
+    // Detect client-side mounting to prevent hydration mismatch
+    // This is a valid pattern for client-only state initialization
+    useEffect(() => {
+        setMounted(true);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     useEffect(() => {
         // Listen for new notifications to trigger instant refresh
@@ -42,6 +50,21 @@ export default function NotificationBell() {
         // Optimistically update or just trigger revalidate
         mutate({ count: 0 }, false);
     };
+
+    // Don't render Radix UI components until mounted on client
+    if (!mounted) {
+        return (
+            <Button
+                variant="ghost"
+                size="icon"
+                className="relative hover:bg-white/10 transition-colors"
+                aria-label="Notifications"
+                disabled
+            >
+                <Bell className="h-5 w-5 text-gray-300" />
+            </Button>
+        );
+    }
 
     return (
         <Popover open={isOpen} onOpenChange={setIsOpen}>

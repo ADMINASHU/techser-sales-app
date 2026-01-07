@@ -59,7 +59,6 @@ export default function LoginPage() {
                         className="w-auto h-20 object-contain"
                         style={{ height: '80px', width: 'auto' }}
                         priority
-                        unoptimized
                     />
                 </div>
                 <p className="text-gray-400 text-sm">Sign in to Techser Sales Management System</p>

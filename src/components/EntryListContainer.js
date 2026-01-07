@@ -9,7 +9,10 @@ export default async function EntryListContainer({ searchParams, session, view }
 
     const params = await searchParams;
     const page = parseInt(params.page) || 1;
-    const limit = 18;
+    
+    // Reduced from 18 to 12 for better mobile performance
+    // Users can scroll to load more via infinite scroll
+    const limit = 12;
     const skip = (page - 1) * limit;
 
     const isAdmin = session.user.role === "admin";

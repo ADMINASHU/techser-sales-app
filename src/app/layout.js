@@ -5,7 +5,11 @@ import { Analytics } from "@vercel/analytics/next";
 import { auth } from "@/auth";
 import Providers from "@/app/providers";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ 
+    subsets: ["latin"],
+    display: 'swap', // Improve FCP by swapping font quickly
+    preload: true,
+});
 
 export const metadata = {
     title: "Techser Sales Management",

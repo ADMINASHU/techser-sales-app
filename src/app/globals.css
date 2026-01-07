@@ -158,7 +158,7 @@
 @layer components {
   .glass-card {
     /* Mobile Default: Solid background, faster rendering */
-    @apply bg-slate-900/95 border border-white/10 shadow-lg transition-all duration-300;
+    @apply bg-slate-900/95 border border-white/10 shadow-lg transition-all duration-200;
   }
 
   @media (min-width: 768px) {
@@ -169,7 +169,15 @@
   }
 
   .glass-panel {
-    @apply bg-white/5 md:backdrop-blur-sm border border-white/5;
+    /* Removed backdrop-blur for better mobile performance */
+    @apply bg-white/5 border border-white/5;
+  }
+
+  @media (min-width: 1024px) {
+    .glass-panel {
+      /* Only apply backdrop-blur on desktop */
+      @apply backdrop-blur-sm;
+    }
   }
 
   .glass-inputs {
