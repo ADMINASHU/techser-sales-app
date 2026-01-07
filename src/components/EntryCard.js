@@ -10,7 +10,7 @@ import EntryDetailsModal from "@/components/EntryDetailsModal";
 import { useSession } from "next-auth/react";
 import { ShieldAlert } from "lucide-react";
 
-const EntryCard = memo(function EntryCard({ entry, isAdmin, from }) {
+const EntryCard = memo(function EntryCard({ entry, isAdmin }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const { data: session } = useSession();
 

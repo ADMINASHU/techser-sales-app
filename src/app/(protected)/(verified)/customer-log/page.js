@@ -43,10 +43,7 @@ export default async function CustomerLogPage({ searchParams }) {
                 </h1>
 
                 <div className="w-full sm:max-w-xs md:max-w-sm">
-                    <CustomerFilters
-                        locations={filtersData.locations}
-                        isAdmin={session.user.role === "admin"}
-                    />
+                    <CustomerFilters />
                 </div>
             </div>
 

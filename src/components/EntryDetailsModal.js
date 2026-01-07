@@ -8,12 +8,10 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Navigation, Edit, X } from "lucide-react";
+import { Navigation, X } from "lucide-react";
 import { formatInIST } from "@/lib/utils";
 import EntryUserCard from "@/components/EntryUserCard";
 import { useEffect, useState } from "react";
-
-
 
 function Label({ children, className }) {
   return (

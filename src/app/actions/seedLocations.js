@@ -108,7 +108,6 @@ export async function seedLocations() {
         
         return { success: true, message: "Locations seeded successfully" };
     } catch (error) {
-        console.error("Seed Error", error);
         return { error: error.message };
     }
 }

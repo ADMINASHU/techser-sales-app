@@ -6,7 +6,7 @@ import { useDebounce } from "use-debounce";
 import { Input } from "@/components/ui/input";
 import { Search, X } from "lucide-react";
 
-export default function CustomerFilters({ locations = [], isAdmin = false }) {
+export default function CustomerFilters() {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();

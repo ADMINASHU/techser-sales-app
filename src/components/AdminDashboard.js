@@ -6,13 +6,13 @@ import { getReportData, getFilters, getRawEntries, getSystemStats } from "@/app/
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Download, Loader2, ArrowRight, ShieldCheck, Users, MapPin } from "lucide-react";
+import { Download, ArrowRight, ShieldCheck, Users, MapPin } from "lucide-react";
 // XLSX imported dynamically
 import { toast } from "sonner";
 import EntryCard from "@/components/EntryCard";
 import Link from "next/link";
 import DashboardSkeleton from "@/components/skeletons/DashboardSkeleton";
-import EntryTableRow from "@/components/EntryTableRow";
+
 
 export default function AdminDashboard({ 
     initialSystemStats, 
@@ -39,7 +39,7 @@ export default function AdminDashboard({
     const { data: systemStats } = useSWR('system-stats', getSystemStats, { fallbackData: initialSystemStats });
 
     // SWR: Recent Entries (Unfiltered)
-    const { data: recentEntries = [], isLoading: recentLoading } = useSWR('recent-entries', () => getRawEntries({ limit: 10 }), { fallbackData: initialRecentEntries });
+    const { data: recentEntries = [], isLoading: recentLoading } = useSWR('recent-entries', () => getRawEntries({ limit: 9 }), { fallbackData: initialRecentEntries });
 
     // SWR: Main Stats
     const statsFetcher = useCallback(async ([_, u, r, b, m, y]) => {
@@ -179,7 +179,6 @@ export default function AdminDashboard({
             XLSX.writeFile(workbook, "Sales_Report.xlsx");
             toast.success("Report downloaded");
         } catch (error) {
-            console.error(error);
             toast.error("Failed to download report");
         }
         setLoading(false);
@@ -435,7 +434,6 @@ export default function AdminDashboard({
                                 key={entry._id.toString()}
                                 entry={entry}
                                 isAdmin={true}
-                                from="dashboard"
                             />
                         ))}
                     </div>

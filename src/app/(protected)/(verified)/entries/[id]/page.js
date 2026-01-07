@@ -145,18 +145,6 @@ export default async function EntryDetailPage({ params, searchParams }) {
                             </div>
                         </div>
 
-                        {/* Action Buttons */}
-                        <div className="flex gap-3">
-                            {/* Directions Button Removed */}
-
-                            {!isAdmin && entry.status === 'Not Started' && (
-                                <Link href={`/entries/${entry._id}/edit`} className="flex-1">
-                                    <Button variant="outline" className="w-full h-11 border-white/10 hover:bg-white/5 text-white">
-                                        <Edit className="w-4 h-4 mr-2" /> Edit
-                                    </Button>
-                                </Link>
-                            )}
-                        </div>
                     </div>
                 </div>
             </div>

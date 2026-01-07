@@ -313,7 +313,7 @@ export async function getCustomerActionStatus(customerId, userId) {
 
         return JSON.parse(JSON.stringify(activeEntry));
     } catch (error) {
-        console.error("Get Customer Action Status Error:", error);
+       
         return null;
     }
 }
