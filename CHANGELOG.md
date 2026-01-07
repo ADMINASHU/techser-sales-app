@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.1.2](https://github.com/ADMINASHU/techser-sales-app/compare/v2.1.1...v2.1.2) (2026-01-07)
+
+
+### Bug Fixes
+
+* resolve redirect loops, notification permissions, and session sync ([58d970c](https://github.com/ADMINASHU/techser-sales-app/commit/58d970c73b8425906d48321d8487979002fcb94e))
+
 ### [2.1.1](https://github.com/ADMINASHU/techser-sales-app/compare/v2.1.0...v2.1.1) (2026-01-07)
 
 
