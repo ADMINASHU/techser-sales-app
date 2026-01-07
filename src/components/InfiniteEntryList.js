@@ -44,7 +44,7 @@ export default function InfiniteEntryList({ initialEntries, searchParams, isAdmi
 
         setLoading(true);
         const currentSkip = entries.length;
-        const limit = 10;
+        const limit = 12;
 
         try {
             const { entries: newEntries, hasMore: moreAvailable } = await fetchEntries({
@@ -64,7 +64,6 @@ export default function InfiniteEntryList({ initialEntries, searchParams, isAdmi
                 setHasMore(false);
             }
         } catch (err) {
-            console.error("Failed to load more entries", err);
             setHasMore(false);
         } finally {
             setLoading(false);

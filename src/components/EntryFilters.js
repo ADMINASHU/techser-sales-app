@@ -87,10 +87,18 @@ export default function EntryFilters({ users = [], locations = [], isAdmin, show
         { value: "9", label: "October" }, { value: "10", label: "November" }, { value: "11", label: "December" },
     ];
 
-    const statuses = ["Not Started", "In Process", "Completed"];
+    const statuses = ["In Process", "Completed"];
     const years = ["2025", "2026", "2027", "2028", "2029", "2030"];
 
 
+
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (!mounted) return null; // Prevent hydration mismatch for Radix Select
 
     return (
         <div className="glass-panel border-white/5 mb-8 rounded-xl shadow-2xl">

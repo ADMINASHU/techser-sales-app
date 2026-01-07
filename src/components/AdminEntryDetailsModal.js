@@ -2,12 +2,8 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Navigation, Edit, X } from "lucide-react";
 import { formatInIST } from "@/lib/utils";
 import EntryUserCard from "@/components/EntryUserCard";
-
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import dynamic from 'next/dynamic';
 import { Loader2 } from "lucide-react";
@@ -35,8 +31,6 @@ export default function AdminEntryDetailsModal({ entry, isOpen, onClose, session
         entry.status === "Completed" ? "default" :
             entry.status === "In Process" ? "secondary" : "outline";
 
-    const isAdmin = session?.user?.role === 'admin';
-    const isToday = new Date().toDateString() === new Date(entry.entryDate || entry.createdAt).toDateString();
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
@@ -107,8 +101,6 @@ export default function AdminEntryDetailsModal({ entry, isOpen, onClose, session
                                 </div>
                             </div>
                         </div>
-
-                        {/* Bottom Section */}
                         <div className="mt-8 pt-6 border-t border-white/5 space-y-3">
                             {/* Timestamps */}
                             <div className="space-y-1.5">
@@ -126,13 +118,6 @@ export default function AdminEntryDetailsModal({ entry, isOpen, onClose, session
                                 </div>
                             </div>
 
-                            {!isAdmin && entry.status === 'Not Started' && (
-                                <Link href={`/entries/${entry._id}/edit`} onClick={() => onClose()}>
-                                    <Button variant="outline" className="w-full">
-                                        <Edit className="w-4 h-4 mr-2" /> Edit Entry
-                                    </Button>
-                                </Link>
-                            )}
                         </div>
                     </div>
                 </div>

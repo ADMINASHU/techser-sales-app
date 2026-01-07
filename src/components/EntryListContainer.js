@@ -1,7 +1,5 @@
 import dbConnect from "@/lib/db";
 import Entry from "@/models/Entry";
-import Customer from "@/models/Customer";
-import User from "@/models/User";
 import InfiniteEntryList from "@/components/InfiniteEntryList";
 
 export default async function EntryListContainer({ searchParams, session, view }) {

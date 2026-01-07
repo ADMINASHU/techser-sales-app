@@ -3,8 +3,6 @@
 import { auth } from "@/auth";
 import dbConnect from "@/lib/db";
 import Entry from "@/models/Entry";
-import Customer from "@/models/Customer"; // Ensure Customer model is registered
-import SystemSetting from "@/models/SystemSetting";
 import { revalidatePath } from "next/cache";
 
 import { z } from "zod";
