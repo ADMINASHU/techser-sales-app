@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useSyncExternalStore } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useDebounce } from "use-debounce";
 import {
@@ -144,11 +144,12 @@ export default function EntryFilters({
   const statuses = ["In Process", "Completed"];
   const years = ["2025", "2026", "2027", "2028", "2029", "2030"];
 
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  // Proper way to detect if we're on the client
+  const mounted = useSyncExternalStore(
+    () => () => {}, // subscribe: no-op
+    () => true, // getSnapshot: returns true on client
+    () => false // getServerSnapshot: returns false on server
+  );
 
   if (!mounted) return null; // Prevent hydration mismatch for Radix Select
 

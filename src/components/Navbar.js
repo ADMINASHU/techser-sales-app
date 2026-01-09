@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Menu, X } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useSyncExternalStore } from "react";
 import { clsx } from "clsx";
 import NotificationBell from "@/components/NotificationBell";
 
@@ -23,9 +23,15 @@ export default function Navbar() {
   const pathname = usePathname();
   const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const menuRef = useRef(null);
   const buttonRef = useRef(null);
+
+  // Proper way to detect if we're on the client
+  const mounted = useSyncExternalStore(
+    () => () => {}, // subscribe: no-op, as mounted state doesn't change after initial client render
+    () => true, // getSnapshot: returns true on client
+    () => false // getServerSnapshot: returns false on server
+  );
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -44,12 +50,6 @@ export default function Navbar() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isOpen]);
-
-  // Detect client-side mounting to prevent hydration mismatch
-  // This is a valid pattern for client-only state initialization
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const isVerified =
     session?.user?.status === "verified" || session?.user?.role === "admin";

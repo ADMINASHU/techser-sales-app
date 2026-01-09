@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useSyncExternalStore } from "react";
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,7 +15,13 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function NotificationBell() {
   const [isOpen, setIsOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
+
+  // Proper way to detect if we're on the client
+  const mounted = useSyncExternalStore(
+    () => () => {}, // subscribe: no-op
+    () => true, // getSnapshot: returns true on client
+    () => false // getServerSnapshot: returns false on server
+  );
 
   // useSWR handles polling (refreshInterval) and auto-revalidation on focus
   const { data, mutate } = useSWR("/api/notifications/unread-count", fetcher, {
@@ -25,10 +31,6 @@ export default function NotificationBell() {
   });
 
   const unreadCount = data?.count || 0;
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     // Listen for new notifications to trigger instant refresh
