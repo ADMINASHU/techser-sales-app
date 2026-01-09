@@ -24,7 +24,6 @@ export async function GET(req) {
         return NextResponse.json({ count });
 
     } catch (error) {
-        console.error("Error counting unread notifications:", error);
         return NextResponse.json(
             { error: "Failed to count notifications" },
             { status: 500 }

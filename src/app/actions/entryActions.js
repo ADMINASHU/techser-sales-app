@@ -3,6 +3,7 @@
 import { auth } from "@/auth";
 import dbConnect from "@/lib/db";
 import Entry from "@/models/Entry";
+import Customer from "@/models/Customer";
 import { revalidatePath } from "next/cache";
 
 export async function deleteEntry(entryId) {
@@ -25,6 +26,13 @@ export async function deleteEntry(entryId) {
       return { error: "You are not authorized to delete this entry" };
     }
 
+    // Decrement customer entry count
+    if (entry.customerId) {
+      await Customer.findByIdAndUpdate(entry.customerId, {
+        $inc: { entryCount: -1 },
+      });
+    }
+
     await Entry.findByIdAndDelete(entryId);
     revalidatePath("/entries");
     revalidatePath("/dashboard");
@@ -33,7 +41,6 @@ export async function deleteEntry(entryId) {
     return { error: "Failed to delete" };
   }
 }
-
 
 export async function fetchEntries({
   page = 1,

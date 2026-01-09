@@ -7,217 +7,257 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import NotificationItem from "./NotificationItem";
 import { useNotification } from "./FCMNotificationProvider";
 
-export default function NotificationDropdown({ onMarkAllAsRead, onClose }) {
-    const [notifications, setNotifications] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [markingAllRead, setMarkingAllRead] = useState(false);
-    const { permission, requestPermission, isSupported } = useNotification();
+export default function NotificationDropdown({
+  onMarkAllAsRead,
+  onClose,
+  onUpdate,
+}) {
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [markingAllRead, setMarkingAllRead] = useState(false);
+  const { permission, requestPermission, isSupported } = useNotification();
 
-    const fetchNotifications = useCallback(async () => {
-        try {
-            setLoading(true);
-            const response = await fetch("/api/notifications/list");
-            if (response.ok) {
-                const data = await response.json();
-                setNotifications(data.notifications || []);
-            }
-        } catch (error) {
-            console.error("Error fetching notifications:", error);
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+  const fetchNotifications = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await fetch("/api/notifications/list");
+      if (response.ok) {
+        const data = await response.json();
+        setNotifications(data.notifications || []);
+      }
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-    useEffect(() => {
+  useEffect(() => {
+    fetchNotifications();
+
+    // Listen for new notifications and refetch to get DB version
+    const handleNewNotification = () => {
+      fetchNotifications(); // Refetch from DB instead of manually adding
+    };
+
+    window.addEventListener("fcm-notification", handleNewNotification);
+
+    // Refetch on focus to sync read status/new items
+    const handleFocus = () => fetchNotifications();
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      window.removeEventListener("fcm-notification", handleNewNotification);
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, [fetchNotifications]);
+
+  const handleMarkAllRead = async () => {
+    try {
+      setMarkingAllRead(true);
+      const response = await fetch("/api/notifications/mark-all-read", {
+        method: "POST",
+      });
+
+      if (response.ok) {
+        setNotifications((prev) =>
+          prev.map((notif) => ({ ...notif, read: true }))
+        );
+        onMarkAllAsRead();
+      }
+    } catch (error) {
+      console.error("Error marking all as read:", error);
+    } finally {
+      setMarkingAllRead(false);
+    }
+  };
+
+  const handleMarkAsRead = async (notificationId) => {
+    try {
+      const response = await fetch("/api/notifications/mark-read", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ notificationId }),
+      });
+
+      if (response.ok) {
+        setNotifications((prev) =>
+          prev.map((notif) =>
+            notif.id === notificationId ? { ...notif, read: true } : notif
+          )
+        );
+        onUpdate?.();
+      }
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+    }
+  };
+
+  const handleDelete = async (notificationId) => {
+    try {
+      // Optimistic update
+      setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
+      onUpdate?.();
+
+      const response = await fetch("/api/notifications/delete", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ notificationId }),
+      });
+
+      if (!response.ok) {
+        // Revert if failed (simplest way is to refetch)
         fetchNotifications();
+        console.error("Failed to delete notification");
+      }
+    } catch (error) {
+      console.error("Error deleting notification:", error);
+      fetchNotifications();
+    }
+  };
 
-        // Listen for new notifications and refetch to get DB version
-        const handleNewNotification = () => {
-            fetchNotifications(); // Refetch from DB instead of manually adding
-        };
+  const handleClearAll = async () => {
+    try {
+      setMarkingAllRead(true); // Reuse loading state
+      const response = await fetch("/api/notifications/clear-all", {
+        method: "DELETE",
+      });
 
-        window.addEventListener("fcm-notification", handleNewNotification);
+      if (response.ok) {
+        setNotifications([]);
+        onMarkAllAsRead(); // Reset unread count
+      }
+    } catch (error) {
+      console.error("Error clearing all notifications:", error);
+    } finally {
+      setMarkingAllRead(false);
+    }
+  };
 
-        // Refetch on focus to sync read status/new items
-        const handleFocus = () => fetchNotifications();
-        window.addEventListener("focus", handleFocus);
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
-        return () => {
-            window.removeEventListener("fcm-notification", handleNewNotification);
-            window.removeEventListener("focus", handleFocus);
-        };
-    }, [fetchNotifications]);
+  return (
+    <div className="flex flex-col h-full">
+      {/* Header */}
+      <div className="glass-header px-4 py-3 border-b border-white/10">
+        <div className="flex items-center justify-between">
+          <div className="space-y-0.5">
+            <h3 className="font-semibold text-white">Notifications</h3>
+            {unreadCount > 0 && (
+              <p className="text-xs text-gray-400">{unreadCount} unread</p>
+            )}
+          </div>
 
-
-
-    const handleMarkAllRead = async () => {
-        try {
-            setMarkingAllRead(true);
-            const response = await fetch("/api/notifications/mark-all-read", {
-                method: "POST"
-            });
-
-            if (response.ok) {
-                setNotifications(prev =>
-                    prev.map(notif => ({ ...notif, read: true }))
-                );
-                onMarkAllAsRead();
-            }
-        } catch (error) {
-            console.error("Error marking all as read:", error);
-        } finally {
-            setMarkingAllRead(false);
-        }
-    };
-
-    const handleMarkAsRead = async (notificationId) => {
-        try {
-            const response = await fetch("/api/notifications/mark-read", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ notificationId })
-            });
-
-            if (response.ok) {
-                setNotifications(prev =>
-                    prev.map(notif =>
-                        notif.id === notificationId ? { ...notif, read: true } : notif
-                    )
-                );
-            }
-        } catch (error) {
-            console.error("Error marking notification as read:", error);
-        }
-    };
-
-    const handleClearAll = async () => {
-        try {
-            setMarkingAllRead(true); // Reuse loading state
-            const response = await fetch("/api/notifications/clear-all", {
-                method: "DELETE"
-            });
-
-            if (response.ok) {
-                setNotifications([]);
-                onMarkAllAsRead(); // Reset unread count
-            }
-        } catch (error) {
-            console.error("Error clearing all notifications:", error);
-        } finally {
-            setMarkingAllRead(false);
-        }
-    };
-
-    const unreadCount = notifications.filter(n => !n.read).length;
-
-    return (
-        <div className="flex flex-col h-full">
-            {/* Header */}
-            <div className="glass-header px-4 py-3 border-b border-white/10">
-                <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                        <h3 className="font-semibold text-white">Notifications</h3>
-                        {unreadCount > 0 && (
-                            <p className="text-xs text-gray-400">
-                                {unreadCount} unread
-                            </p>
-                        )}
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        {unreadCount > 0 && (
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={handleMarkAllRead}
-                                disabled={markingAllRead}
-                                className="text-violet-400 hover:text-violet-300 hover:bg-violet-500/10 h-8 text-xs"
-                            >
-                                {markingAllRead ? (
-                                    <Loader2 className="h-3 w-3 animate-spin mr-1" />
-                                ) : (
-                                    <CheckCheck className="h-3 w-3 mr-1" />
-                                )}
-                                Mark all read
-                            </Button>
-                        )}
-                        {notifications.length > 0 && (
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={handleClearAll}
-                                disabled={markingAllRead}
-                                className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-8 text-xs"
-                            >
-                                Clear All
-                            </Button>
-                        )}
-                    </div>
-                </div>
-            </div>
-
-            {/* Permission Request Banner */}
-            {permission !== "granted" && isSupported && (
-                <div className={`px-4 py-3 border-b border-white/5 ${permission === "denied" ? "bg-red-500/10" : "bg-blue-500/10"}`}>
-                    <div className="flex items-start gap-3">
-                        <div className={`p-2 rounded-full ${permission === "denied" ? "bg-red-500/20 text-red-400" : "bg-blue-500/20 text-blue-400"}`}>
-                            {permission === "denied" ? <BellOff className="w-4 h-4" /> : <BellRing className="w-4 h-4" />}
-                        </div>
-                        <div className="flex-1">
-                            <p className="text-sm font-medium text-white">
-                                {permission === "denied" ? "Notifications Blocked" : "Enable Notifications"}
-                            </p>
-                            <p className="text-xs text-gray-400 mt-1 mb-2">
-                                {permission === "denied"
-                                    ? "Please enable notifications in your browser settings to receive updates."
-                                    : "Get real-time updates for important activities."}
-                            </p>
-                            {permission === "default" && (
-                                <Button
-                                    size="sm"
-                                    onClick={requestPermission}
-                                    className="h-7 text-xs bg-blue-600 hover:bg-blue-700 text-white border-none w-full"
-                                >
-                                    Turn On
-                                </Button>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            )
-            }
-
-            {/* Notifications List */}
-            <ScrollArea className="flex-1" style={{ maxHeight: "400px" }}>
-                {loading ? (
-                    <div className="flex items-center justify-center py-12">
-                        <Loader2 className="h-6 w-6 animate-spin text-violet-500" />
-                    </div>
-                ) : notifications.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-                        <div className="rounded-full bg-white/5 p-3 mb-3">
-                            <Bell className="h-6 w-6 text-gray-400" />
-                        </div>
-                        <p className="text-sm font-medium text-gray-300">
-                            No notifications yet
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">
-                            You&apos;ll be notified of important updates here
-                        </p>
-                    </div>
+          <div className="flex items-center gap-2">
+            {unreadCount > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleMarkAllRead}
+                disabled={markingAllRead}
+                className="text-violet-400 hover:text-violet-300 hover:bg-violet-500/10 h-8 text-xs"
+              >
+                {markingAllRead ? (
+                  <Loader2 className="h-3 w-3 animate-spin mr-1" />
                 ) : (
-                    <div className="divide-y divide-white/5">
-                        {notifications.map((notification) => (
-                            <NotificationItem
-                                key={notification.id}
-                                notification={notification}
-                                onMarkAsRead={handleMarkAsRead}
-                                onClick={onClose}
-                            />
-                        ))}
-                    </div>
+                  <CheckCheck className="h-3 w-3 mr-1" />
                 )}
-            </ScrollArea>
-        </div >
-    );
+                Mark all read
+              </Button>
+            )}
+            {notifications.length > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleClearAll}
+                disabled={markingAllRead}
+                className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-8 text-xs"
+              >
+                Clear All
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Permission Request Banner */}
+      {permission !== "granted" && isSupported && (
+        <div
+          className={`px-4 py-3 border-b border-white/5 ${
+            permission === "denied" ? "bg-red-500/10" : "bg-blue-500/10"
+          }`}
+        >
+          <div className="flex items-start gap-3">
+            <div
+              className={`p-2 rounded-full ${
+                permission === "denied"
+                  ? "bg-red-500/20 text-red-400"
+                  : "bg-blue-500/20 text-blue-400"
+              }`}
+            >
+              {permission === "denied" ? (
+                <BellOff className="w-4 h-4" />
+              ) : (
+                <BellRing className="w-4 h-4" />
+              )}
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-medium text-white">
+                {permission === "denied"
+                  ? "Notifications Blocked"
+                  : "Enable Notifications"}
+              </p>
+              <p className="text-xs text-gray-400 mt-1 mb-2">
+                {permission === "denied"
+                  ? "Please enable notifications in your browser settings to receive updates."
+                  : "Get real-time updates for important activities."}
+              </p>
+              {permission === "default" && (
+                <Button
+                  size="sm"
+                  onClick={requestPermission}
+                  className="h-7 text-xs bg-blue-600 hover:bg-blue-700 text-white border-none w-full"
+                >
+                  Turn On
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Notifications List */}
+      <ScrollArea className="flex-1" style={{ maxHeight: "400px" }}>
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-6 w-6 animate-spin text-violet-500" />
+          </div>
+        ) : notifications.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+            <div className="rounded-full bg-white/5 p-3 mb-3">
+              <Bell className="h-6 w-6 text-gray-400" />
+            </div>
+            <p className="text-sm font-medium text-gray-300">
+              No notifications yet
+            </p>
+            <p className="text-xs text-gray-500 mt-1">
+              You&apos;ll be notified of important updates here
+            </p>
+          </div>
+        ) : (
+          <div className="divide-y divide-white/5">
+            {notifications.map((notification) => (
+              <NotificationItem
+                key={notification.id}
+                notification={notification}
+                onMarkAsRead={handleMarkAsRead}
+                onDelete={handleDelete}
+                onClick={onClose}
+              />
+            ))}
+          </div>
+        )}
+      </ScrollArea>
+    </div>
+  );
 }
