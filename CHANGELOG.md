@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.2.0](https://github.com/ADMINASHU/techser-sales-app/compare/v2.1.2...v2.2.0) (2026-01-09)
+
+
+### Features
+
+* Add admin entry detail page, user verification and decline actions with FCM notifications, and email utility. ([86eb1b3](https://github.com/ADMINASHU/techser-sales-app/commit/86eb1b3d7f66d39fb9ebe3e596ce1b751706548b))
+* Add entry management components including details modals, filters, infinite list, and associated actions. ([fd93aec](https://github.com/ADMINASHU/techser-sales-app/commit/fd93aec75a6fb837c12f3e69409a086664e768e4))
+* Implement admin settings page for location management and enhance navbar with role-based links. ([d2a19b2](https://github.com/ADMINASHU/techser-sales-app/commit/d2a19b2e96134aaa381bc15f69028f411a9b735f))
+* Implement customer log and entry management system with new pages, components, actions, and location seeding. ([fdddf0c](https://github.com/ADMINASHU/techser-sales-app/commit/fdddf0cc3778cc22f3811dcd21bbbcb691de94b3))
+* introduce core data models for User, Customer, and Entry, and implement server actions for customer management. ([40a022d](https://github.com/ADMINASHU/techser-sales-app/commit/40a022da28f991dbd6481d08db002b2926dab8b1))
+* Introduce global CSS with a custom Tailwind theme and glassmorphism components while removing unused dependencies. ([34ddd69](https://github.com/ADMINASHU/techser-sales-app/commit/34ddd693cf5184f57f673a567d8e58616921e4ad))
+* Introduce Mongoose models for User, Customer, and Entry, and add server actions for report generation, raw entry fetching, filter options, and system statistics. ([a13dda0](https://github.com/ADMINASHU/techser-sales-app/commit/a13dda0f7e53d3b44c0755ea6ec9d1396af58f8f))
+* Introduce new support and features pages, implement server actions for customer, admin, and user management, and remove obsolete development files. ([904f76d](https://github.com/ADMINASHU/techser-sales-app/commit/904f76de3d4e55d77fb04b679d54cd2821b11940))
+* Introduce NotificationBell for unread notifications, EntryFilters for dynamic data filtering, and create Navbar component. ([dd4565c](https://github.com/ADMINASHU/techser-sales-app/commit/dd4565cc717a129ad530d69f9e1b2f09414059d2))
+* Introduce user management actions, entry list with filtering and infinite scroll, and authentication configuration. ([98fc467](https://github.com/ADMINASHU/techser-sales-app/commit/98fc4671e89a3841cba3ad96abbdf34e625e5701))
+* update UI components, features page, legal docs, and fix lint errors ([339d512](https://github.com/ADMINASHU/techser-sales-app/commit/339d5122f342fbbc3cd1b66f877a448dde5060b0))
+
 ### [2.1.2](https://github.com/ADMINASHU/techser-sales-app/compare/v2.1.1...v2.1.2) (2026-01-07)
 
 
