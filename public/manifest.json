@@ -3,7 +3,6 @@
     "short_name": "TechserSales",
     "description": "Complete sales management solution for Techser with visits tracking, entry logs, and team management",
     "start_url": "/",
-    "scope": "/",
     "display": "standalone",
     "orientation": "portrait-primary",
     "background_color": "#0b0f19",
