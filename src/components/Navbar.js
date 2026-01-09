@@ -55,18 +55,17 @@ export default function Navbar() {
     session?.user?.status === "verified" || session?.user?.role === "admin";
   // Admin is always verified effectively, or handles their own status.
 
-  const links = [
-    ...(session?.user?.role === "admin"
-      ? [{ href: "/dashboard", label: "Dashboard" }]
-      : []),
-    ...(session?.user?.role !== "admin"
+  const links =
+    session?.user?.role === "admin"
       ? [
-          { href: "/customer-log", label: "Check-In/Out" },
-          { href: "/customers", label: "Customers" },
+          { href: "/dashboard", label: "Dashboard" },
+          { href: "/entries", label: "Entry Log" },
         ]
-      : []),
-    { href: "/entries", label: "Entry Log" },
-  ];
+      : [
+          { href: "/customer-log", label: "Check-In/Out" },
+          { href: "/entries", label: "Entry Log" },
+          { href: "/customers", label: "Customers" },
+        ];
 
   if (session?.user?.role === "admin") {
     links.push({ href: "/users", label: "Users" });
