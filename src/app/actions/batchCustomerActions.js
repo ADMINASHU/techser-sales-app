@@ -13,25 +13,16 @@ import Entry from "@/models/Entry";
 export async function batchGetCustomerActionStatus(customerIds, userId) {
     try {
         await dbConnect();
-        
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const endOfDay = new Date(today);
-        endOfDay.setHours(23, 59, 59, 999);
 
         // Single query to get all active entries for the given customers and user
         const activeEntries = await Entry.find({
             customerId: { $in: customerIds },
             userId,
-            status: { $in: ["Not Started", "In Process"] },
-            entryDate: { 
-                $gte: today,
-                $lte: endOfDay
-            }
+            status: { $in: ["Not Started", "In Process"] }
         })
-        .select("customerId status entryDate createdAt stampIn") // Include stampIn for duration display
-        .sort({ createdAt: -1 })
-        .lean();
+            .select("customerId status entryDate createdAt stampIn") // Include stampIn for duration display
+            .sort({ createdAt: -1 })
+            .lean();
 
         // Create a map of customerId -> most recent active entry
         const statusMap = {};
