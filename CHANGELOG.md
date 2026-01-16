@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.2.1](https://github.com/ADMINASHU/techser-sales-app/compare/v2.2.0...v2.2.1) (2026-01-16)
+
+
+### Bug Fixes
+
+* resolve user filter issue and optimize caching ([610346a](https://github.com/ADMINASHU/techser-sales-app/commit/610346a7a41b9a9df169a544c8d1ab1f356d9153))
+
 ## [2.2.0](https://github.com/ADMINASHU/techser-sales-app/compare/v2.1.2...v2.2.0) (2026-01-09)
 
 
