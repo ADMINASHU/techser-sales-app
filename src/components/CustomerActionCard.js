@@ -134,7 +134,7 @@ export default function CustomerActionCard({ customer, activeEntry, userId, hasA
                 }`} />
 
             <div className="flex justify-between items-start mb-2 gap-4 relative z-10">
-                <h3 className="text-lg font-semibold text-white truncate">{customer.name}</h3>
+                <h3 className="text-base font-semibold text-white truncate">{customer.name}</h3>
                 <div className="flex flex-col items-end gap-1.5 shrink-0">
                     <Badge variant="outline" className={`text-[9px] py-0 px-1.5 font-medium h-4 ${customer.entryCount > 0 ? "bg-white/5 text-emerald-400 border-white/10" : "bg-white/5 text-gray-500 border-white/10"
                         }`}>
@@ -144,8 +144,8 @@ export default function CustomerActionCard({ customer, activeEntry, userId, hasA
                 </div>
             </div>
 
-            <div className="flex items-start gap-3 text-sm text-gray-400 mb-2 font-medium relative z-10">
-                <MapPin className="w-4 h-4 mt-1 text-blue-500/50 shrink-0" />
+            <div className="flex items-start gap-3 text-xs text-gray-400 mb-2 font-medium relative z-10">
+                <MapPin className="w-3.5 h-3.5 mt-0.5 text-blue-500/50 shrink-0" />
                 <p className="">{customer.customerAddress}</p>
             </div>
 
@@ -183,7 +183,7 @@ export default function CustomerActionCard({ customer, activeEntry, userId, hasA
                             <div className="p-1.5 bg-white/10 rounded-full">
                                 <LogOut className="w-4 h-4 text-white" />
                             </div>
-                            <span className="text-base">Stamp Out</span>
+                            <span className="text-sm">Stamp Out</span>
                         </div>
 
                         <div className="flex items-center gap-2 pl-3 border-l border-white/10 h-6">
