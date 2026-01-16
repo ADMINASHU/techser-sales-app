@@ -1,7 +1,5 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { SpeedInsights } from "@vercel/speed-insights/next";
-import { Analytics } from "@vercel/analytics/next";
 import { auth } from "@/auth";
 import Providers from "@/app/providers";
 
@@ -33,8 +31,7 @@ export default async function RootLayout({ children }) {
                 <Providers session={session}>
                     {children}
                 </Providers>
-                <SpeedInsights />
-                <Analytics />
+             
             </body>
         </html>
     );
