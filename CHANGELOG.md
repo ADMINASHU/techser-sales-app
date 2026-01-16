@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.3.0](https://github.com/ADMINASHU/techser-sales-app/compare/v2.2.1...v2.3.0) (2026-01-16)
+
+
+### Features
+
+* add entry comments feature and remove same-day stamp restriction ([d8536fa](https://github.com/ADMINASHU/techser-sales-app/commit/d8536facdf749ac76c8f88352cb2d53dfd52e750))
+
 ### [2.2.1](https://github.com/ADMINASHU/techser-sales-app/compare/v2.2.0...v2.2.1) (2026-01-16)
 
 
