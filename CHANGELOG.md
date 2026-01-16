@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.4.0](https://github.com/ADMINASHU/techser-sales-app/compare/v2.3.0...v2.4.0) (2026-01-16)
+
+
+### Features
+
+* enhance UI/UX and fix notification handling ([88a0fdf](https://github.com/ADMINASHU/techser-sales-app/commit/88a0fdf1fec5628452fde5496d14384d09f468ac))
+
 ## [2.3.0](https://github.com/ADMINASHU/techser-sales-app/compare/v2.2.1...v2.3.0) (2026-01-16)
 
 
