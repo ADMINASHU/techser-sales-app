@@ -100,4 +100,51 @@ export function onForegroundMessage(callback) {
     return unsubscribe;
 }
 
+/**
+ * Unsubscribe from push notifications and cleanup FCM token
+ * Deletes token from Firebase and backend database
+ * @returns {Promise<boolean>} - Success status
+ */
+export async function unsubscribeFromPushNotifications() {
+    try {
+        if (!messaging) {
+            console.warn("[FCM] Messaging not supported in this browser");
+            return false;
+        }
+
+        // Get current token to delete from backend
+        const vapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY;
+        const currentToken = await getToken(messaging, { vapidKey });
+
+        if (currentToken) {
+            // Delete token from backend database
+            await fetch("/api/user/delete-fcm-token", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ token: currentToken })
+            });
+
+            // Delete token from Firebase
+            const { deleteToken } = await import("firebase/messaging");
+            await deleteToken(messaging);
+
+            console.log("[FCM] Token deleted successfully");
+        }
+
+        // Unregister service worker
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (const registration of registrations) {
+            if (registration.active?.scriptURL.includes("firebase-messaging-sw")) {
+                await registration.unregister();
+                console.log("[FCM] Service worker unregistered");
+            }
+        }
+
+        return true;
+    } catch (error) {
+        console.error("[FCM] Error unsubscribing from push notifications:", error);
+        return false;
+    }
+}
+
 export { messaging, getToken };

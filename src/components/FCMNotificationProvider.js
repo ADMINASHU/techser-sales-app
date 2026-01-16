@@ -42,7 +42,7 @@ export default function FCMNotificationProvider({ children }) {
         }
 
         if (notificationType === "user-deleted") {
-            signOut({ callbackUrl: "/verification?reason=deleted" });
+            signOut({ callbackUrl: "/login" });
             return;
         }
 
@@ -158,7 +158,12 @@ export default function FCMNotificationProvider({ children }) {
             const { type, reason, notificationType } = event.data || {};
 
             if (type === 'FORCE_LOGOUT') {
-                signOut({ callbackUrl: `/verification?reason=${reason}` });
+                // Redirect deleted users to login, declined users to verification
+                if (reason === 'deleted') {
+                    signOut({ callbackUrl: '/login' });
+                } else {
+                    signOut({ callbackUrl: `/verification?reason=${reason}` });
+                }
             }
 
             if (type === 'REFRESH_SESSION') {

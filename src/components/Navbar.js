@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
+import { unsubscribeFromPushNotifications } from "@/lib/firebase";
 import Image from "next/image";
 import {
   DropdownMenu,
@@ -23,12 +24,13 @@ export default function Navbar() {
   const pathname = usePathname();
   const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
   const menuRef = useRef(null);
   const buttonRef = useRef(null);
 
   // Proper way to detect if we're on the client
   const mounted = useSyncExternalStore(
-    () => () => {}, // subscribe: no-op, as mounted state doesn't change after initial client render
+    () => () => { }, // subscribe: no-op, as mounted state doesn't change after initial client render
     () => true, // getSnapshot: returns true on client
     () => false // getServerSnapshot: returns false on server
   );
@@ -51,6 +53,19 @@ export default function Navbar() {
     };
   }, [isOpen]);
 
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    try {
+      // Clean up FCM token and service worker before logging out
+      await unsubscribeFromPushNotifications();
+    } catch (error) {
+      console.error("Error cleaning up FCM:", error);
+    } finally {
+      // Always sign out, even if cleanup fails
+      signOut();
+    }
+  };
+
   const isVerified =
     session?.user?.status === "verified" || session?.user?.role === "admin";
   // Admin is always verified effectively, or handles their own status.
@@ -58,14 +73,14 @@ export default function Navbar() {
   const links =
     session?.user?.role === "admin"
       ? [
-          { href: "/dashboard", label: "Dashboard" },
-          { href: "/entries", label: "Entry Log" },
-        ]
+        { href: "/dashboard", label: "Dashboard" },
+        { href: "/entries", label: "Entry Log" },
+      ]
       : [
-          { href: "/customer-log", label: "Check-In/Out" },
-          { href: "/entries", label: "Entry Log" },
-          { href: "/customers", label: "Customers" },
-        ];
+        { href: "/customer-log", label: "Check-In/Out" },
+        { href: "/entries", label: "Entry Log" },
+        { href: "/customers", label: "Customers" },
+      ];
 
   if (session?.user?.role === "admin") {
     links.push({ href: "/users", label: "Users" });
@@ -104,8 +119,8 @@ export default function Navbar() {
                   ? "Profile"
                   : pathname.startsWith("/entries/") &&
                     pathname.split("/").length > 2
-                  ? "Visit Details"
-                  : "")}
+                    ? "Visit Details"
+                    : "")}
             </span>
           </div>
 
@@ -155,10 +170,10 @@ export default function Navbar() {
                         <AvatarFallback className="bg-linear-to-br from-violet-500 to-fuchsia-500 text-white font-bold">
                           {session?.user?.name
                             ? session.user.name
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")
-                                .slice(0, 2)
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")
+                              .slice(0, 2)
                             : "U"}
                         </AvatarFallback>
                       </Avatar>
@@ -177,10 +192,10 @@ export default function Navbar() {
                         <AvatarFallback className="bg-linear-to-br from-violet-500 to-fuchsia-500 text-white font-bold">
                           {session?.user?.name
                             ? session.user.name
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")
-                                .slice(0, 2)
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")
+                              .slice(0, 2)
                             : "U"}
                         </AvatarFallback>
                       </Avatar>
@@ -216,7 +231,7 @@ export default function Navbar() {
                     </DropdownMenuItem>
                     <DropdownMenuSeparator className="bg-white/10 my-1" />
                     <DropdownMenuItem
-                      onClick={() => signOut()}
+                      onClick={handleLogout}
                       className="cursor-pointer py-2.5 px-3 rounded-md text-red-400 hover:bg-red-500/10 focus:bg-red-500/10 focus:text-red-400 transition-colors flex items-center gap-2"
                     >
                       <svg
@@ -252,10 +267,10 @@ export default function Navbar() {
                     <AvatarFallback className="bg-linear-to-br from-violet-500 to-fuchsia-500 text-white font-bold">
                       {session?.user?.name
                         ? session.user.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")
-                            .slice(0, 2)
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")
+                          .slice(0, 2)
                         : "U"}
                     </AvatarFallback>
                   </Avatar>
@@ -319,10 +334,10 @@ export default function Navbar() {
                   <AvatarFallback className="bg-linear-to-br from-violet-500 to-fuchsia-500 text-white font-bold">
                     {session?.user?.name
                       ? session.user.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")
-                          .slice(0, 2)
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")
+                        .slice(0, 2)
                       : "U"}
                   </AvatarFallback>
                 </Avatar>
@@ -337,7 +352,7 @@ export default function Navbar() {
               </Link>
               <Button
                 variant="ghost"
-                onClick={() => signOut()}
+                onClick={handleLogout}
                 className="text-red-400 hover:bg-red-500/10 hover:text-red-300 h-10 px-3 active:scale-95 transition-transform flex items-center gap-2"
               >
                 <svg
@@ -361,6 +376,19 @@ export default function Navbar() {
           </div>
         )}
       </div>
+
+      {/* Logout Loading Overlay */}
+      {loggingOut && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <div className="relative">
+              <div className="w-16 h-16 border-4 border-white/10 border-t-white rounded-full animate-spin"></div>
+            </div>
+            <p className="text-white font-medium text-lg">Logging out...</p>
+            <p className="text-gray-400 text-sm">Please wait</p>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

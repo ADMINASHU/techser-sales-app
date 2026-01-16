@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Lock, Mail, User } from "lucide-react";
+import { Lock, Mail, User, Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 
 function SubmitButton() {
@@ -17,7 +17,7 @@ function SubmitButton() {
     return (
         <LoadingButton
             type="submit"
-            className="w-full h-11 text-base glass-btn-primary"
+            className="w-full h-11 text-base glass-btn-primary transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
             loading={pending}
         >
             Register →
@@ -27,6 +27,7 @@ function SubmitButton() {
 
 export default function RegisterPage() {
     const [error, setError] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
     const router = useRouter();
 
     async function clientAction(formData) {
@@ -81,7 +82,21 @@ export default function RegisterPage() {
                         <Label htmlFor="password" className="text-gray-300">Password</Label>
                         <div className="relative">
                             <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400 z-10" />
-                            <Input id="password" name="password" type="password" placeholder="•••••••" className="pl-10 h-11 glass-inputs" required />
+                            <Input
+                                id="password"
+                                name="password"
+                                type={showPassword ? "text" : "password"}
+                                placeholder="•••••••"
+                                className="pl-10 pr-10 h-11 glass-inputs"
+                                required
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-3 top-3 text-gray-400 hover:text-gray-300 transition-colors z-10"
+                            >
+                                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                            </button>
                         </div>
                     </div>
 
@@ -92,7 +107,7 @@ export default function RegisterPage() {
 
                 <div className="mt-8 text-center text-sm">
                     <span className="text-gray-400">Already have an account? </span>
-                    <Link href="/login" className="text-cyan-400 hover:text-cyan-300 font-medium hover:underline">
+                    <Link href="/login" className="text-cyan-400 hover:text-cyan-300 font-medium">
                         Login here
                     </Link>
                 </div>

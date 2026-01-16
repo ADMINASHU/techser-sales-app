@@ -24,6 +24,7 @@ import {
 import { updateProfile, changePassword } from "@/app/actions/userActions";
 import { getLocations } from "@/app/actions/settingsActions";
 import { toast } from "sonner";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function EditProfileDialog({ user, trigger }) {
     const [open, setOpen] = useState(false);
@@ -72,6 +73,9 @@ export default function EditProfileDialog({ user, trigger }) {
     });
 
     const [isPasswordSectionOpen, setIsPasswordSectionOpen] = useState(false);
+    const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const handleProfileChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -232,39 +236,66 @@ export default function EditProfileDialog({ user, trigger }) {
                         <>
                             <div className="grid gap-2">
                                 <Label htmlFor="currentPassword" className="text-gray-300">Current Password</Label>
-                                <Input
-                                    id="currentPassword"
-                                    name="currentPassword"
-                                    type="password"
-                                    value={passwordData.currentPassword}
-                                    onChange={handlePasswordChange}
-                                    required={isPasswordSectionOpen}
-                                    className="bg-[#1e293b]/50 border-white/10 text-white focus-visible:ring-fuchsia-500/50"
-                                />
+                                <div className="relative">
+                                    <Input
+                                        id="currentPassword"
+                                        name="currentPassword"
+                                        type={showCurrentPassword ? "text" : "password"}
+                                        value={passwordData.currentPassword}
+                                        onChange={handlePasswordChange}
+                                        required={isPasswordSectionOpen}
+                                        className="bg-[#1e293b]/50 border-white/10 text-white focus-visible:ring-fuchsia-500/50 pr-10"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                                        className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-300 transition-colors"
+                                    >
+                                        {showCurrentPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                                    </button>
+                                </div>
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="newPassword" className="text-gray-300">New Password</Label>
-                                <Input
-                                    id="newPassword"
-                                    name="newPassword"
-                                    type="password"
-                                    value={passwordData.newPassword}
-                                    onChange={handlePasswordChange}
-                                    required={isPasswordSectionOpen}
-                                    className="bg-[#1e293b]/50 border-white/10 text-white focus-visible:ring-fuchsia-500/50"
-                                />
+                                <div className="relative">
+                                    <Input
+                                        id="newPassword"
+                                        name="newPassword"
+                                        type={showNewPassword ? "text" : "password"}
+                                        value={passwordData.newPassword}
+                                        onChange={handlePasswordChange}
+                                        required={isPasswordSectionOpen}
+                                        className="bg-[#1e293b]/50 border-white/10 text-white focus-visible:ring-fuchsia-500/50 pr-10"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowNewPassword(!showNewPassword)}
+                                        className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-300 transition-colors"
+                                    >
+                                        {showNewPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                                    </button>
+                                </div>
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="confirmPassword" className="text-gray-300">Confirm New Password</Label>
-                                <Input
-                                    id="confirmPassword"
-                                    name="confirmPassword"
-                                    type="password"
-                                    value={passwordData.confirmPassword}
-                                    onChange={handlePasswordChange}
-                                    required={isPasswordSectionOpen}
-                                    className="bg-[#1e293b]/50 border-white/10 text-white focus-visible:ring-fuchsia-500/50"
-                                />
+                                <div className="relative">
+                                    <Input
+                                        id="confirmPassword"
+                                        name="confirmPassword"
+                                        type={showConfirmPassword ? "text" : "password"}
+                                        value={passwordData.confirmPassword}
+                                        onChange={handlePasswordChange}
+                                        required={isPasswordSectionOpen}
+                                        className="bg-[#1e293b]/50 border-white/10 text-white focus-visible:ring-fuchsia-500/50 pr-10"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                        className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-300 transition-colors"
+                                    >
+                                        {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                                    </button>
+                                </div>
                             </div>
                         </>
                     )}
