@@ -42,6 +42,37 @@ export async function deleteEntry(entryId) {
   }
 }
 
+export async function updateEntryComment(entryId, comment) {
+  const session = await auth();
+  if (!session) return { error: "Not authenticated" };
+
+  // RESTRICTION: Only non-admin users can add comments
+  if (session.user.role === "admin") {
+    return { error: "Admins are not allowed to add comments." };
+  }
+
+  try {
+    await dbConnect();
+
+    // Ensure the user owns the entry
+    const entry = await Entry.findById(entryId);
+    if (!entry) return { error: "Entry not found" };
+
+    if (entry.userId.toString() !== session.user.id) {
+      return { error: "You are not authorized to update this entry" };
+    }
+
+    // Update the entry with the new comment
+    await Entry.findByIdAndUpdate(entryId, { comment: comment || "" });
+
+    revalidatePath("/entries");
+    revalidatePath("/dashboard");
+    return { success: true };
+  } catch (error) {
+    return { error: "Failed to update comment" };
+  }
+}
+
 // Cached Data Fetcher
 const getCachedEntries = unstable_cache(
   async (userId, role, filters, skip, limit) => {
@@ -112,7 +143,7 @@ const getCachedEntries = unstable_cache(
       .skip(skip)
       .limit(limit)
       .select(
-        "customerName entryDate status createdAt updatedAt userId customerId stampIn stampOut googleSheetRowId"
+        "customerName entryDate status createdAt updatedAt userId customerId stampIn stampOut googleSheetRowId comment"
       )
       .populate(
         "userId",
@@ -130,15 +161,15 @@ const getCachedEntries = unstable_cache(
       _id: entry._id.toString(),
       userId: entry.userId
         ? {
-            ...entry.userId,
-            _id: entry.userId._id.toString(),
-          }
+          ...entry.userId,
+          _id: entry.userId._id.toString(),
+        }
         : null,
       customerId: entry.customerId
         ? {
-            ...entry.customerId,
-            _id: entry.customerId._id.toString(),
-          }
+          ...entry.customerId,
+          _id: entry.customerId._id.toString(),
+        }
         : null,
       createdAt: entry.createdAt.toISOString(),
       updatedAt: entry.updatedAt.toISOString(),
@@ -153,7 +184,7 @@ const getCachedEntries = unstable_cache(
       hasMore: entries.length === limit,
     };
   },
-  ["entries-list"], // Base key helps internal organization
+  ["entries-list-v2"], // Base key helps internal organization (v2 includes comment field)
   { tags: ["entries"] } // Tag for revalidation
 );
 
