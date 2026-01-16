@@ -6,7 +6,7 @@ import { formatInIST } from "@/lib/utils";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Edit, Navigation } from "lucide-react";
+import { ArrowLeft, Edit, Navigation, MessageSquare } from "lucide-react";
 import EntryUserCard from "@/components/EntryUserCard";
 import EntryMap from "@/components/EntryMap";
 
@@ -146,6 +146,19 @@ export default async function EntryDetailPage({ params, searchParams }) {
                                 </span>
                             </div>
                         </div>
+
+                        {/* Comment Section (View Only for Admin) */}
+                        {entry.comment && (
+                            <div className="space-y-2 bg-white/5 p-4 rounded-xl border border-white/5">
+                                <Label className="text-gray-500 font-medium text-[10px] tracking-[0.2em]">COMMENT</Label>
+                                <div className="flex items-start gap-2">
+                                    <MessageSquare className="w-4 h-4 mt-0.5 flex-shrink-0 text-yellow-400" />
+                                    <p className="text-sm text-yellow-400 leading-relaxed">
+                                        {entry.comment}
+                                    </p>
+                                </div>
+                            </div>
+                        )}
 
                     </div>
                 </div>
