@@ -83,7 +83,8 @@ export default function AdminUserList({
   // Handle Filter Changes
   const updateFilters = (key, value) => {
     const params = new URLSearchParams(searchParams);
-    if (value && value !== "all") {
+
+    if (value) {
       params.set(key, value);
     } else {
       params.delete(key);

@@ -4,7 +4,7 @@ import { auth } from "@/auth";
 import dbConnect from "@/lib/db";
 import Entry from "@/models/Entry";
 import Customer from "@/models/Customer";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, unstable_cache } from "next/cache";
 
 export async function deleteEntry(entryId) {
   const session = await auth();
@@ -42,27 +42,16 @@ export async function deleteEntry(entryId) {
   }
 }
 
-export async function fetchEntries({
-  page = 1,
-  limit = 30,
-  filters = {},
-  skip: customSkip,
-}) {
-  try {
-    const session = await auth();
-    if (!session) {
-      throw new Error("Unauthorized");
-    }
+// Cached Data Fetcher
+const getCachedEntries = unstable_cache(
+  async (userId, role, filters, skip, limit) => {
     await dbConnect();
 
-    // Use customSkip if provided, otherwise calculate from page/limit
-    const skip = customSkip !== undefined ? customSkip : (page - 1) * limit;
-    const isAdmin = session.user.role === "admin";
     const query = {};
 
     // 1. Role-based Base Query
-    if (!isAdmin) {
-      query.userId = session.user.id;
+    if (role !== "admin") {
+      query.userId = userId;
     } else {
       if (filters.user && filters.user !== "all") {
         query.userId = filters.user;
@@ -163,7 +152,36 @@ export async function fetchEntries({
       entries: serializedEntries,
       hasMore: entries.length === limit,
     };
+  },
+  ["entries-list"], // Base key helps internal organization
+  { tags: ["entries"] } // Tag for revalidation
+);
+
+export async function fetchEntries({
+  page = 1,
+  limit = 30,
+  filters = {},
+  skip: customSkip,
+}) {
+  try {
+    const session = await auth();
+    if (!session) {
+      throw new Error("Unauthorized");
+    }
+
+    // Use customSkip if provided, otherwise calculate from page/limit
+    const skip = customSkip !== undefined ? customSkip : (page - 1) * limit;
+
+    // We pass primitive values to the cached function to ensure strict key generation
+    return await getCachedEntries(
+      session.user.id,
+      session.user.role,
+      filters,
+      skip,
+      limit
+    );
   } catch (error) {
+    console.error("Fetch Entries Error:", error);
     throw new Error("Failed to fetch entries");
   }
 }
