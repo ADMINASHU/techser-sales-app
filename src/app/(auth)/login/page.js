@@ -29,12 +29,14 @@ function SubmitButton() {
 export default function LoginPage() {
     const [error, setError] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+    const [loggingIn, setLoggingIn] = useState(false);
     const router = useRouter();
 
     async function clientAction(formData) {
         const result = await authenticate(undefined, formData);
 
         if (typeof result === "object" && result?.success) {
+            setLoggingIn(true);
             toast.success("Login successful");
             // Force hard navigation to ensure fresh session data
             window.location.href = "/";
@@ -142,6 +144,19 @@ export default function LoginPage() {
                 </div>
 
             </div>
+
+            {/* Login Loading Overlay */}
+            {loggingIn && (
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center">
+                    <div className="flex flex-col items-center gap-4">
+                        <div className="relative">
+                            <div className="w-16 h-16 border-4 border-white/10 border-t-white rounded-full animate-spin"></div>
+                        </div>
+                        <p className="text-white font-medium text-lg">Logging in...</p>
+                        <p className="text-gray-400 text-sm">Please wait</p>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
