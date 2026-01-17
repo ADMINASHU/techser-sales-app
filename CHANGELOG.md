@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.5.0](https://github.com/ADMINASHU/techser-sales-app/compare/v2.4.0...v2.5.0) (2026-01-17)
+
+
+### Features
+
+* implement user-specific customer filtering/sharing and rename check-in to stamp-in ([b68f8be](https://github.com/ADMINASHU/techser-sales-app/commit/b68f8bec5f5bc1ec5214e723be97f323747a4993))
+
 ## [2.4.0](https://github.com/ADMINASHU/techser-sales-app/compare/v2.3.0...v2.4.0) (2026-01-16)
 
 
