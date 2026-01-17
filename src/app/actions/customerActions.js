@@ -379,12 +379,38 @@ export async function getCustomersWithEntryCount({
       }
     }
 
-    // Just to ensure format matches previous expectations (though we removed 'allEntries')
-    // We ensure 'isPrioritized' is set to 0 for others.
-    customers.forEach((c) => {
-      if (!c.isPrioritized) c.isPrioritized = 0;
-      // entryCount is now native to the model, no need to calculate!
-    });
+    // CALCULATE USER-SPECIFIC ENTRY COUNTS
+    // We need to fetch the count of entries for this user for EACH customer in the current batch.
+    // To avoid N+1 queries, we'll use an aggregation on the Entry model.
+    if (customers.length > 0) {
+      const customerIds = customers.map((c) => c._id);
+
+      const entryCounts = await Entry.aggregate([
+        {
+          $match: {
+            userId: new mongoose.Types.ObjectId(session.user.id),
+            customerId: { $in: customerIds },
+          },
+        },
+        {
+          $group: {
+            _id: "$customerId",
+            count: { $sum: 1 },
+          },
+        },
+      ]);
+      // Create a map for quick lookup
+      const entryCountMap = entryCounts.reduce((acc, curr) => {
+        acc[curr._id.toString()] = curr.count;
+        return acc;
+      }, {});
+
+      // Assign userEntryCount to each customer
+      customers.forEach((c) => {
+        if (!c.isPrioritized) c.isPrioritized = 0;
+        c.userEntryCount = entryCountMap[c._id.toString()] || 0;
+      });
+    }
 
     const total = await Customer.countDocuments(query);
     const hasMore = skip + customers.length < total;
