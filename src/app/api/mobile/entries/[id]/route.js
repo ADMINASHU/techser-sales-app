@@ -39,7 +39,7 @@ export async function PUT(req, { params }) {
     const user = await verifyAuth(req);
     if (!user) return unauthorizedResponse();
 
-    const { id } = params;
+    const { id } = await params;
     const body = await req.json(); // Expected: { status, stampOut, location, ... }
 
     await dbConnect();
@@ -101,7 +101,7 @@ export async function DELETE(req, { params }) {
     const user = await verifyAuth(req);
     if (!user) return unauthorizedResponse();
 
-    const { id } = params;
+    const { id } = await params;
 
     await dbConnect();
 
