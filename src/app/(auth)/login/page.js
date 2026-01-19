@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Lock, Mail } from "lucide-react";
+import { Lock, Mail, Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 
 function SubmitButton() {
@@ -18,7 +18,7 @@ function SubmitButton() {
     return (
         <LoadingButton
             type="submit"
-            className="w-full h-11 text-base bg-linear-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 shadow-lg shadow-fuchsia-500/20 border-0"
+            className="w-full h-11 text-base bg-linear-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 shadow-lg shadow-fuchsia-500/20 hover:shadow-fuchsia-500/40 border-0 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
             loading={pending}
         >
             Login →
@@ -28,12 +28,15 @@ function SubmitButton() {
 
 export default function LoginPage() {
     const [error, setError] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [loggingIn, setLoggingIn] = useState(false);
     const router = useRouter();
 
     async function clientAction(formData) {
         const result = await authenticate(undefined, formData);
-        
+
         if (typeof result === "object" && result?.success) {
+            setLoggingIn(true);
             toast.success("Login successful");
             // Force hard navigation to ensure fresh session data
             window.location.href = "/";
@@ -89,11 +92,18 @@ export default function LoginPage() {
                             <Input
                                 id="password"
                                 name="password"
-                                type="password"
+                                type={showPassword ? "text" : "password"}
                                 placeholder="•••••••"
-                                className="pl-10 h-11 bg-[#1e293b]/80 border-white/10 text-white placeholder:text-gray-500 focus-visible:ring-fuchsia-500/50"
+                                className="pl-10 pr-10 h-11 bg-[#1e293b]/80 border-white/10 text-white placeholder:text-gray-500 focus-visible:ring-fuchsia-500/50"
                                 required
                             />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-3 top-3 text-gray-400 hover:text-gray-300 transition-colors z-10"
+                            >
+                                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                            </button>
                         </div>
                     </div>
 
@@ -113,14 +123,14 @@ export default function LoginPage() {
                         <span className="w-full border-t border-white/10" />
                     </div>
                     <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-background px-2 text-gray-500">
+                        <span className="bg-[#0f1117] px-2 text-gray-500">
                             Or continue with
                         </span>
                     </div>
                 </div>
 
                 <form action={googleLogin}>
-                    <Button variant="outline" type="submit" className="w-full h-11 bg-white/5 border-white/10 hover:bg-white/10 text-white hover:text-white">
+                    <Button variant="outline" type="submit" className="w-full h-11 bg-white/5 border-white/10 hover:bg-white/10 text-white hover:text-white transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] hover:border-white/20 cursor-pointer">
                         <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512"><path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"></path></svg>
                         Sign in with Google
                     </Button>
@@ -128,12 +138,25 @@ export default function LoginPage() {
 
                 <div className="mt-6 text-center text-sm">
                     <span className="text-gray-400">Don&apos;t have an account? </span>
-                    <Link href="/register" className="text-cyan-400 hover:text-cyan-300 font-medium hover:underline">
+                    <Link href="/register" className="text-cyan-400 hover:text-cyan-300 font-medium">
                         Create Account
                     </Link>
                 </div>
 
             </div>
+
+            {/* Login Loading Overlay */}
+            {loggingIn && (
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center">
+                    <div className="flex flex-col items-center gap-4">
+                        <div className="relative">
+                            <div className="w-16 h-16 border-4 border-white/10 border-t-white rounded-full animate-spin"></div>
+                        </div>
+                        <p className="text-white font-medium text-lg">Logging in...</p>
+                        <p className="text-gray-400 text-sm">Please wait</p>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

@@ -6,6 +6,15 @@ import { getCustomers } from "@/app/actions/customerActions";
 import { Loader2 } from "lucide-react";
 import { VirtuosoGrid } from "react-virtuoso";
 
+const ListFooter = ({ context }) => {
+    const { loading, hasMore } = context;
+    return loading && hasMore ? (
+        <div className="flex justify-center p-4 col-span-full">
+            <Loader2 className="h-6 w-6 animate-spin text-blue-500" />
+        </div>
+    ) : null;
+};
+
 export default function InfiniteCustomerList({ initialCustomers, initialHasMore, searchParams, isAdmin, onEdit }) {
     const [customers, setCustomers] = useState(initialCustomers);
     const [hasMore, setHasMore] = useState(initialHasMore);
@@ -49,30 +58,24 @@ export default function InfiniteCustomerList({ initialCustomers, initialHasMore,
         }
     };
 
-    const Footer = () => {
-        return loading && hasMore ? (
-            <div className="flex justify-center p-4">
-                <Loader2 className="h-6 w-6 animate-spin text-blue-500" />
-            </div>
-        ) : null;
-    };
-
     return (
-        <div className="h-full min-h-[500px]"> 
+          <div className="pb-20 h-full min-h-[500px]">
+            {/* Entry List (Grid View) */}
+            <div className="h-full">
             {customers.length === 0 ? (
-                 <div className="text-center py-10">
-                     <p className="text-gray-500 text-sm">No customers found.</p>
-                 </div>
+                <EmptyCustomerState />
             ) : (
                 <VirtuosoGrid
                     useWindowScroll
                     data={customers}
                     endReached={loadMore}
+                    overscan={200}
+                    context={{ loading, hasMore }}
                     components={{
-                        Footer: Footer
+                        Footer: ListFooter
                     }}
                     itemContent={(index, customer) => (
-                        <div className="mb-6 pr-2 h-full"> {/* Added spacing */}
+                        <div className="h-full">
                             <CustomerCard
                                 customer={customer}
                                 isAdmin={isAdmin}
@@ -83,6 +86,28 @@ export default function InfiniteCustomerList({ initialCustomers, initialHasMore,
                     listClassName="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 pb-20"
                 />
             )}
+               </div>
+
+            {!hasMore && customers.length > 0 && (
+                <div className="flex flex-col items-center justify-center py-8 opacity-50">
+                    <div className="w-12 h-1 bg-white/10 rounded-full mb-3" />
+                    <p className="text-xs font-medium text-gray-400 uppercase tracking-widest">No more customers</p>
+                </div>
+            )}
+        </div>
+    );
+}
+
+function EmptyCustomerState() {
+    return (
+        <div className="flex flex-col items-center justify-center py-16 text-center glass-panel rounded-xl border border-white/5">
+            <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4">
+                <svg className="w-8 h-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+            </div>
+            <h3 className="text-lg font-medium text-white mb-1">No customers found</h3>
+            <p className="text-gray-400 max-w-sm">
+                Try adjusting your filters or add a new customer to get started.
+            </p>
         </div>
     );
 }

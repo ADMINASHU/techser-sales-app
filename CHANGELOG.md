@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.5.0](https://github.com/ADMINASHU/techser-sales-app/compare/v2.4.0...v2.5.0) (2026-01-17)
+
+
+### Features
+
+* implement user-specific customer filtering/sharing and rename check-in to stamp-in ([b68f8be](https://github.com/ADMINASHU/techser-sales-app/commit/b68f8bec5f5bc1ec5214e723be97f323747a4993))
+
+## [2.4.0](https://github.com/ADMINASHU/techser-sales-app/compare/v2.3.0...v2.4.0) (2026-01-16)
+
+
+### Features
+
+* enhance UI/UX and fix notification handling ([88a0fdf](https://github.com/ADMINASHU/techser-sales-app/commit/88a0fdf1fec5628452fde5496d14384d09f468ac))
+
+## [2.3.0](https://github.com/ADMINASHU/techser-sales-app/compare/v2.2.1...v2.3.0) (2026-01-16)
+
+
+### Features
+
+* add entry comments feature and remove same-day stamp restriction ([d8536fa](https://github.com/ADMINASHU/techser-sales-app/commit/d8536facdf749ac76c8f88352cb2d53dfd52e750))
+
+### [2.2.1](https://github.com/ADMINASHU/techser-sales-app/compare/v2.2.0...v2.2.1) (2026-01-16)
+
+
+### Bug Fixes
+
+* resolve user filter issue and optimize caching ([610346a](https://github.com/ADMINASHU/techser-sales-app/commit/610346a7a41b9a9df169a544c8d1ab1f356d9153))
+
 ## [2.2.0](https://github.com/ADMINASHU/techser-sales-app/compare/v2.1.2...v2.2.0) (2026-01-09)
 
 

@@ -8,9 +8,10 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Navigation, X } from "lucide-react";
+import { Navigation, X, MessageSquare } from "lucide-react";
 import { formatInIST } from "@/lib/utils";
 import EntryUserCard from "@/components/EntryUserCard";
+import AddCommentButton from "@/components/AddCommentButton";
 import { useEffect, useState } from "react";
 
 function Label({ children, className }) {
@@ -35,8 +36,8 @@ export default function EntryDetailsModal({ entry, isOpen, onClose }) {
     entry.status === "Completed"
       ? "default"
       : entry.status === "In Process"
-      ? "secondary"
-      : "outline";
+        ? "secondary"
+        : "outline";
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -108,22 +109,21 @@ export default function EntryDetailsModal({ entry, isOpen, onClose }) {
               </div>
             </div>
 
-            {/* Actions */}
-            <div className="flex flex-col gap-3">
-              {(entry.customerId?.location?.lat || entry.location?.lat) && (
-                <a
-                  href={`https://www.google.com/maps/dir/?api=1&destination=${
-                    entry.customerId?.location?.lat || entry.location?.lat
-                  },${entry.customerId?.location?.lng || entry.location?.lng}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full"
-                >
-                  <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-                    <Navigation className="w-4 h-4 mr-2" />
-                    Get Directions
-                  </Button>
-                </a>
+            {/* Comment Section */}
+            <div className="border-t border-white/5 pt-4">
+              <div className="flex items-center justify-between mb-3">
+                <Label className="text-muted-foreground mb-0">Comment</Label>
+                <AddCommentButton entryId={entry._id.toString()} currentComment={entry.comment || ""} />
+              </div>
+              {entry.comment ? (
+                <div className="flex items-start gap-2 p-3 rounded-lg bg-yellow-500/5">
+                  <MessageSquare className="w-4 h-4 mt-1 flex-shrink-0 text-yellow-400" />
+                  <p className="text-sm text-yellow-400 leading-relaxed">
+                    {entry.comment}
+                  </p>
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground italic">No comment added</p>
               )}
             </div>
           </div>

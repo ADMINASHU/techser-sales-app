@@ -5,9 +5,8 @@ import dbConnect from "@/lib/db";
 import Entry from "@/models/Entry";
 import Customer from "@/models/Customer";
 import User from "@/models/User";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { sendNotificationToUsers } from "@/lib/fcmNotification";
-
 
 // Helper for notifications
 async function notifyAdmins(action, entry, actor) {
@@ -15,7 +14,7 @@ async function notifyAdmins(action, entry, actor) {
     // Only notify admins in the same region as the entry
     const admins = await User.find({
       role: "admin",
-      region: entry.userRegion
+      region: entry.userRegion,
     }).select("_id");
     const adminIds = admins.map((a) => a._id.toString());
 
@@ -33,7 +32,6 @@ async function notifyAdmins(action, entry, actor) {
     }
   } catch (error) {
     console.error("Failed to send notification:", error);
-
   }
 }
 
@@ -84,8 +82,10 @@ export async function customerStampIn(customerId, location) {
     // Update Customer count and Notify Admins can happen without blocking the return.
     // However, Vercel Serverless needs `waitUntil` or await. Safe bet is `Promise.all`.
 
-    // We increment count effectively. 
-    const updateCustomerPromise = Customer.findByIdAndUpdate(customerId, { $inc: { entryCount: 1 } });
+    // We increment count effectively.
+    const updateCustomerPromise = Customer.findByIdAndUpdate(customerId, {
+      $inc: { entryCount: 1 },
+    });
 
     const notificationPromise = notifyAdmins("Stamped In", entry, {
       id: session.user.id,
@@ -97,6 +97,7 @@ export async function customerStampIn(customerId, location) {
     await Promise.all([updateCustomerPromise, notificationPromise]);
 
     revalidatePath("/customer-log");
+    revalidateTag("entries"); // Invalidate cached entry lists
     return { success: true };
   } catch (error) {
     return { error: "Failed to stamp in" };
@@ -142,6 +143,7 @@ export async function customerStampOut(customerId, location) {
     });
 
     revalidatePath("/customer-log");
+    revalidateTag("entries");
     return { success: true };
   } catch (error) {
     return { error: "Failed to stamp out" };

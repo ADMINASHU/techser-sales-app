@@ -43,7 +43,7 @@ const EntrySchema = new mongoose.Schema(
             required: true,
             default: Date.now,
         },
-        // Denormalized user data for faster admin filtering
+        //Denormalised user data for faster admin filtering
         userRegion: {
             type: String,
             index: true,
@@ -51,6 +51,10 @@ const EntrySchema = new mongoose.Schema(
         userBranch: {
             type: String,
             index: true,
+        },
+        comment: {
+            type: String,
+            default: "",
         },
     },
     { timestamps: true }

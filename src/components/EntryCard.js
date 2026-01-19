@@ -5,10 +5,11 @@ import { Badge } from "@/components/ui/badge";
 import { formatInIST, calculateDistance } from "@/lib/utils";
 import DurationDisplay from "@/components/DurationDisplay";
 import DeleteEntryButton from "@/components/DeleteEntryButton";
+import AddCommentButton from "@/components/AddCommentButton";
 import AdminEntryDetailsModal from "@/components/AdminEntryDetailsModal";
 import EntryDetailsModal from "@/components/EntryDetailsModal";
 import { useSession } from "next-auth/react";
-import { ShieldAlert } from "lucide-react";
+import { ShieldAlert, MapPin, MessageSquare, Clock } from "lucide-react";
 
 const EntryCard = memo(function EntryCard({ entry, isAdmin }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -47,18 +48,17 @@ const EntryCard = memo(function EntryCard({ entry, isAdmin }) {
         <>
             <div
                 onClick={handleCardClick}
-                className={`glass-card p-4 rounded-xl relative overflow-hidden group active:scale-[0.98] transition-all duration-300 transform-gpu h-full flex flex-col cursor-pointer ${
-                    isAdmin && isUnverified 
-                        ? "border-red-500/50 ring-1 ring-red-500/20 shadow-[0_0_25px_rgba(239,68,68,0.1)] bg-red-500/5"
-                        : entry.status === 'In Process' 
-                            ? "border-yellow-500/30 ring-1 ring-yellow-500/10 shadow-[0_0_25px_rgba(234,179,8,0.1)]" 
-                            : ""
-                }`}
+                className={`glass-card p-4 rounded-xl relative overflow-hidden group active:scale-[0.98] transition-all duration-300 transform-gpu h-full flex flex-col cursor-pointer ${isAdmin && isUnverified
+                    ? "bg-red-500/5 hover:border-red-500/50 hover:ring-1 hover:ring-red-500/20 hover:shadow-[0_0_25px_rgba(239,68,68,0.1)]"
+                    : entry.status === 'In Process'
+                        ? "border-yellow-500/30 ring-1 ring-yellow-500/10 shadow-[0_0_25px_rgba(234,179,8,0.1)]"
+                        : ""
+                    }`}
             >
                 {/* Background Glow */}
                 <div className="absolute top-0 right-0 p-2 transition-opacity pointer-events-none">
                     {isAdmin && isUnverified ? (
-                         <ShieldAlert className="w-32 h-32 text-red-500/20 absolute -top-4 -right-4 rotate-12 z-0" />
+                        <ShieldAlert className="w-32 h-32 text-red-500/20 absolute -top-4 -right-4 rotate-12 z-0" />
                     ) : entry.status === 'Completed' ? (
                         <div className="w-16 h-16 bg-emerald-500 rounded-full blur-xl opacity-10 group-hover:opacity-20"></div>
                     ) : entry.status === 'In Process' ? (
@@ -80,35 +80,46 @@ const EntryCard = memo(function EntryCard({ entry, isAdmin }) {
                     </div>
                 )}
 
-                <div className="flex justify-between items-start mb-2 relative z-10 pr-8">
-                    <h3 className="text-lg font-semibold text-white truncate">{entry.customerName}</h3>
-                    <Badge variant="outline" className={
-                        entry.status === 'Completed'
-                            ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                            : entry.status === 'In Process'
-                                ? "bg-yellow-500/10 text-yellow-400 border-yellow-500/20"
-                                : "bg-blue-500/10 text-blue-400 border-blue-500/20"
-                    }>
+                <div className="flex justify-between items-start mb-2 relative z-10 gap-2">
+                    <h3 className="text-base font-semibold text-white truncate">{entry.customerName}</h3>
+                    <Badge variant="outline" className={`flex-shrink-0 ${entry.status === 'Completed'
+                        ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                        : entry.status === 'In Process'
+                            ? "bg-yellow-500/10 text-yellow-400 border-yellow-500/20"
+                            : "bg-blue-500/10 text-blue-400 border-blue-500/20"
+                        }`}>
                         {entry.status}
                     </Badge>
                 </div>
 
                 {/* Address - Full Display */}
                 <div className="relative mb-3 flex-1 z-10">
-                    <p className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">
-                        {entry.customerId?.customerAddress || entry.customerAddress || "No address available"}
+                    <p className="text-xs text-gray-400 group-hover:text-gray-300 transition-colors flex items-start gap-1.5">
+                        <MapPin className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                        <span>{entry.customerId?.customerAddress || entry.customerAddress || "No address available"}</span>
                     </p>
+
+                    {/* Comment Display (Visible to all users) */}
+                    {entry.comment && (
+                        <div className="mt-2 flex items-start gap-1.5">
+                            <MessageSquare className="w-3 h-3 mt-0.5 flex-shrink-0 text-yellow-400" />
+                            <p className="text-xs text-yellow-400 line-clamp-2">
+                                {entry.comment}
+                            </p>
+                        </div>
+                    )}
 
                     {/* Distance Display (Only for Admin & Unverified) */}
                     {isAdmin && isUnverified && (inDistance !== null || outDistance !== null) && (
                         <div className="mt-1 flex gap-3 text-xs font-mono">
                             {inDistance !== null && (
-                                <span className={inDistance > 100 ? "text-red-400 font-bold" : "text-emerald-400"}>
+                                <span className={`flex items-center gap-1 ${inDistance > 100 ? "text-red-400 font-bold" : "text-emerald-400"}`}>
+                                    <Clock className="w-3 h-3" />
                                     In: {formatDist(inDistance)}
                                 </span>
                             )}
                             {outDistance !== null && (
-                                <span className={outDistance > 100 ? "text-red-400 font-bold" : "text-emerald-400"}>
+                                <span className={`flex items-center gap-1 ${outDistance > 100 ? "text-red-400 font-bold" : "text-emerald-400"}`}>
                                     Out: {formatDist(outDistance)}
                                 </span>
                             )}
@@ -143,12 +154,13 @@ const EntryCard = memo(function EntryCard({ entry, isAdmin }) {
                                 </div>
                             )}
 
-                            {/* Delete Button (Only if not admin) */}
+                            {/* Comment & Delete Buttons (Only if not admin) */}
                             {!isAdmin && (
-                                <div className="opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity min-w-[44px] min-h-[44px] flex items-center justify-center" onClick={(e) => {
+                                <div className="opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity min-w-[44px] min-h-[44px] flex items-center justify-center gap-1" onClick={(e) => {
                                     e.preventDefault();
                                     e.stopPropagation();
                                 }}>
+                                    <AddCommentButton entryId={entry._id.toString()} currentComment={entry.comment || ""} />
                                     <DeleteEntryButton entryId={entry._id.toString()} />
                                 </div>
                             )}

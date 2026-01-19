@@ -6,7 +6,7 @@ import { formatInIST } from "@/lib/utils";
 import EntryUserCard from "@/components/EntryUserCard";
 import { useEffect, useState } from "react";
 import dynamic from 'next/dynamic';
-import { Loader2 } from "lucide-react";
+import { Loader2, MessageSquare } from "lucide-react";
 
 const EntryMap = dynamic(() => import('@/components/EntryMap'), {
     loading: () => <div className="w-full h-full flex items-center justify-center bg-gray-900"><Loader2 className="w-8 h-8 text-blue-500 animate-spin" /></div>,
@@ -54,17 +54,17 @@ export default function AdminEntryDetailsModal({ entry, isOpen, onClose, session
                     </div>
 
                     {/* Info Panel - Right Side (1/3) */}
-                    <div className="lg:col-span-1 bg-[#0b0f19] p-6 lg:p-8 h-auto lg:h-full lg:overflow-y-auto flex flex-col relative hide-scrollbar">
+                    <div className="lg:col-span-1 bg-[#0b0f19] p-4 lg:p-5 h-auto lg:h-full lg:overflow-y-auto flex flex-col relative hide-scrollbar">
                         {/* Header inside the panel (Visible only on desktop) */}
-                        <div className="hidden lg:flex items-center justify-between mb-6">
+                        <div className="hidden lg:flex items-center justify-between mb-4 pr-10">
                             <DialogTitle className="text-xl font-bold text-white">Visit Details</DialogTitle>
                             <Badge variant={statusColor} className="capitalize px-2 py-0.5 text-[10px]">{entry.status}</Badge>
                         </div>
 
                         {/* Content */}
-                        <div className="space-y-5">
+                        <div className="space-y-3">
                             {/* Visited By */}
-                            <div className="space-y-1.5">
+                            <div className="space-y-1">
                                 <Label className="text-gray-500 font-medium text-[10px] tracking-[0.2em]">VISITED BY</Label>
                                 <EntryUserCard user={entry.userId} />
                             </div>
@@ -72,7 +72,7 @@ export default function AdminEntryDetailsModal({ entry, isOpen, onClose, session
                             {/* Customer */}
                             <div className="space-y-1">
                                 <Label className="text-gray-500 font-medium text-[10px] tracking-[0.2em]">CUSTOMER</Label>
-                                <p className="text-lg font-bold text-white leading-tight">
+                                <p className="text-base font-bold text-white leading-tight">
                                     {entry.customerId?.name || entry.customerName}
                                 </p>
                             </div>
@@ -80,43 +80,56 @@ export default function AdminEntryDetailsModal({ entry, isOpen, onClose, session
                             {/* Address */}
                             <div className="space-y-1">
                                 <Label className="text-gray-500 font-medium text-[10px] tracking-[0.2em]">ADDRESS</Label>
-                                <p className="text-[13px] text-gray-300 leading-snug font-medium">
+                                <p className="text-xs text-gray-300 leading-snug font-medium">
                                     {entry.customerId?.customerAddress || entry.customerAddress}
                                 </p>
                             </div>
 
                             {/* Contact Details Grid */}
-                            <div className="grid grid-cols-2 gap-6">
+                            <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-1">
                                     <Label className="text-gray-500 font-medium text-[10px] tracking-[0.2em]">CONTACT PERSON</Label>
-                                    <p className="text-[13px] text-white font-medium">
+                                    <p className="text-xs text-white font-medium">
                                         {entry.customerId?.contactPerson || entry.contactPerson || "-"}
                                     </p>
                                 </div>
                                 <div className="space-y-1">
                                     <Label className="text-gray-500 font-medium text-[10px] tracking-[0.2em]">CONTACT NUMBER</Label>
-                                    <p className="text-[13px] text-white font-medium">
+                                    <p className="text-xs text-white font-medium">
                                         {entry.customerId?.contactNumber || entry.contactNumber || "-"}
                                     </p>
                                 </div>
                             </div>
                         </div>
-                        <div className="mt-8 pt-6 border-t border-white/5 space-y-3">
+                        <div className="mt-4 pt-3 border-t border-white/5 space-y-2">
                             {/* Timestamps */}
-                            <div className="space-y-1.5">
+                            <div className="space-y-1">
                                 <div className="flex justify-between items-center text-xs">
                                     <span className="text-gray-500 font-medium">Stamp In:</span>
-                                    <span className="text-white font-medium">
+                                    <span className="text-white font-medium text-[11px]">
                                         {entry.stampIn?.time ? formatInIST(entry.stampIn.time, "PPP, p") : "-"}
                                     </span>
                                 </div>
                                 <div className="flex justify-between items-center text-xs">
                                     <span className="text-gray-500 font-medium">Stamp Out:</span>
-                                    <span className="text-white font-medium">
+                                    <span className="text-white font-medium text-[11px]">
                                         {entry.stampOut?.time ? formatInIST(entry.stampOut.time, "PPP, p") : "-"}
                                     </span>
                                 </div>
                             </div>
+
+                            {/* Comment Section (View Only for Admin) */}
+                            {entry.comment && (
+                                <div className="space-y-1.5 pt-2 border-t border-white/5">
+                                    <Label className="text-gray-500 font-medium text-[10px] tracking-[0.2em]">COMMENT</Label>
+                                    <div className="flex items-start gap-2 p-2 rounded-lg bg-yellow-500/5">
+                                        <MessageSquare className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-yellow-400" />
+                                        <p className="text-[11px] text-yellow-400 leading-relaxed">
+                                            {entry.comment}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
 
                         </div>
                     </div>

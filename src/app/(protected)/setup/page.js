@@ -25,6 +25,7 @@ export default function ProfileSetupPage() {
     const [step, setStep] = useState(0); // 0: Welcome/Permissions, 1: Profile Form
 
     const [locations, setLocations] = useState([]);
+    const [designation, setDesignation] = useState("");
     const [contactNumber, setContactNumber] = useState("");
     const [address, setAddress] = useState("");
     const [region, setRegion] = useState("");
@@ -95,6 +96,7 @@ export default function ProfileSetupPage() {
         setLoading(true);
 
         const formData = new FormData();
+        formData.append("designation", designation);
         formData.append("contactNumber", contactNumber);
         formData.append("address", address);
         formData.append("region", region);
@@ -108,13 +110,14 @@ export default function ProfileSetupPage() {
         } else {
             // Update session explicitly so client has region/branch immediately
             await update({
+                designation,
                 region,
                 branch,
                 contactNumber,
                 address,
                 status: "pending"
             });
-            
+
             toast.success("Profile updated!");
             router.push("/dashboard");
             router.refresh();
@@ -244,6 +247,18 @@ export default function ProfileSetupPage() {
 
                     <form onSubmit={handleSubmit} className="w-full">
                         <div className="grid w-full items-center gap-6">
+                            <div className="flex flex-col space-y-2">
+                                <Label htmlFor="designation" className="text-gray-300 text-sm font-medium ml-1">Designation</Label>
+                                <Input
+                                    id="designation"
+                                    name="designation"
+                                    placeholder="e.g. Sales Executive"
+                                    required
+                                    value={designation}
+                                    onChange={(e) => setDesignation(e.target.value)}
+                                    className="h-11 bg-white/5 border-white/10 text-white placeholder:text-gray-600 focus:ring-blue-500/50"
+                                />
+                            </div>
                             <div className="flex flex-col space-y-2">
                                 <Label htmlFor="contactNumber" className="text-gray-300 text-sm font-medium ml-1">Contact Number (10 Digits)</Label>
                                 <Input

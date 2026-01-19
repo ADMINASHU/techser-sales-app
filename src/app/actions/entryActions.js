@@ -4,7 +4,7 @@ import { auth } from "@/auth";
 import dbConnect from "@/lib/db";
 import Entry from "@/models/Entry";
 import Customer from "@/models/Customer";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, unstable_cache } from "next/cache";
 
 export async function deleteEntry(entryId) {
   const session = await auth();
@@ -42,27 +42,47 @@ export async function deleteEntry(entryId) {
   }
 }
 
-export async function fetchEntries({
-  page = 1,
-  limit = 30,
-  filters = {},
-  skip: customSkip,
-}) {
+export async function updateEntryComment(entryId, comment) {
+  const session = await auth();
+  if (!session) return { error: "Not authenticated" };
+
+  // RESTRICTION: Only non-admin users can add comments
+  if (session.user.role === "admin") {
+    return { error: "Admins are not allowed to add comments." };
+  }
+
   try {
-    const session = await auth();
-    if (!session) {
-      throw new Error("Unauthorized");
-    }
     await dbConnect();
 
-    // Use customSkip if provided, otherwise calculate from page/limit
-    const skip = customSkip !== undefined ? customSkip : (page - 1) * limit;
-    const isAdmin = session.user.role === "admin";
+    // Ensure the user owns the entry
+    const entry = await Entry.findById(entryId);
+    if (!entry) return { error: "Entry not found" };
+
+    if (entry.userId.toString() !== session.user.id) {
+      return { error: "You are not authorized to update this entry" };
+    }
+
+    // Update the entry with the new comment
+    await Entry.findByIdAndUpdate(entryId, { comment: comment || "" });
+
+    revalidatePath("/entries");
+    revalidatePath("/dashboard");
+    return { success: true };
+  } catch (error) {
+    return { error: "Failed to update comment" };
+  }
+}
+
+// Cached Data Fetcher
+const getCachedEntries = unstable_cache(
+  async (userId, role, filters, skip, limit) => {
+    await dbConnect();
+
     const query = {};
 
     // 1. Role-based Base Query
-    if (!isAdmin) {
-      query.userId = session.user.id;
+    if (role !== "admin") {
+      query.userId = userId;
     } else {
       if (filters.user && filters.user !== "all") {
         query.userId = filters.user;
@@ -123,7 +143,7 @@ export async function fetchEntries({
       .skip(skip)
       .limit(limit)
       .select(
-        "customerName entryDate status createdAt updatedAt userId customerId stampIn stampOut googleSheetRowId"
+        "customerName entryDate status createdAt updatedAt userId customerId stampIn stampOut googleSheetRowId comment"
       )
       .populate(
         "userId",
@@ -141,15 +161,15 @@ export async function fetchEntries({
       _id: entry._id.toString(),
       userId: entry.userId
         ? {
-            ...entry.userId,
-            _id: entry.userId._id.toString(),
-          }
+          ...entry.userId,
+          _id: entry.userId._id.toString(),
+        }
         : null,
       customerId: entry.customerId
         ? {
-            ...entry.customerId,
-            _id: entry.customerId._id.toString(),
-          }
+          ...entry.customerId,
+          _id: entry.customerId._id.toString(),
+        }
         : null,
       createdAt: entry.createdAt.toISOString(),
       updatedAt: entry.updatedAt.toISOString(),
@@ -163,7 +183,36 @@ export async function fetchEntries({
       entries: serializedEntries,
       hasMore: entries.length === limit,
     };
+  },
+  ["entries-list-v2"], // Base key helps internal organization (v2 includes comment field)
+  { tags: ["entries"] } // Tag for revalidation
+);
+
+export async function fetchEntries({
+  page = 1,
+  limit = 30,
+  filters = {},
+  skip: customSkip,
+}) {
+  try {
+    const session = await auth();
+    if (!session) {
+      throw new Error("Unauthorized");
+    }
+
+    // Use customSkip if provided, otherwise calculate from page/limit
+    const skip = customSkip !== undefined ? customSkip : (page - 1) * limit;
+
+    // We pass primitive values to the cached function to ensure strict key generation
+    return await getCachedEntries(
+      session.user.id,
+      session.user.role,
+      filters,
+      skip,
+      limit
+    );
   } catch (error) {
+    console.error("Fetch Entries Error:", error);
     throw new Error("Failed to fetch entries");
   }
 }
