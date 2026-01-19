@@ -39,12 +39,12 @@ export async function POST(req) {
             );
         }
 
-        if (user.status !== "verified") {
-            return NextResponse.json(
-                { error: "Account is not active" },
-                { status: 403 }
-            );
-        }
+        // if (user.status !== "verified") {
+        //     return NextResponse.json(
+        //         { error: "Account is not active" },
+        //         { status: 403 }
+        //     );
+        // }
 
         // Generate JWT
         const token = jwt.sign(

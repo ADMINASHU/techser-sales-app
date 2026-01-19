@@ -8,8 +8,9 @@ const RELEASE_SECRET = process.env.RELEASE_SECRET || "techser-dev-secret";
 // OPTIONAL: Set this to your constant Google Drive Link (if you use "Manage Versions" in Drive)
 // If empty, the script will ask for the URL every time.
 const FIXED_DOWNLOAD_URL =
-  "https://drive.google.com/uc?id=199XlJloWKqqkgya-fH8-JUS-XYrBuGVH&export=download";
+  "https://drive.google.com/uc?id=1IZ-oAqAncqOEgwyT-W99qI1xWK9UBlBT&export=download";
 // ^ Tip: Use a direct download link format if possible, or the standard view link.
+
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -74,7 +75,12 @@ async function main() {
     );
     const releaseNotes = notesRaw
       ? notesRaw.split(",").map((s) => s.trim())
-      : ["Bug Fixes & Improvements"];
+      : [
+        "Enabled New User Login & Registration",
+        "Added Profile Setup & Verification Flow",
+        "Fixed Account Active Status Issues",
+        "Improved Auth Stability",
+      ];
 
     // 5. Final Confirmation
     console.log(`\n---------------------------------------`);

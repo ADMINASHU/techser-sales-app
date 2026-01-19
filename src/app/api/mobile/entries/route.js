@@ -197,9 +197,10 @@ export async function POST(req) {
     });
 
     // NOTIFICATION
-    await notifyAdmins("Stamped In", newEntry, {
+    // NOTIFICATION (Fire and Forget)
+    notifyAdmins("Stamped In", newEntry, {
       name: user.name,
-    });
+    }).catch(err => console.error("Notification Error:", err));
 
     // Revalidate web paths
     revalidatePath("/customer-log");

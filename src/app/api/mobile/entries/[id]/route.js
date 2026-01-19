@@ -77,9 +77,12 @@ export async function PUT(req, { params }) {
 
     // NOTIFICATION for Stamp Out
     if (body.status === "Completed") {
-      await notifyAdmins("Stamped Out", updatedEntry, {
-        name: user.name,
-      });
+      // NOTIFICATION for Stamp Out (Fire and Forget)
+      if (body.status === "Completed") {
+        notifyAdmins("Stamped Out", updatedEntry, {
+          name: user.name,
+        }).catch(err => console.error("Notification Error:", err));
+      }
     }
 
     // Revalidate web paths
