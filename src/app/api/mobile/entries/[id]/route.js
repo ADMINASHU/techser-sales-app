@@ -37,6 +37,7 @@ async function notifyAdmins(action, entry, actor) {
 export async function PUT(req, { params }) {
   try {
     const user = await verifyAuth(req);
+
     if (!user) return unauthorizedResponse();
 
     const { id } = await params;
@@ -50,7 +51,7 @@ export async function PUT(req, { params }) {
       return NextResponse.json({ error: "Entry not found" }, { status: 404 });
     }
 
-    // Authorization check: User can only update their own entries unless admin
+    // Authorization check
     if (user.role !== "admin" && entry.userId.toString() !== user.id) {
       return NextResponse.json(
         { error: "Unauthorized to update this entry" },
@@ -75,17 +76,13 @@ export async function PUT(req, { params }) {
       { new: true }, // Return updated doc
     );
 
-    // NOTIFICATION for Stamp Out
+    // NOTIFICATION
     if (body.status === "Completed") {
-      // NOTIFICATION for Stamp Out (Fire and Forget)
-      if (body.status === "Completed") {
-        notifyAdmins("Stamped Out", updatedEntry, {
-          name: user.name,
-        }).catch(err => console.error("Notification Error:", err));
-      }
+      notifyAdmins("Stamped Out", updatedEntry, {
+        name: user.name,
+      }).catch((err) => console.error("Notification Error:", err));
     }
 
-    // Revalidate web paths
     revalidatePath("/customer-log");
     revalidatePath("/customers");
 

@@ -153,6 +153,7 @@ async function notifyAdmins(action, entry, actor) {
 export async function POST(req) {
   try {
     const user = await verifyAuth(req);
+
     if (!user) return unauthorizedResponse();
 
     const body = await req.json(); // Expected: { customerId, customerName, status, stampIn, ... }
@@ -161,6 +162,7 @@ export async function POST(req) {
 
     // Verify customer exists
     const customer = await Customer.findById(body.customerId);
+
     if (!customer) {
       return NextResponse.json(
         { error: "Customer not found" },
@@ -200,9 +202,8 @@ export async function POST(req) {
     // NOTIFICATION (Fire and Forget)
     notifyAdmins("Stamped In", newEntry, {
       name: user.name,
-    }).catch(err => console.error("Notification Error:", err));
+    }).catch((err) => console.error("Notification Error:", err));
 
-    // Revalidate web paths
     revalidatePath("/customer-log");
     revalidatePath("/customers");
 

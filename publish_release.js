@@ -1,5 +1,5 @@
-const axios = require("axios");
-const readline = require("readline");
+import { get, post } from "axios";
+import { createInterface } from "readline";
 
 // --- CONFIGURATION ---
 const API_URL = "http://localhost:3000/api/mobile/release/latest";
@@ -12,7 +12,7 @@ const FIXED_DOWNLOAD_URL =
 // ^ Tip: Use a direct download link format if possible, or the standard view link.
 
 
-const rl = readline.createInterface({
+const rl = createInterface({
   input: process.stdin,
   output: process.stdout,
 });
@@ -36,7 +36,7 @@ async function main() {
     // 1. Get Current Version
     let currentVersion = "1.0.0";
     try {
-      const check = await axios.get(API_URL);
+      const check = await get(API_URL);
       if (check.data.success && check.data.release) {
         currentVersion = check.data.release.version;
         console.log(`\n📢 Current Latest Version: v${currentVersion}`);
@@ -98,7 +98,7 @@ async function main() {
     console.log("\nPublishing...");
 
     // POST Request
-    const response = await axios.post(
+    const response = await post(
       API_URL,
       {
         version: nextVersion,
