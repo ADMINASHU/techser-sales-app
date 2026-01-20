@@ -71,6 +71,7 @@ export async function POST(req) {
       contactNumber: user.contactNumber,
       address: user.address,
       image: user.image,
+      status: user.status,
     };
 
     return NextResponse.json({

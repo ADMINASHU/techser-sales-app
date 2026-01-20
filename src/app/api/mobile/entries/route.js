@@ -74,7 +74,7 @@ export async function GET(req) {
     const entries = await Entry.find(query)
       .sort({ entryDate: -1 })
       .limit(100)
-      .populate("userId", "name email")
+      .populate("userId", "name email region branch")
       .populate(
         "customerId",
         "name district customerAddress contactPerson contactNumber",
