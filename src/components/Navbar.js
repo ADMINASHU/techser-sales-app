@@ -32,7 +32,7 @@ export default function Navbar() {
   const mounted = useSyncExternalStore(
     () => () => {}, // subscribe: no-op, as mounted state doesn't change after initial client render
     () => true, // getSnapshot: returns true on client
-    () => false // getServerSnapshot: returns false on server
+    () => false, // getServerSnapshot: returns false on server
   );
 
   useEffect(() => {
@@ -84,6 +84,7 @@ export default function Navbar() {
 
   if (session?.user?.role === "admin") {
     links.push({ href: "/users", label: "Users" });
+    links.push({ href: "/report", label: "Report" });
     links.push({ href: "/settings", label: "Settings" });
   }
 
@@ -118,33 +119,37 @@ export default function Navbar() {
                 {links.find((l) => l.href === pathname)?.label ||
                   (pathname === "/profile"
                     ? "Profile"
-                    : pathname.startsWith("/entries/") &&
-                      pathname.split("/").length > 2
-                    ? "Visit Details"
-                    : "")}
+                    : pathname === "/settings"
+                      ? "Settings"
+                      : pathname.startsWith("/entries/") &&
+                          pathname.split("/").length > 2
+                        ? "Visit Details"
+                        : "")}
               </span>
             </div>
 
             <div className="hidden md:flex items-center justify-center">
               <div className="bg-white/5 border border-white/5 rounded-full px-1.5 py-1.5 flex space-x-1 shadow-inner backdrop-blur-md">
                 {session?.user &&
-                  links.map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      className={clsx(
-                        "relative px-6 py-2 rounded-full text-sm font-medium transition-all duration-300",
-                        pathname === link.href
-                          ? "text-white"
-                          : "text-gray-400 hover:text-white hover:bg-white/5"
-                      )}
-                    >
-                      {pathname === link.href && (
-                        <div className="absolute inset-x-0 bottom-0 top-0 bg-linear-to-r from-violet-500/80 to-fuchsia-500/80 rounded-full shadow-lg shadow-fuchsia-500/20 -z-10" />
-                      )}
-                      {link.label}
-                    </Link>
-                  ))}
+                  links
+                    .filter((link) => link.href !== "/settings")
+                    .map((link) => (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        className={clsx(
+                          "relative px-6 py-2 rounded-full text-sm font-medium transition-all duration-300",
+                          pathname === link.href
+                            ? "text-white"
+                            : "text-gray-400 hover:text-white hover:bg-white/5",
+                        )}
+                      >
+                        {pathname === link.href && (
+                          <div className="absolute inset-x-0 bottom-0 top-0 bg-linear-to-r from-violet-500/80 to-fuchsia-500/80 rounded-full shadow-lg shadow-fuchsia-500/20 -z-10" />
+                        )}
+                        {link.label}
+                      </Link>
+                    ))}
               </div>
             </div>
 
@@ -227,9 +232,38 @@ export default function Navbar() {
                               d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                             />
                           </svg>
-                          Profile Settings
+                          Profile
                         </Link>
                       </DropdownMenuItem>
+                      {session?.user?.role === "admin" && (
+                        <DropdownMenuItem asChild>
+                          <Link
+                            href="/settings"
+                            className="cursor-pointer py-2.5 px-3 rounded-md hover:bg-white/10 focus:bg-white/10 focus:text-white transition-colors flex items-center gap-2"
+                          >
+                            <svg
+                              className="w-4 h-4 text-gray-400"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                              />
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                              />
+                            </svg>
+                            Settings
+                          </Link>
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuSeparator className="bg-white/10 my-1" />
                       <DropdownMenuItem
                         onClick={handleLogout}
@@ -314,7 +348,7 @@ export default function Navbar() {
                         "block px-4 py-4 rounded-xl text-base font-medium transition-all border border-transparent active:bg-white/10 active:scale-[0.98]",
                         pathname === link.href
                           ? "bg-white/10 text-white border-white/5 shadow-inner"
-                          : "text-gray-400 hover:bg-white/5 hover:text-white"
+                          : "text-gray-400 hover:bg-white/5 hover:text-white",
                       )}
                       onClick={() => setIsOpen(false)}
                     >

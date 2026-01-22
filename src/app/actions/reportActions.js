@@ -203,13 +203,14 @@ export async function getRawEntries({
 export async function getFilters() {
   await dbConnect();
   const [users, locations] = await Promise.all([
-    User.find({ role: "user" }, "name _id").lean(),
+    // UPDATED: Added 'region' and 'branch' to the selected fields
+    User.find({ role: "user" }, "name _id region branch role").lean(),
     Location.find({}).sort({ name: 1 }).lean(),
   ]);
 
   return {
     users: JSON.parse(JSON.stringify(users)),
-    locations: JSON.parse(JSON.stringify(locations)), // { _id, name, branches: [] }
+    locations: JSON.parse(JSON.stringify(locations)),
   };
 }
 
