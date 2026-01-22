@@ -19,7 +19,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Loader2, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Loader2, X } from "lucide-react";
+import CustomerVisitsModal from "./CustomerVisitsModal";
 
 export default function AdminCustomerTable({
   initialCustomers,
@@ -33,12 +35,17 @@ export default function AdminCustomerTable({
 
   // Filters State
   const currentDate = new Date();
-  const [selectedMonth, setSelectedMonth] = useState(currentDate.getMonth().toString());
-  const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear().toString());
+  const [selectedMonth, setSelectedMonth] = useState(
+    currentDate.getMonth().toString(),
+  );
+  const [selectedYear, setSelectedYear] = useState(
+    currentDate.getFullYear().toString(),
+  );
   const [selectedRegion, setSelectedRegion] = useState("all");
   const [selectedBranch, setSelectedBranch] = useState("all");
   const [selectedUser, setSelectedUser] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
 
   const months = [
     { value: "all", label: "All Months" },
@@ -61,7 +68,9 @@ export default function AdminCustomerTable({
   // 1. Calculate Available Branches (Cascading from Region)
   const availableBranches = useMemo(() => {
     if (selectedRegion === "all") {
-        return Array.from(new Set(locations.locations.flatMap((l) => l.branches))).sort();
+      return Array.from(
+        new Set(locations.locations.flatMap((l) => l.branches)),
+      ).sort();
     }
     const region = locations.locations.find((l) => l.name === selectedRegion);
     return region ? region.branches.sort() : [];
@@ -69,32 +78,33 @@ export default function AdminCustomerTable({
 
   // 2. Calculate Available Users (Cascading from Region & Branch)
   const availableUsers = useMemo(() => {
-    return locations.users.filter(user => {
-      if (selectedRegion !== "all" && user.region !== selectedRegion) return false;
-      if (selectedBranch !== "all" && user.branch !== selectedBranch) return false;
+    return locations.users.filter((user) => {
+      if (selectedRegion !== "all" && user.region !== selectedRegion)
+        return false;
+      if (selectedBranch !== "all" && user.branch !== selectedBranch)
+        return false;
       return true;
     });
   }, [selectedRegion, selectedBranch, locations.users]);
 
   // 3. Reset Filters Logic
   useEffect(() => {
-      if (selectedRegion !== "all" && selectedBranch !== "all") {
-         const region = locations.locations.find(l => l.name === selectedRegion);
-         if (region && !region.branches.includes(selectedBranch)) {
-             setSelectedBranch("all");
-         }
+    if (selectedRegion !== "all" && selectedBranch !== "all") {
+      const region = locations.locations.find((l) => l.name === selectedRegion);
+      if (region && !region.branches.includes(selectedBranch)) {
+        setSelectedBranch("all");
       }
+    }
   }, [selectedRegion, selectedBranch, locations.locations]);
 
   useEffect(() => {
-      if (selectedUser !== "all") {
-          const userExists = availableUsers.find(u => u._id === selectedUser);
-          if (!userExists) {
-              setSelectedUser("all");
-          }
+    if (selectedUser !== "all") {
+      const userExists = availableUsers.find((u) => u._id === selectedUser);
+      if (!userExists) {
+        setSelectedUser("all");
       }
+    }
   }, [selectedRegion, selectedBranch, availableUsers, selectedUser]);
-
 
   const fetchCustomers = useCallback(
     async (isLoadMore = false) => {
@@ -123,13 +133,28 @@ export default function AdminCustomerTable({
       setHasMore(res.hasMore);
       setLoading(false);
     },
-    [selectedMonth, selectedYear, selectedRegion, selectedBranch, selectedUser, searchQuery, customers.length]
+    [
+      selectedMonth,
+      selectedYear,
+      selectedRegion,
+      selectedBranch,
+      selectedUser,
+      searchQuery,
+      customers.length,
+    ],
   );
 
   // Trigger fetch on filter change
   useEffect(() => {
     fetchCustomers(false);
-  }, [selectedMonth, selectedYear, selectedRegion, selectedBranch, selectedUser, searchQuery]);
+  }, [
+    selectedMonth,
+    selectedYear,
+    selectedRegion,
+    selectedBranch,
+    selectedUser,
+    searchQuery,
+  ]);
 
   // Infinite Scroll Trigger
   useEffect(() => {
@@ -145,83 +170,182 @@ export default function AdminCustomerTable({
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
-    
+
     return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
   };
 
   return (
     <div className="space-y-6">
       {/* Filters Bar */}
-      <div className="glass-panel p-4 rounded-xl border border-white/5 space-y-4 shadow-lg">
-        <div className="flex flex-col xl:flex-row gap-4">
-          <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-500" />
-            <Input
-              placeholder="Search by name or address..."
-              className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:ring-blue-500/50"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
+      {/* Filters Bar - Updated to match EntryFilters.js */}
+      <div className="glass-panel border-white/5 mb-8 rounded-xl shadow-2xl">
+        <div className="p-4">
+          <div className="flex flex-col lg:flex-row gap-6">
+            {/* Header Section */}
+            <div className="flex items-center justify-between lg:w-48 lg:border-r border-white/10 pr-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-blue-500/10 text-blue-400">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="lucide lucide-filter"
+                  >
+                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+                  </svg>
+                </div>
+                <span className="font-semibold text-white">Filters</span>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSelectedMonth("all");
+                  setSelectedYear("all");
+                  setSelectedRegion("all");
+                  setSelectedBranch("all");
+                  setSelectedUser("all");
+                  setSearchQuery("");
+                }}
+                className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-8 text-xs font-medium"
+              >
+                Clear
+              </Button>
+            </div>
 
-          <div className="flex flex-wrap gap-2 items-center">
-            <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-              <SelectTrigger className="w-[110px] bg-white/5 border-white/10">
-                <SelectValue placeholder="Month" />
-              </SelectTrigger>
-              <SelectContent>
-                {months.map((m) => (
-                  <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {/* Filters Grid */}
+            <div className="flex-1 grid gap-2 grid-cols-2 md:grid-cols-4 lg:grid-cols-5">
+              {/* Region */}
+              <div className="space-y-1.5">
+                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">
+                  Region
+                </span>
+                <Select
+                  value={selectedRegion}
+                  onValueChange={setSelectedRegion}
+                >
+                  <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
+                    <SelectValue placeholder="Region" />
+                  </SelectTrigger>
+                  <SelectContent className="glass-card border-white/10">
+                    <SelectItem value="all">All Regions</SelectItem>
+                    {locations.locations.map((loc) => (
+                      <SelectItem key={loc._id} value={loc.name}>
+                        {loc.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-            <Select value={selectedYear} onValueChange={setSelectedYear}>
-              <SelectTrigger className="w-[90px] bg-white/5 border-white/10">
-                <SelectValue placeholder="Year" />
-              </SelectTrigger>
-              <SelectContent>
-                {years.map((y) => (
-                  <SelectItem key={y} value={y}>{y}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            
-            <Select value={selectedRegion} onValueChange={setSelectedRegion}>
-              <SelectTrigger className="w-[130px] bg-white/5 border-white/10">
-                <SelectValue placeholder="Region" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Regions</SelectItem>
-                {locations.locations.map((loc) => (
-                  <SelectItem key={loc._id} value={loc.name}>{loc.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              {/* Branch */}
+              <div className="space-y-1.5">
+                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">
+                  Branch
+                </span>
+                <Select
+                  value={selectedBranch}
+                  onValueChange={setSelectedBranch}
+                >
+                  <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
+                    <SelectValue placeholder="Branch" />
+                  </SelectTrigger>
+                  <SelectContent className="glass-card border-white/10">
+                    <SelectItem value="all">All Branches</SelectItem>
+                    {availableBranches.map((b) => (
+                      <SelectItem key={b} value={b}>
+                        {b}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-            <Select value={selectedBranch} onValueChange={setSelectedBranch}>
-              <SelectTrigger className="w-[130px] bg-white/5 border-white/10">
-                <SelectValue placeholder="Branch" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Branches</SelectItem>
-                {availableBranches.map((b) => (
-                  <SelectItem key={b} value={b}>{b}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              {/* Month */}
+              <div className="space-y-1.5">
+                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">
+                  Month
+                </span>
+                <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                  <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
+                    <SelectValue placeholder="Month" />
+                  </SelectTrigger>
+                  <SelectContent className="glass-card border-white/10">
+                    <SelectItem value="all">All Months</SelectItem>
+                    {months.map((m) => (
+                      <SelectItem key={m.value} value={m.value}>
+                        {m.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-            {/* <Select value={selectedUser} onValueChange={setSelectedUser}>
-              <SelectTrigger className="w-[160px] bg-white/5 border-white/10">
-                <SelectValue placeholder="Created By" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Users</SelectItem>
-                {availableUsers.map((u) => (
-                  <SelectItem key={u._id} value={u._id}>{u.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select> */}
+              {/* Year */}
+              <div className="space-y-1.5">
+                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">
+                  Year
+                </span>
+                <Select value={selectedYear} onValueChange={setSelectedYear}>
+                  <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
+                    <SelectValue placeholder="Year" />
+                  </SelectTrigger>
+                  <SelectContent className="glass-card border-white/10">
+                    <SelectItem value="all">All Years</SelectItem>
+                    {years.map((y) => (
+                      <SelectItem key={y} value={y}>
+                        {y}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Search */}
+              <div className="space-y-1.5 col-span-2 md:col-span-1 relative group w-full max-w-md">
+                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">
+                  Search
+                </span>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-gray-300 z-10">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="w-4 h-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                      />
+                    </svg>
+                  </div>
+                  <Input
+                    placeholder="Search..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 pl-9 pr-10 rounded-xl transition-all hover:bg-white/10 shadow-lg"
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery("")}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -231,61 +355,106 @@ export default function AdminCustomerTable({
         <Table>
           <TableHeader className="bg-white/5">
             <TableRow className="border-white/5 hover:bg-transparent">
-              <TableHead className="w-[70px] text-gray-400 font-semibold">Sno.</TableHead>
-              <TableHead className="text-gray-400 font-semibold">Customer Name</TableHead>
-              <TableHead className="text-right text-gray-400 font-semibold w-[120px]">Visits</TableHead>
-              <TableHead className="text-right text-gray-400 font-semibold w-[150px]">Total Duration</TableHead>
+              <TableHead className="hidden sm:table-cell sm:w-[70px] px-2 text-gray-400 font-semibold">
+                Sno.
+              </TableHead>
+              <TableHead className="px-2 text-gray-400 font-semibold">
+                Customer Name
+              </TableHead>
+              <TableHead className="text-right text-gray-400 font-semibold w-auto sm:w-[120px] px-2">
+                Visits
+              </TableHead>
+              <TableHead className="text-right text-gray-400 font-semibold w-auto sm:w-[150px] px-2">
+                Duration
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {customers.map((customer, index) => (
-              <TableRow key={customer._id} className="border-white/5 hover:bg-white/5 transition-colors">
-                <TableCell className="font-medium text-gray-500">{index + 1}</TableCell>
-                <TableCell>
+              <TableRow
+                key={customer._id}
+                className="border-white/5 hover:bg-white/5 transition-colors cursor-pointer"
+                onClick={() => setSelectedCustomer(customer)}
+              >
+                <TableCell className="hidden sm:table-cell font-medium text-gray-500 px-2">
+                  {index + 1}
+                </TableCell>
+                <TableCell className="px-2">
                   <div className="flex flex-col py-1">
-                    <span className="font-medium text-white text-base">{customer.name}</span>
-                    <span className="text-xs text-gray-500 mt-1 max-w-lg truncate">
+                    <span className="font-medium text-white text-sm sm:text-base">
+                      {customer.name}
+                    </span>
+                    <span className="text-xs text-gray-500 mt-1 max-w-[180px] sm:max-w-lg truncate">
                       {customer.customerAddress}
                     </span>
                   </div>
                 </TableCell>
-                <TableCell className="text-right">
-                    <span className={`inline-flex items-center justify-center min-w-[30px] px-2 py-1 rounded-md text-xs font-bold ${customer.visitCount > 0 ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'text-gray-600 bg-white/5'}`}>
-                        {customer.visitCount}
-                    </span>
+                <TableCell className="text-right px-2">
+                  <span
+                    className={`inline-flex items-center justify-center min-w-[30px] px-2 py-1 rounded-md text-xs font-bold ${customer.visitCount > 0 ? "bg-blue-500/10 text-blue-400 border border-blue-500/20" : "text-gray-600 bg-white/5"}`}
+                  >
+                    {customer.visitCount}
+                  </span>
                 </TableCell>
-                <TableCell className="text-right font-mono text-emerald-400 font-medium">
+                <TableCell className="text-right font-mono text-emerald-400 font-medium text-xs sm:text-base px-2">
                   {formatDuration(customer.totalDuration)}
                 </TableCell>
               </TableRow>
             ))}
-            
+
             {loading && (
-                <TableRow className="border-0 hover:bg-transparent">
-                    <TableCell colSpan={4} className="h-24 text-center">
-                        <div className="flex justify-center items-center gap-2 text-blue-400">
-                            <Loader2 className="h-5 w-5 animate-spin" />
-                            <span className="text-sm">Loading data...</span>
-                        </div>
-                    </TableCell>
-                </TableRow>
+              <TableRow className="border-0 hover:bg-transparent">
+                <TableCell colSpan={4} className="h-24 text-center">
+                  <div className="flex justify-center items-center gap-2 text-blue-400">
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    <span className="text-sm">Loading data...</span>
+                  </div>
+                </TableCell>
+              </TableRow>
             )}
 
-             {!loading && customers.length === 0 && (
-                <TableRow className="hover:bg-transparent">
-                     <TableCell colSpan={4} className="h-40 text-center text-gray-500">
-                        <div className="flex flex-col items-center gap-2">
-                           <Search className="h-8 w-8 opacity-20" />
-                           <p>No customers found matching the selected filters.</p>
-                        </div>
-                     </TableCell>
-                </TableRow>
+            {!loading && customers.length === 0 && (
+              <TableRow className="hover:bg-transparent">
+                <TableCell
+                  colSpan={4}
+                  className="h-40 text-center text-gray-500"
+                >
+                  <div className="flex flex-col items-center gap-2">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-8 w-8 opacity-20"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                      />
+                    </svg>
+                    <p>No customers found matching the selected filters.</p>
+                  </div>
+                </TableCell>
+              </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
 
       <div ref={ref} className="h-4 w-full" />
+
+      {/* Visit Details Modal */}
+      <CustomerVisitsModal
+        customer={selectedCustomer}
+        filters={{
+          month: selectedMonth,
+          year: selectedYear,
+        }}
+        isOpen={!!selectedCustomer}
+        onClose={() => setSelectedCustomer(null)}
+      />
     </div>
   );
 }

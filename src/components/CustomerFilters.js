@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useDebounce } from "use-debounce";
 import { Input } from "@/components/ui/input";
-import { Search, X } from "lucide-react";
+import { X } from "lucide-react";
 
 export default function CustomerFilters() {
   const router = useRouter();
@@ -13,10 +13,10 @@ export default function CustomerFilters() {
 
   // Keep state for logic continuity, though Region/Branch won't be interactive
   const [selectedRegion, setSelectedRegion] = useState(
-    searchParams.get("region") || "all"
+    searchParams.get("region") || "all",
   );
   const [selectedBranch, setSelectedBranch] = useState(
-    searchParams.get("branch") || "all"
+    searchParams.get("branch") || "all",
   );
   const [search, setSearch] = useState(searchParams.get("search") || "");
   const [debouncedSearch] = useDebounce(search, 500);
@@ -59,7 +59,20 @@ export default function CustomerFilters() {
   return (
     <div className="relative group w-full max-w-md">
       <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-gray-300 z-10">
-        <Search className="w-4 h-4" />
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-4 h-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          />
+        </svg>
       </div>
       <Input
         placeholder="Search by name or address..."

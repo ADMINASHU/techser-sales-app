@@ -15,7 +15,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Menu, X } from "lucide-react";
+import {
+  Menu,
+  X,
+  LayoutDashboard,
+  ClipboardList,
+  MapPin,
+  Users,
+  UserCog,
+  BarChart3,
+  Settings,
+} from "lucide-react";
 import { useState, useEffect, useRef, useSyncExternalStore } from "react";
 import { clsx } from "clsx";
 import NotificationBell from "@/components/NotificationBell";
@@ -73,19 +83,51 @@ export default function Navbar() {
   const links =
     session?.user?.role === "admin"
       ? [
-          { href: "/dashboard", label: "Dashboard" },
-          { href: "/entries", label: "Entry Log" },
+          {
+            href: "/dashboard",
+            label: "Dashboard",
+            icon: <LayoutDashboard className="w-5 h-5" />,
+          },
+          {
+            href: "/entries",
+            label: "Entry Log",
+            icon: <ClipboardList className="w-5 h-5" />,
+          },
         ]
       : [
-          { href: "/customer-log", label: "Stamp In/Out" },
-          { href: "/entries", label: "Entry Log" },
-          { href: "/customers", label: "Customers" },
+          {
+            href: "/customer-log",
+            label: "Stamp In/Out",
+            icon: <MapPin className="w-5 h-5" />,
+          },
+          {
+            href: "/entries",
+            label: "Entry Log",
+            icon: <ClipboardList className="w-5 h-5" />,
+          },
+          {
+            href: "/customers",
+            label: "Customers",
+            icon: <Users className="w-5 h-5" />,
+          },
         ];
 
   if (session?.user?.role === "admin") {
-    links.push({ href: "/users", label: "Users" });
-    links.push({ href: "/report", label: "Report" });
-    links.push({ href: "/settings", label: "Settings" });
+    links.push({
+      href: "/users",
+      label: "Users",
+      icon: <UserCog className="w-5 h-5" />,
+    });
+    links.push({
+      href: "/report",
+      label: "Report",
+      icon: <BarChart3 className="w-5 h-5" />,
+    });
+    links.push({
+      href: "/settings",
+      label: "Settings",
+      icon: <Settings className="w-5 h-5" />,
+    });
   }
 
   return (
@@ -345,13 +387,14 @@ export default function Navbar() {
                       key={link.href}
                       href={link.href}
                       className={clsx(
-                        "block px-4 py-4 rounded-xl text-base font-medium transition-all border border-transparent active:bg-white/10 active:scale-[0.98]",
+                        "flex items-center gap-3 px-4 py-4 rounded-xl text-base font-medium transition-all border border-transparent active:bg-white/10 active:scale-[0.98]",
                         pathname === link.href
                           ? "bg-white/10 text-white border-white/5 shadow-inner"
                           : "text-gray-400 hover:bg-white/5 hover:text-white",
                       )}
                       onClick={() => setIsOpen(false)}
                     >
+                      {link.icon}
                       {link.label}
                     </Link>
                   ))}
@@ -414,7 +457,7 @@ export default function Navbar() {
       </nav>
       {/* Logout Loading Overlay */}
       {loggingOut && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-9999 flex items-center justify-center">
           <div className="flex flex-col items-center gap-4">
             <div className="relative">
               <div className="w-16 h-16 border-4 border-white/10 border-t-white rounded-full animate-spin"></div>

@@ -5,6 +5,8 @@ import dbConnect from "@/lib/db";
 import Customer from "@/models/Customer";
 import mongoose from "mongoose";
 
+import Entry from "@/models/Entry";
+
 export async function getAdminCustomerAnalytics({
   filters = {},
   skip = 0,
@@ -19,33 +21,10 @@ export async function getAdminCustomerAnalytics({
     await dbConnect();
     const { region, branch, month, year, userId, search } = filters;
 
-    // 1. Build Customer Match Query (Filters the LIST of customers)
-    const customerMatch = {};
-    
-    if (region && region !== "all") {
-        customerMatch.region = region;
-    }
-    
-    if (branch && branch !== "all") {
-        customerMatch.branch = branch;
-    }
-
-    // Filter by the User who CREATED the customer
-    if (userId && userId !== "all") {
-        customerMatch.userId = new mongoose.Types.ObjectId(userId);
-    }
-
-    if (search) {
-      customerMatch.$or = [
-        { name: { $regex: search, $options: "i" } },
-        { customerAddress: { $regex: search, $options: "i" } },
-      ];
-    }
-
-    // 2. Build Entry Match Query (Filters the TIME RANGE for stats)
-    // Note: We do NOT filter by userId here, because we want stats "by all visited users"
+    // 1. Build Entry Match Query FIRST (Filters the TIME RANGE for stats)
+    // We do this first to identify WHICH customers are active in this period
     const entryMatch = {};
-    
+
     if (year && year !== "all") {
       const y = parseInt(year);
       let start, end;
@@ -58,6 +37,35 @@ export async function getAdminCustomerAnalytics({
         end = new Date(y, 11, 31, 23, 59, 59);
       }
       entryMatch.entryDate = { $gte: start, $lte: end };
+    }
+
+    // NEW: Get IDs of customers who actually have visits in this range
+    // This allows us to filter out "0 visit" customers efficiently BEFORE pagination
+    const activeCustomerIds = await Entry.distinct("customerId", entryMatch);
+
+    // 2. Build Customer Match Query (Filters the LIST of customers)
+    const customerMatch = {
+      _id: { $in: activeCustomerIds }, // Only include customers with visits
+    };
+
+    if (region && region !== "all") {
+      customerMatch.region = region;
+    }
+
+    if (branch && branch !== "all") {
+      customerMatch.branch = branch;
+    }
+
+    // Filter by the User who CREATED the customer
+    if (userId && userId !== "all") {
+      customerMatch.userId = new mongoose.Types.ObjectId(userId);
+    }
+
+    if (search) {
+      customerMatch.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { customerAddress: { $regex: search, $options: "i" } },
+      ];
     }
 
     // 3. Aggregation Pipeline
@@ -78,7 +86,7 @@ export async function getAdminCustomerAnalytics({
             {
               $match: {
                 $expr: { $eq: ["$customerId", "$$customerId"] },
-                ...entryMatch, 
+                ...entryMatch,
                 // We count all visits, but duration usually implies 'Completed' or valid timestamps
               },
             },
@@ -111,7 +119,7 @@ export async function getAdminCustomerAnalytics({
     ];
 
     const customers = await Customer.aggregate(pipeline);
-    
+
     // Check if there are more
     const totalMatching = await Customer.countDocuments(customerMatch);
     const hasMore = skip + customers.length < totalMatching;
@@ -123,5 +131,69 @@ export async function getAdminCustomerAnalytics({
   } catch (error) {
     console.error("Admin Customer Analytics Error:", error);
     return { customers: [], hasMore: false };
+  }
+}
+
+export async function getCustomerVisitDetails({ customerId, filters = {} }) {
+  const session = await auth();
+  if (!session || session.user.role !== "admin") {
+    return { visits: [] };
+  }
+
+  try {
+    await dbConnect();
+    const { month, year } = filters;
+
+    // Build Entry Match Query (Same as analytics)
+    const entryMatch = { customerId: new mongoose.Types.ObjectId(customerId) };
+
+    if (year && year !== "all") {
+      const y = parseInt(year);
+      let start, end;
+      if (month && month !== "all") {
+        const m = parseInt(month);
+        start = new Date(y, m, 1);
+        end = new Date(y, m + 1, 0, 23, 59, 59);
+      } else {
+        start = new Date(y, 0, 1);
+        end = new Date(y, 11, 31, 23, 59, 59);
+      }
+      entryMatch.entryDate = { $gte: start, $lte: end };
+    }
+
+    const visits = await Entry.aggregate([
+      { $match: entryMatch },
+      { $sort: { entryDate: 1 } },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      { $unwind: "$user" },
+      {
+        $project: {
+          _id: 1,
+          entryDate: 1,
+          user: 1,
+          stampInTime: "$stampIn.time",
+          stampOutTime: "$stampOut.time",
+          duration: {
+            $cond: {
+              if: { $and: ["$stampIn.time", "$stampOut.time"] },
+              then: { $subtract: ["$stampOut.time", "$stampIn.time"] },
+              else: 0,
+            },
+          },
+        },
+      },
+    ]);
+
+    return { visits: JSON.parse(JSON.stringify(visits)) };
+  } catch (error) {
+    console.error("Get Customer Visit Details Error:", error);
+    return { visits: [] };
   }
 }
