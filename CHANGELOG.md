@@ -1,181 +1,170 @@
 # Changelog
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+## [2.5.1](https://github.com/ADMINASHU/techser-sales-app/compare/v2.5.0...v2.5.1) (2026-01-22)
+
+### Features
+
+- add new page - report
+- enhance CustomerVisitsModal with improved user card and timestamps
+- add visit counts to customer cards
+- replace settings icon with gear SVG
 
 ## [2.5.0](https://github.com/ADMINASHU/techser-sales-app/compare/v2.4.0...v2.5.0) (2026-01-17)
 
-
 ### Features
 
-* implement user-specific customer filtering/sharing and rename check-in to stamp-in ([b68f8be](https://github.com/ADMINASHU/techser-sales-app/commit/b68f8bec5f5bc1ec5214e723be97f323747a4993))
+- implement user-specific customer filtering/sharing and rename check-in to stamp-in ([b68f8be](https://github.com/ADMINASHU/techser-sales-app/commit/b68f8bec5f5bc1ec5214e723be97f323747a4993))
 
 ## [2.4.0](https://github.com/ADMINASHU/techser-sales-app/compare/v2.3.0...v2.4.0) (2026-01-16)
 
-
 ### Features
 
-* enhance UI/UX and fix notification handling ([88a0fdf](https://github.com/ADMINASHU/techser-sales-app/commit/88a0fdf1fec5628452fde5496d14384d09f468ac))
+- enhance UI/UX and fix notification handling ([88a0fdf](https://github.com/ADMINASHU/techser-sales-app/commit/88a0fdf1fec5628452fde5496d14384d09f468ac))
 
 ## [2.3.0](https://github.com/ADMINASHU/techser-sales-app/compare/v2.2.1...v2.3.0) (2026-01-16)
 
-
 ### Features
 
-* add entry comments feature and remove same-day stamp restriction ([d8536fa](https://github.com/ADMINASHU/techser-sales-app/commit/d8536facdf749ac76c8f88352cb2d53dfd52e750))
+- add entry comments feature and remove same-day stamp restriction ([d8536fa](https://github.com/ADMINASHU/techser-sales-app/commit/d8536facdf749ac76c8f88352cb2d53dfd52e750))
 
 ### [2.2.1](https://github.com/ADMINASHU/techser-sales-app/compare/v2.2.0...v2.2.1) (2026-01-16)
 
-
 ### Bug Fixes
 
-* resolve user filter issue and optimize caching ([610346a](https://github.com/ADMINASHU/techser-sales-app/commit/610346a7a41b9a9df169a544c8d1ab1f356d9153))
+- resolve user filter issue and optimize caching ([610346a](https://github.com/ADMINASHU/techser-sales-app/commit/610346a7a41b9a9df169a544c8d1ab1f356d9153))
 
 ## [2.2.0](https://github.com/ADMINASHU/techser-sales-app/compare/v2.1.2...v2.2.0) (2026-01-09)
 
-
 ### Features
 
-* Add admin entry detail page, user verification and decline actions with FCM notifications, and email utility. ([86eb1b3](https://github.com/ADMINASHU/techser-sales-app/commit/86eb1b3d7f66d39fb9ebe3e596ce1b751706548b))
-* Add entry management components including details modals, filters, infinite list, and associated actions. ([fd93aec](https://github.com/ADMINASHU/techser-sales-app/commit/fd93aec75a6fb837c12f3e69409a086664e768e4))
-* Implement admin settings page for location management and enhance navbar with role-based links. ([d2a19b2](https://github.com/ADMINASHU/techser-sales-app/commit/d2a19b2e96134aaa381bc15f69028f411a9b735f))
-* Implement customer log and entry management system with new pages, components, actions, and location seeding. ([fdddf0c](https://github.com/ADMINASHU/techser-sales-app/commit/fdddf0cc3778cc22f3811dcd21bbbcb691de94b3))
-* introduce core data models for User, Customer, and Entry, and implement server actions for customer management. ([40a022d](https://github.com/ADMINASHU/techser-sales-app/commit/40a022da28f991dbd6481d08db002b2926dab8b1))
-* Introduce global CSS with a custom Tailwind theme and glassmorphism components while removing unused dependencies. ([34ddd69](https://github.com/ADMINASHU/techser-sales-app/commit/34ddd693cf5184f57f673a567d8e58616921e4ad))
-* Introduce Mongoose models for User, Customer, and Entry, and add server actions for report generation, raw entry fetching, filter options, and system statistics. ([a13dda0](https://github.com/ADMINASHU/techser-sales-app/commit/a13dda0f7e53d3b44c0755ea6ec9d1396af58f8f))
-* Introduce new support and features pages, implement server actions for customer, admin, and user management, and remove obsolete development files. ([904f76d](https://github.com/ADMINASHU/techser-sales-app/commit/904f76de3d4e55d77fb04b679d54cd2821b11940))
-* Introduce NotificationBell for unread notifications, EntryFilters for dynamic data filtering, and create Navbar component. ([dd4565c](https://github.com/ADMINASHU/techser-sales-app/commit/dd4565cc717a129ad530d69f9e1b2f09414059d2))
-* Introduce user management actions, entry list with filtering and infinite scroll, and authentication configuration. ([98fc467](https://github.com/ADMINASHU/techser-sales-app/commit/98fc4671e89a3841cba3ad96abbdf34e625e5701))
-* update UI components, features page, legal docs, and fix lint errors ([339d512](https://github.com/ADMINASHU/techser-sales-app/commit/339d5122f342fbbc3cd1b66f877a448dde5060b0))
+- Add admin entry detail page, user verification and decline actions with FCM notifications, and email utility. ([86eb1b3](https://github.com/ADMINASHU/techser-sales-app/commit/86eb1b3d7f66d39fb9ebe3e596ce1b751706548b))
+- Add entry management components including details modals, filters, infinite list, and associated actions. ([fd93aec](https://github.com/ADMINASHU/techser-sales-app/commit/fd93aec75a6fb837c12f3e69409a086664e768e4))
+- Implement admin settings page for location management and enhance navbar with role-based links. ([d2a19b2](https://github.com/ADMINASHU/techser-sales-app/commit/d2a19b2e96134aaa381bc15f69028f411a9b735f))
+- Implement customer log and entry management system with new pages, components, actions, and location seeding. ([fdddf0c](https://github.com/ADMINASHU/techser-sales-app/commit/fdddf0cc3778cc22f3811dcd21bbbcb691de94b3))
+- introduce core data models for User, Customer, and Entry, and implement server actions for customer management. ([40a022d](https://github.com/ADMINASHU/techser-sales-app/commit/40a022da28f991dbd6481d08db002b2926dab8b1))
+- Introduce global CSS with a custom Tailwind theme and glassmorphism components while removing unused dependencies. ([34ddd69](https://github.com/ADMINASHU/techser-sales-app/commit/34ddd693cf5184f57f673a567d8e58616921e4ad))
+- Introduce Mongoose models for User, Customer, and Entry, and add server actions for report generation, raw entry fetching, filter options, and system statistics. ([a13dda0](https://github.com/ADMINASHU/techser-sales-app/commit/a13dda0f7e53d3b44c0755ea6ec9d1396af58f8f))
+- Introduce new support and features pages, implement server actions for customer, admin, and user management, and remove obsolete development files. ([904f76d](https://github.com/ADMINASHU/techser-sales-app/commit/904f76de3d4e55d77fb04b679d54cd2821b11940))
+- Introduce NotificationBell for unread notifications, EntryFilters for dynamic data filtering, and create Navbar component. ([dd4565c](https://github.com/ADMINASHU/techser-sales-app/commit/dd4565cc717a129ad530d69f9e1b2f09414059d2))
+- Introduce user management actions, entry list with filtering and infinite scroll, and authentication configuration. ([98fc467](https://github.com/ADMINASHU/techser-sales-app/commit/98fc4671e89a3841cba3ad96abbdf34e625e5701))
+- update UI components, features page, legal docs, and fix lint errors ([339d512](https://github.com/ADMINASHU/techser-sales-app/commit/339d5122f342fbbc3cd1b66f877a448dde5060b0))
 
 ### [2.1.2](https://github.com/ADMINASHU/techser-sales-app/compare/v2.1.1...v2.1.2) (2026-01-07)
 
-
 ### Bug Fixes
 
-* resolve redirect loops, notification permissions, and session sync ([58d970c](https://github.com/ADMINASHU/techser-sales-app/commit/58d970c73b8425906d48321d8487979002fcb94e))
+- resolve redirect loops, notification permissions, and session sync ([58d970c](https://github.com/ADMINASHU/techser-sales-app/commit/58d970c73b8425906d48321d8487979002fcb94e))
 
 ### [2.1.1](https://github.com/ADMINASHU/techser-sales-app/compare/v2.1.0...v2.1.1) (2026-01-07)
 
-
 ### Bug Fixes
 
-* prefill region filter to admin's region on user management page ([3ea51f3](https://github.com/ADMINASHU/techser-sales-app/commit/3ea51f3460732499cd72b51b4b74cfe3452b1dc8))
-* resolve hydration errors, add duration display, optimize mobile performance ([61a723f](https://github.com/ADMINASHU/techser-sales-app/commit/61a723f1727951c9384c3381a4a013848330c14d))
+- prefill region filter to admin's region on user management page ([3ea51f3](https://github.com/ADMINASHU/techser-sales-app/commit/3ea51f3460732499cd72b51b4b74cfe3452b1dc8))
+- resolve hydration errors, add duration display, optimize mobile performance ([61a723f](https://github.com/ADMINASHU/techser-sales-app/commit/61a723f1727951c9384c3381a4a013848330c14d))
 
 ## [2.1.0](https://github.com/ADMINASHU/techser-sales-app/compare/v2.0.1...v2.1.0) (2026-01-06)
 
-
 ### Features
 
-* Add Firebase Cloud Messaging (FCM) for push notifications, including a service worker and server-side admin alerts for stamp events. ([a423f35](https://github.com/ADMINASHU/techser-sales-app/commit/a423f3525b326bbd1b8fb8c06e717b579d6832a4))
-* implement `AdminUserList` component with search, region/branch filtering, and infinite scroll. ([f58210e](https://github.com/ADMINASHU/techser-sales-app/commit/f58210e8875182642aa2ab9598107a3d10cc5f93))
-* Implement Firebase Cloud Messaging (FCM) for push notifications, including server-side sending, client-side service worker, and admin action integration. ([f5e418e](https://github.com/ADMINASHU/techser-sales-app/commit/f5e418ecc6c9dd8e845d4e748ec159fab49a9017))
-* implement real-time session management via FCM notifications ([c3e7d5f](https://github.com/ADMINASHU/techser-sales-app/commit/c3e7d5fba684aa6824f3cc0d06819a9284193e8f))
+- Add Firebase Cloud Messaging (FCM) for push notifications, including a service worker and server-side admin alerts for stamp events. ([a423f35](https://github.com/ADMINASHU/techser-sales-app/commit/a423f3525b326bbd1b8fb8c06e717b579d6832a4))
+- implement `AdminUserList` component with search, region/branch filtering, and infinite scroll. ([f58210e](https://github.com/ADMINASHU/techser-sales-app/commit/f58210e8875182642aa2ab9598107a3d10cc5f93))
+- Implement Firebase Cloud Messaging (FCM) for push notifications, including server-side sending, client-side service worker, and admin action integration. ([f5e418e](https://github.com/ADMINASHU/techser-sales-app/commit/f5e418ecc6c9dd8e845d4e748ec159fab49a9017))
+- implement real-time session management via FCM notifications ([c3e7d5f](https://github.com/ADMINASHU/techser-sales-app/commit/c3e7d5fba684aa6824f3cc0d06819a9284193e8f))
 
 ### [2.0.1](https://github.com/ADMINASHU/techser-sales-app/compare/v2.0.0...v2.0.1) (2026-01-06)
 
 ## [2.0.0](https://github.com/ADMINASHU/techser-sales-app/compare/v1.5.1...v2.0.0) (2026-01-06)
 
-
 ### ⚠ BREAKING CHANGES
 
-* Users must re-grant notification permissions and configure FCM environment variables
+- Users must re-grant notification permissions and configure FCM environment variables
 
 ### Features
 
-* Add clear all notifications feature ([8fd666f](https://github.com/ADMINASHU/techser-sales-app/commit/8fd666f51320f75f7145796ab6833f42f3c308ed))
-* add EntryMap component to visualize customer and stamp locations with distance calculations ([deccd00](https://github.com/ADMINASHU/techser-sales-app/commit/deccd0065d305b46de187993ccc72e0dd335e3f8))
-* add Knock client provider for real-time and push notification management ([2e5e234](https://github.com/ADMINASHU/techser-sales-app/commit/2e5e2343b6a3cdae32804d78e9f7e46e6e4ef1fd))
-* Add Knock client provider to enable in-app and push notifications. ([dc9f605](https://github.com/ADMINASHU/techser-sales-app/commit/dc9f605a5b9d0bce1960931a2b72fb38f4b43675))
-* Add Knock notification provider with push notification management and real-time listening. ([06e2f35](https://github.com/ADMINASHU/techser-sales-app/commit/06e2f35af49279ca2b5c143c50c34ac0317fce8e))
-* Add KnockClientProvider for integrating Knock notification services, including push notification registration and realtime listening. ([7d90cb0](https://github.com/ADMINASHU/techser-sales-app/commit/7d90cb05e1981a1fb08857687985e4bcb4c76b75))
-* Add KnockClientProvider to initialize Knock notification services and register push notifications. ([29c13c4](https://github.com/ADMINASHU/techser-sales-app/commit/29c13c4be579ad05b0f537a6cc73e7516736fb70))
-* add protected layout with authentication and profile setup checks ([3fa952b](https://github.com/ADMINASHU/techser-sales-app/commit/3fa952b03dbc5e5bc35493180ae0da1c381018d9))
-* complete notification system migration and entry UI refinement ([6ac9fb1](https://github.com/ADMINASHU/techser-sales-app/commit/6ac9fb10ba6c3df945623eaa6b5522eed30b14d9))
-* Enforce permissions for stamping actions ([ae1d5bd](https://github.com/ADMINASHU/techser-sales-app/commit/ae1d5bda78a19fafa47a1bd32d54c2a578a99b60))
-* integrate Knock for real-time notifications, including push notification registration and a listener for user account and role updates. ([4b7bdf7](https://github.com/ADMINASHU/techser-sales-app/commit/4b7bdf7e661ca1597ba46784138138401435419a))
-* Introduce KnockClientProvider to set up real-time and push notification services. ([562676b](https://github.com/ADMINASHU/techser-sales-app/commit/562676b85600b9926c6d2b959d91b58d503d185a))
-* Replace Knock notifications with FCM push notifications ([b56019a](https://github.com/ADMINASHU/techser-sales-app/commit/b56019a4d80605d32bdaec4834fa2025f86017fb))
-* Send FCM notification to admins on stamp out with entry link ([647dcf1](https://github.com/ADMINASHU/techser-sales-app/commit/647dcf17b9bc223be77391e95a857524af36a8bc))
-
+- Add clear all notifications feature ([8fd666f](https://github.com/ADMINASHU/techser-sales-app/commit/8fd666f51320f75f7145796ab6833f42f3c308ed))
+- add EntryMap component to visualize customer and stamp locations with distance calculations ([deccd00](https://github.com/ADMINASHU/techser-sales-app/commit/deccd0065d305b46de187993ccc72e0dd335e3f8))
+- add Knock client provider for real-time and push notification management ([2e5e234](https://github.com/ADMINASHU/techser-sales-app/commit/2e5e2343b6a3cdae32804d78e9f7e46e6e4ef1fd))
+- Add Knock client provider to enable in-app and push notifications. ([dc9f605](https://github.com/ADMINASHU/techser-sales-app/commit/dc9f605a5b9d0bce1960931a2b72fb38f4b43675))
+- Add Knock notification provider with push notification management and real-time listening. ([06e2f35](https://github.com/ADMINASHU/techser-sales-app/commit/06e2f35af49279ca2b5c143c50c34ac0317fce8e))
+- Add KnockClientProvider for integrating Knock notification services, including push notification registration and realtime listening. ([7d90cb0](https://github.com/ADMINASHU/techser-sales-app/commit/7d90cb05e1981a1fb08857687985e4bcb4c76b75))
+- Add KnockClientProvider to initialize Knock notification services and register push notifications. ([29c13c4](https://github.com/ADMINASHU/techser-sales-app/commit/29c13c4be579ad05b0f537a6cc73e7516736fb70))
+- add protected layout with authentication and profile setup checks ([3fa952b](https://github.com/ADMINASHU/techser-sales-app/commit/3fa952b03dbc5e5bc35493180ae0da1c381018d9))
+- complete notification system migration and entry UI refinement ([6ac9fb1](https://github.com/ADMINASHU/techser-sales-app/commit/6ac9fb10ba6c3df945623eaa6b5522eed30b14d9))
+- Enforce permissions for stamping actions ([ae1d5bd](https://github.com/ADMINASHU/techser-sales-app/commit/ae1d5bda78a19fafa47a1bd32d54c2a578a99b60))
+- integrate Knock for real-time notifications, including push notification registration and a listener for user account and role updates. ([4b7bdf7](https://github.com/ADMINASHU/techser-sales-app/commit/4b7bdf7e661ca1597ba46784138138401435419a))
+- Introduce KnockClientProvider to set up real-time and push notification services. ([562676b](https://github.com/ADMINASHU/techser-sales-app/commit/562676b85600b9926c6d2b959d91b58d503d185a))
+- Replace Knock notifications with FCM push notifications ([b56019a](https://github.com/ADMINASHU/techser-sales-app/commit/b56019a4d80605d32bdaec4834fa2025f86017fb))
+- Send FCM notification to admins on stamp out with entry link ([647dcf1](https://github.com/ADMINASHU/techser-sales-app/commit/647dcf17b9bc223be77391e95a857524af36a8bc))
 
 ### Bug Fixes
 
-* Add missing Bell icon import to NotificationDropdown ([cc24ebd](https://github.com/ADMINASHU/techser-sales-app/commit/cc24ebde800dba5ab185837ec6ee448973f5c8fc))
-* move KnockFeedProvider to component level to prevent WebSocket loop ([816a1c5](https://github.com/ADMINASHU/techser-sales-app/commit/816a1c50c4e9bd5122454886186b5fed0d79b9d2))
-* only render NotificationFeedPopover when visible to prevent WebSocket loop ([4055a61](https://github.com/ADMINASHU/techser-sales-app/commit/4055a614ccde153e3e8e59f23b88a615107f5051))
-* remove isClient check to fix useKnockFeed context error ([266ea6a](https://github.com/ADMINASHU/techser-sales-app/commit/266ea6a62f99773ef5e9e81bdbccc1ad3b0c48f4))
-* remove useKnockFeed from NotificationFeed to prevent WebSocket loop ([ecaa45b](https://github.com/ADMINASHU/techser-sales-app/commit/ecaa45be0674116410fdb0caafb3425f60370e25))
-* Replace Knock imports with FCM in server actions ([3f72796](https://github.com/ADMINASHU/techser-sales-app/commit/3f727967fb10d57ffeb8c5a1c421e75f5db89384))
-* revert to v1.0.0 Knock implementation ([32551c4](https://github.com/ADMINASHU/techser-sales-app/commit/32551c48b63cd20d2c3b1a8cf50d1a4ab17ff318))
-* revert to v1.3.0 Knock implementation that was working ([10950a7](https://github.com/ADMINASHU/techser-sales-app/commit/10950a7e7bc1fab36f0bac2dcb90e0540d7fb598))
-* Serialize notification _id to id for React key compatibility ([0f184c8](https://github.com/ADMINASHU/techser-sales-app/commit/0f184c8add96827ce2b8e2853a93f22584df054e))
+- Add missing Bell icon import to NotificationDropdown ([cc24ebd](https://github.com/ADMINASHU/techser-sales-app/commit/cc24ebde800dba5ab185837ec6ee448973f5c8fc))
+- move KnockFeedProvider to component level to prevent WebSocket loop ([816a1c5](https://github.com/ADMINASHU/techser-sales-app/commit/816a1c50c4e9bd5122454886186b5fed0d79b9d2))
+- only render NotificationFeedPopover when visible to prevent WebSocket loop ([4055a61](https://github.com/ADMINASHU/techser-sales-app/commit/4055a614ccde153e3e8e59f23b88a615107f5051))
+- remove isClient check to fix useKnockFeed context error ([266ea6a](https://github.com/ADMINASHU/techser-sales-app/commit/266ea6a62f99773ef5e9e81bdbccc1ad3b0c48f4))
+- remove useKnockFeed from NotificationFeed to prevent WebSocket loop ([ecaa45b](https://github.com/ADMINASHU/techser-sales-app/commit/ecaa45be0674116410fdb0caafb3425f60370e25))
+- Replace Knock imports with FCM in server actions ([3f72796](https://github.com/ADMINASHU/techser-sales-app/commit/3f727967fb10d57ffeb8c5a1c421e75f5db89384))
+- revert to v1.0.0 Knock implementation ([32551c4](https://github.com/ADMINASHU/techser-sales-app/commit/32551c48b63cd20d2c3b1a8cf50d1a4ab17ff318))
+- revert to v1.3.0 Knock implementation that was working ([10950a7](https://github.com/ADMINASHU/techser-sales-app/commit/10950a7e7bc1fab36f0bac2dcb90e0540d7fb598))
+- Serialize notification \_id to id for React key compatibility ([0f184c8](https://github.com/ADMINASHU/techser-sales-app/commit/0f184c8add96827ce2b8e2853a93f22584df054e))
 
 ### [1.5.1](https://github.com/ADMINASHU/techser-sales-app/compare/v1.5.0...v1.5.1) (2026-01-03)
 
-
 ### Bug Fixes
 
-* resolve admin log display issues, map distance formatting, and accessibility errors ([6a5075a](https://github.com/ADMINASHU/techser-sales-app/commit/6a5075abc5e3fd4f547dbee2403984db2f1dcfa9))
+- resolve admin log display issues, map distance formatting, and accessibility errors ([6a5075a](https://github.com/ADMINASHU/techser-sales-app/commit/6a5075abc5e3fd4f547dbee2403984db2f1dcfa9))
 
 ## [1.5.0](https://github.com/ADMINASHU/techser-sales-app/compare/v1.4.0...v1.5.0) (2026-01-03)
 
-
 ### Features
 
-* Add new Navbar and CustomerActionCard components for site navigation and customer check-in/out functionality. ([80fda8f](https://github.com/ADMINASHU/techser-sales-app/commit/80fda8f8081d0515fcb891add59a5723715bd29c))
-* Implement EntryMap component displaying Google Maps with location, stamp markers, and distance info. ([3cd7580](https://github.com/ADMINASHU/techser-sales-app/commit/3cd75804a830ecabda7cfdcfad471e31371377e2))
-* implement NextAuth authentication with Google and credentials providers, and a dynamic Navbar component. ([57de77d](https://github.com/ADMINASHU/techser-sales-app/commit/57de77dd06bcf5ba7ef00d0b2d4132a6e15a88e1))
-
+- Add new Navbar and CustomerActionCard components for site navigation and customer check-in/out functionality. ([80fda8f](https://github.com/ADMINASHU/techser-sales-app/commit/80fda8f8081d0515fcb891add59a5723715bd29c))
+- Implement EntryMap component displaying Google Maps with location, stamp markers, and distance info. ([3cd7580](https://github.com/ADMINASHU/techser-sales-app/commit/3cd75804a830ecabda7cfdcfad471e31371377e2))
+- implement NextAuth authentication with Google and credentials providers, and a dynamic Navbar component. ([57de77d](https://github.com/ADMINASHU/techser-sales-app/commit/57de77dd06bcf5ba7ef00d0b2d4132a6e15a88e1))
 
 ### Performance Improvements
 
-* optimize network performance and fix authentication issues ([f175ec3](https://github.com/ADMINASHU/techser-sales-app/commit/f175ec308c286c882f9c207a1f4497eeae650fb2))
+- optimize network performance and fix authentication issues ([f175ec3](https://github.com/ADMINASHU/techser-sales-app/commit/f175ec308c286c882f9c207a1f4497eeae650fb2))
 
 ### [1.3.1](https://github.com/ADMINASHU/techser-sales-app/compare/v1.3.0...v1.3.1) (2026-01-02)
 
-
 ### Bug Fixes
 
-* remove stamp actions from detail views to enforce customer log workflow ([3d16de1](https://github.com/ADMINASHU/techser-sales-app/commit/3d16de1d50220905e462f043af10d3e7bfb02341))
-
+- remove stamp actions from detail views to enforce customer log workflow ([3d16de1](https://github.com/ADMINASHU/techser-sales-app/commit/3d16de1d50220905e462f043af10d3e7bfb02341))
 
 ### Performance Improvements
 
-* optimize stampOut speed by moving sync to background ([9ff61ed](https://github.com/ADMINASHU/techser-sales-app/commit/9ff61ed912d8f841b9d14132276a4df63c7e12ac))
+- optimize stampOut speed by moving sync to background ([9ff61ed](https://github.com/ADMINASHU/techser-sales-app/commit/9ff61ed912d8f841b9d14132276a4df63c7e12ac))
 
 ## [1.3.0](https://github.com/ADMINASHU/techser-sales-app/compare/v1.2.0...v1.3.0) (2026-01-02)
 
-
 ### Features
 
-* Add server actions for entry management, customer stamp in/out, and Google Sheets integration. ([6540915](https://github.com/ADMINASHU/techser-sales-app/commit/65409159d1ffecbf5ddcccabdb8e16b27f9dbe20))
-* Implement initial authentication, login page, core sales entry management (create, update, stamp-in), and related UI and admin actions. ([afb25e7](https://github.com/ADMINASHU/techser-sales-app/commit/afb25e74cfd4a07d29e41d7823e81e3b9d0611d6))
-* Implement NextAuth for user authentication with Google and Credentials providers, including JWT and session management. ([1f9946b](https://github.com/ADMINASHU/techser-sales-app/commit/1f9946b0b8ad573f0e4c02f8a373cc2351171c04))
-* Implement unified customer stamp actions and new entry creation with Google Sheets integration and Zod validation. ([82e6251](https://github.com/ADMINASHU/techser-sales-app/commit/82e625107a1638fd108bfe6cf00b88f20a8ab35a))
-* restrict features page access to admin only ([c094af1](https://github.com/ADMINASHU/techser-sales-app/commit/c094af1fce748207070e2f7cff3e587c91493643))
-* update check-in label to check-in/out ([be49c8c](https://github.com/ADMINASHU/techser-sales-app/commit/be49c8c997055b9372e48f935eef443cfdbb0854))
-
+- Add server actions for entry management, customer stamp in/out, and Google Sheets integration. ([6540915](https://github.com/ADMINASHU/techser-sales-app/commit/65409159d1ffecbf5ddcccabdb8e16b27f9dbe20))
+- Implement initial authentication, login page, core sales entry management (create, update, stamp-in), and related UI and admin actions. ([afb25e7](https://github.com/ADMINASHU/techser-sales-app/commit/afb25e74cfd4a07d29e41d7823e81e3b9d0611d6))
+- Implement NextAuth for user authentication with Google and Credentials providers, including JWT and session management. ([1f9946b](https://github.com/ADMINASHU/techser-sales-app/commit/1f9946b0b8ad573f0e4c02f8a373cc2351171c04))
+- Implement unified customer stamp actions and new entry creation with Google Sheets integration and Zod validation. ([82e6251](https://github.com/ADMINASHU/techser-sales-app/commit/82e625107a1638fd108bfe6cf00b88f20a8ab35a))
+- restrict features page access to admin only ([c094af1](https://github.com/ADMINASHU/techser-sales-app/commit/c094af1fce748207070e2f7cff3e587c91493643))
+- update check-in label to check-in/out ([be49c8c](https://github.com/ADMINASHU/techser-sales-app/commit/be49c8c997055b9372e48f935eef443cfdbb0854))
 
 ### Performance Improvements
 
-* optimize stamp actions for mobile and async sheet sync ([17dc7e9](https://github.com/ADMINASHU/techser-sales-app/commit/17dc7e97830f3daa98427e68c3d80c4354920741))
+- optimize stamp actions for mobile and async sheet sync ([17dc7e9](https://github.com/ADMINASHU/techser-sales-app/commit/17dc7e97830f3daa98427e68c3d80c4354920741))
 
 ## [1.2.0](https://github.com/ADMINASHU/techser-sales-app/compare/v1.0.1...v1.2.0) (2026-01-01)
 
-
 ### Features
 
-* Add duplicate customer detection and active/inactive status toggle ([0a17128](https://github.com/ADMINASHU/techser-sales-app/commit/0a1712859e5cab20dcfbe69d47dbd779fe546b91))
-* Add entry details and admin details modals with dynamic map, location tracking, and new report actions. ([49dd6ae](https://github.com/ADMINASHU/techser-sales-app/commit/49dd6aecc13ce175b170e24a7ca2fa5cef0db10d))
-* Add global styling, customer action card for stamping, and infinite list components. ([db80035](https://github.com/ADMINASHU/techser-sales-app/commit/db8003565fea7e18ec329e8d121f45a0e00f69fd))
-* Implement comprehensive entry management with data model, server actions, UI components, and Google Sheets integration. ([6ca10fa](https://github.com/ADMINASHU/techser-sales-app/commit/6ca10fa950db8219d8ee93472afeb20be76c7c44))
-* Introduce user login page, authentication actions, and initial user and admin dashboard components. ([1d15e54](https://github.com/ADMINASHU/techser-sales-app/commit/1d15e54aaf70ae9dbe9c1054a17060b63e4c5068))
-
+- Add duplicate customer detection and active/inactive status toggle ([0a17128](https://github.com/ADMINASHU/techser-sales-app/commit/0a1712859e5cab20dcfbe69d47dbd779fe546b91))
+- Add entry details and admin details modals with dynamic map, location tracking, and new report actions. ([49dd6ae](https://github.com/ADMINASHU/techser-sales-app/commit/49dd6aecc13ce175b170e24a7ca2fa5cef0db10d))
+- Add global styling, customer action card for stamping, and infinite list components. ([db80035](https://github.com/ADMINASHU/techser-sales-app/commit/db8003565fea7e18ec329e8d121f45a0e00f69fd))
+- Implement comprehensive entry management with data model, server actions, UI components, and Google Sheets integration. ([6ca10fa](https://github.com/ADMINASHU/techser-sales-app/commit/6ca10fa950db8219d8ee93472afeb20be76c7c44))
+- Introduce user login page, authentication actions, and initial user and admin dashboard components. ([1d15e54](https://github.com/ADMINASHU/techser-sales-app/commit/1d15e54aaf70ae9dbe9c1054a17060b63e4c5068))
 
 ### Bug Fixes
 
-* ensure live sync setting is respected and optimize stamp actions ([5947f4f](https://github.com/ADMINASHU/techser-sales-app/commit/5947f4f8d5e3491bb89542f7e7e17b98e827c23b))
+- ensure live sync setting is respected and optimize stamp actions ([5947f4f](https://github.com/ADMINASHU/techser-sales-app/commit/5947f4f8d5e3491bb89542f7e7e17b98e827c23b))
 
 ### [1.1.3](https://github.com/ADMINASHU/techser-sales-app/compare/v1.1.2...v1.1.3) (2026-01-01)
 
