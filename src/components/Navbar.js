@@ -40,7 +40,7 @@ export default function Navbar() {
 
   // Proper way to detect if we're on the client
   const mounted = useSyncExternalStore(
-    () => () => {}, // subscribe: no-op, as mounted state doesn't change after initial client render
+    () => () => { }, // subscribe: no-op, as mounted state doesn't change after initial client render
     () => true, // getSnapshot: returns true on client
     () => false, // getServerSnapshot: returns false on server
   );
@@ -83,34 +83,39 @@ export default function Navbar() {
   const links =
     session?.user?.role === "admin"
       ? [
-          {
-            href: "/dashboard",
-            label: "Dashboard",
-            icon: <LayoutDashboard className="w-5 h-5" />,
-          },
-          {
-            href: "/entries",
-            label: "Entry Log",
-            icon: <ClipboardList className="w-5 h-5" />,
-          },
-        ]
+        {
+          href: "/dashboard",
+          label: "Dashboard",
+          icon: <LayoutDashboard className="w-5 h-5" />,
+        },
+        {
+          href: "/entries",
+          label: "Entry Log",
+          icon: <ClipboardList className="w-5 h-5" />,
+        },
+      ]
       : [
-          {
-            href: "/customer-log",
-            label: "Stamp In/Out",
-            icon: <MapPin className="w-5 h-5" />,
-          },
-          {
-            href: "/entries",
-            label: "Entry Log",
-            icon: <ClipboardList className="w-5 h-5" />,
-          },
-          {
-            href: "/customers",
-            label: "Customers",
-            icon: <Users className="w-5 h-5" />,
-          },
-        ];
+        {
+          href: "/customer-log",
+          label: "Stamp In/Out",
+          icon: <MapPin className="w-5 h-5" />,
+        },
+        {
+          href: "/entries",
+          label: "Entry Log",
+          icon: <ClipboardList className="w-5 h-5" />,
+        },
+        {
+          href: "/customers",
+          label: "Customers",
+          icon: <Users className="w-5 h-5" />,
+        },
+        {
+          href: "/report",
+          label: "Report",
+          icon: <BarChart3 className="w-5 h-5" />,
+        },
+      ];
 
   if (session?.user?.role === "admin") {
     links.push({
@@ -164,7 +169,7 @@ export default function Navbar() {
                     : pathname === "/settings"
                       ? "Settings"
                       : pathname.startsWith("/entries/") &&
-                          pathname.split("/").length > 2
+                        pathname.split("/").length > 2
                         ? "Visit Details"
                         : "")}
               </span>
@@ -218,17 +223,17 @@ export default function Navbar() {
                           <AvatarFallback className="bg-linear-to-br from-violet-500 to-fuchsia-500 text-white font-bold">
                             {session?.user?.name
                               ? session.user.name
-                                  .split(" ")
-                                  .map((n) => n[0])
-                                  .join("")
-                                  .slice(0, 2)
+                                .split(" ")
+                                .map((n) => n[0])
+                                .join("")
+                                .slice(0, 2)
                               : "U"}
                           </AvatarFallback>
                         </Avatar>
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
-                      className="w-72 glass-card mt-2 p-2"
+                      className="w-72 bg-slate-900 border border-white/10 shadow-lg mt-2 p-2"
                       align="end"
                       forceMount
                     >
@@ -240,10 +245,10 @@ export default function Navbar() {
                           <AvatarFallback className="bg-linear-to-br from-violet-500 to-fuchsia-500 text-white font-bold">
                             {session?.user?.name
                               ? session.user.name
-                                  .split(" ")
-                                  .map((n) => n[0])
-                                  .join("")
-                                  .slice(0, 2)
+                                .split(" ")
+                                .map((n) => n[0])
+                                .join("")
+                                .slice(0, 2)
                               : "U"}
                           </AvatarFallback>
                         </Avatar>
@@ -344,10 +349,10 @@ export default function Navbar() {
                       <AvatarFallback className="bg-linear-to-br from-violet-500 to-fuchsia-500 text-white font-bold">
                         {session?.user?.name
                           ? session.user.name
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")
-                              .slice(0, 2)
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")
+                            .slice(0, 2)
                           : "U"}
                       </AvatarFallback>
                     </Avatar>
@@ -412,10 +417,10 @@ export default function Navbar() {
                     <AvatarFallback className="bg-linear-to-br from-violet-500 to-fuchsia-500 text-white font-bold">
                       {session?.user?.name
                         ? session.user.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")
-                            .slice(0, 2)
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")
+                          .slice(0, 2)
                         : "U"}
                     </AvatarFallback>
                   </Avatar>

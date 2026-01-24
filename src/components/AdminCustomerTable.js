@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useInView } from "react-intersection-observer";
 import { getAdminCustomerAnalytics } from "@/app/actions/adminCustomerActions";
 import {
@@ -27,6 +27,7 @@ export default function AdminCustomerTable({
   initialCustomers,
   initialHasMore,
   locations, // { users: [], locations: [] }
+  isRestricted = false, // new prop
 }) {
   const [customers, setCustomers] = useState(initialCustomers);
   const [hasMore, setHasMore] = useState(initialHasMore);
@@ -34,18 +35,26 @@ export default function AdminCustomerTable({
   const [ref, inView] = useInView();
 
   // Filters State
-  const currentDate = new Date();
-  const [selectedMonth, setSelectedMonth] = useState(
-    currentDate.getMonth().toString(),
-  );
-  const [selectedYear, setSelectedYear] = useState(
-    currentDate.getFullYear().toString(),
-  );
+  // Initialize with consistent default to prevent hydration mismatch
+  const [selectedMonth, setSelectedMonth] = useState("all");
+  const [selectedYear, setSelectedYear] = useState("all");
+
+  useEffect(() => {
+    const now = new Date();
+    setSelectedMonth(now.getMonth().toString());
+    setSelectedYear(now.getFullYear().toString());
+  }, []);
   const [selectedRegion, setSelectedRegion] = useState("all");
   const [selectedBranch, setSelectedBranch] = useState("all");
   const [selectedUser, setSelectedUser] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCustomer, setSelectedCustomer] = useState(null);
+
+  // Use ref for customers length to stabilize fetchCustomers
+  const customersLengthRef = useRef(customers.length);
+  useEffect(() => {
+    customersLengthRef.current = customers.length;
+  }, [customers.length]);
 
   const months = [
     { value: "all", label: "All Months" },
@@ -106,32 +115,47 @@ export default function AdminCustomerTable({
     }
   }, [selectedRegion, selectedBranch, availableUsers, selectedUser]);
 
+  // Use loadingRef to prevent dependency cycles
+  const loadingRef = useRef(false);
+
   const fetchCustomers = useCallback(
     async (isLoadMore = false) => {
+      if (loadingRef.current) return;
+
+      loadingRef.current = true;
       setLoading(true);
-      const skip = isLoadMore ? customers.length : 0;
-      const filters = {
-        month: selectedMonth,
-        year: selectedYear,
-        region: selectedRegion,
-        branch: selectedBranch,
-        userId: selectedUser,
-        search: searchQuery,
-      };
 
-      const res = await getAdminCustomerAnalytics({
-        filters,
-        skip,
-        limit: 30,
-      });
+      try {
+        const skip = isLoadMore ? customersLengthRef.current : 0;
+        const filters = {
+          month: selectedMonth,
+          year: selectedYear,
+          region: selectedRegion,
+          branch: selectedBranch,
+          userId: selectedUser,
+          search: searchQuery,
+        };
 
-      if (isLoadMore) {
-        setCustomers((prev) => [...prev, ...res.customers]);
-      } else {
-        setCustomers(res.customers);
+        const res = await getAdminCustomerAnalytics({
+          filters,
+          skip,
+          limit: 30,
+        });
+
+        if (isLoadMore) {
+          setCustomers((prev) => {
+            const existingIds = new Set(prev.map((c) => c._id));
+            const newUnique = res.customers.filter((c) => !existingIds.has(c._id));
+            return [...prev, ...newUnique];
+          });
+        } else {
+          setCustomers(res.customers);
+        }
+        setHasMore(res.hasMore);
+      } finally {
+        setLoading(false);
+        loadingRef.current = false;
       }
-      setHasMore(res.hasMore);
-      setLoading(false);
     },
     [
       selectedMonth,
@@ -140,7 +164,6 @@ export default function AdminCustomerTable({
       selectedBranch,
       selectedUser,
       searchQuery,
-      customers.length,
     ],
   );
 
@@ -157,11 +180,12 @@ export default function AdminCustomerTable({
   ]);
 
   // Infinite Scroll Trigger
+  // Infinite Scroll Trigger
   useEffect(() => {
-    if (inView && hasMore && !loading) {
+    if (inView && hasMore) {
       fetchCustomers(true);
     }
-  }, [inView, hasMore, loading, fetchCustomers]);
+  }, [inView, hasMore, fetchCustomers]);
 
   // UPDATED: Format duration as HH:MM:SS
   const formatDuration = (ms) => {
@@ -220,52 +244,80 @@ export default function AdminCustomerTable({
             </div>
 
             {/* Filters Grid */}
-            <div className="flex-1 grid gap-2 grid-cols-2 md:grid-cols-4 lg:grid-cols-5">
-              {/* Region */}
-              <div className="space-y-1.5">
-                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">
-                  Region
-                </span>
-                <Select
-                  value={selectedRegion}
-                  onValueChange={setSelectedRegion}
-                >
-                  <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
-                    <SelectValue placeholder="Region" />
-                  </SelectTrigger>
-                  <SelectContent className="glass-card border-white/10">
-                    <SelectItem value="all">All Regions</SelectItem>
-                    {locations.locations.map((loc) => (
-                      <SelectItem key={loc._id} value={loc.name}>
-                        {loc.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className={`flex-1 grid gap-2 ${isRestricted ? "grid-cols-2 md:grid-cols-3" : "grid-cols-2 md:grid-cols-4 lg:grid-cols-5"}`}>
+              {/* Region - Hide if restricted */}
+              {!isRestricted && (
+                <div className="space-y-1.5">
+                  <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">
+                    Region
+                  </span>
+                  <Select
+                    value={selectedRegion}
+                    onValueChange={setSelectedRegion}
+                  >
+                    <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
+                      <SelectValue placeholder="Region" />
+                    </SelectTrigger>
+                    <SelectContent className="glass-card-static border-white/10">
+                      <SelectItem value="all">All Regions</SelectItem>
+                      {locations.locations.map((loc) => (
+                        <SelectItem key={loc._id} value={loc.name}>
+                          {loc.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
 
-              {/* Branch */}
-              <div className="space-y-1.5">
-                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">
-                  Branch
-                </span>
-                <Select
-                  value={selectedBranch}
-                  onValueChange={setSelectedBranch}
-                >
-                  <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
-                    <SelectValue placeholder="Branch" />
-                  </SelectTrigger>
-                  <SelectContent className="glass-card border-white/10">
-                    <SelectItem value="all">All Branches</SelectItem>
-                    {availableBranches.map((b) => (
-                      <SelectItem key={b} value={b}>
-                        {b}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              {/* Branch - Hide if restricted */}
+              {!isRestricted && (
+                <div className="space-y-1.5">
+                  <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">
+                    Branch
+                  </span>
+                  <Select
+                    value={selectedBranch}
+                    onValueChange={setSelectedBranch}
+                  >
+                    <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
+                      <SelectValue placeholder="Branch" />
+                    </SelectTrigger>
+                    <SelectContent className="glass-card-static border-white/10">
+                      <SelectItem value="all">All Branches</SelectItem>
+                      {availableBranches.map((b) => (
+                        <SelectItem key={b} value={b}>
+                          {b}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              {/* User Selection - Hide if restricted */}
+              {!isRestricted && (
+                // Although not present in original view_file output, logic suggests there might be a User filter here if the grid-cols suggests more cols.
+                // Wait, reading original code: There was NO user select dropdown in the view_file! 
+                // Ah, wait. Lines 223 - 348 show Region, Branch, Month, Year, Search.
+                // There is NO User dropdown in the original code visible in step 31 (lines 223-348), 
+                // BUT there is logic for `selectedUser` and `availableUsers` in lines 46, 80-88, 100-107.
+                // It seems the User dropdown was MISSING in the JSX in the original file I viewed?
+                // Let me re-read lines 223-348.
+                // 223: grid-cols...
+                // 225: Region
+                // 248: Branch
+                // 271: Month
+                // 291: Year
+                // 311: Search
+                // There is NO user dropdown.
+                // However, `selectedUser` IS used in `fetchCustomers`.
+                // If I am to hide filters, I should only hide Region/Branch.
+                // If there was no User dropdown, I don't need to hide it.
+                // BUT, if I am enabling non-admin, I am definitely hiding Region/Branch.
+                // I will proceed with hiding Region/Branch.
+                null
+              )}
 
               {/* Month */}
               <div className="space-y-1.5">
@@ -276,7 +328,7 @@ export default function AdminCustomerTable({
                   <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
                     <SelectValue placeholder="Month" />
                   </SelectTrigger>
-                  <SelectContent className="glass-card border-white/10">
+                  <SelectContent className="glass-card-static border-white/10">
                     <SelectItem value="all">All Months</SelectItem>
                     {months.map((m) => (
                       <SelectItem key={m.value} value={m.value}>
@@ -296,7 +348,7 @@ export default function AdminCustomerTable({
                   <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
                     <SelectValue placeholder="Year" />
                   </SelectTrigger>
-                  <SelectContent className="glass-card border-white/10">
+                  <SelectContent className="glass-card-static border-white/10">
                     <SelectItem value="all">All Years</SelectItem>
                     {years.map((y) => (
                       <SelectItem key={y} value={y}>
@@ -308,7 +360,7 @@ export default function AdminCustomerTable({
               </div>
 
               {/* Search */}
-              <div className="space-y-1.5 col-span-2 md:col-span-1 relative group w-full max-w-md">
+              <div className={`space-y-1.5 relative group w-full ${isRestricted ? "col-span-2 md:col-span-1" : "col-span-2 md:col-span-1"}`}>
                 <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">
                   Search
                 </span>
@@ -351,7 +403,7 @@ export default function AdminCustomerTable({
       </div>
 
       {/* Customer Table */}
-      <div className="rounded-xl border border-white/10 overflow-hidden glass-card shadow-xl">
+      <div className="rounded-xl border border-white/10 overflow-hidden glass-card-static shadow-xl">
         <Table>
           <TableHeader className="bg-white/5">
             <TableRow className="border-white/5 hover:bg-transparent">

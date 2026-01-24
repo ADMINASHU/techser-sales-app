@@ -12,38 +12,40 @@ export default async function AdminCustomersPage() {
 
   const isAdmin = session.user.role === "admin";
 
-  if (!isAdmin) {
-    return (
-      <div className="space-y-6">
-        <div className="hidden sm:flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Report</h1>
-        </div>
-        <div className="p-4 border rounded-md bg-muted/50">
-          <p>No report available for your account type.</p>
-        </div>
-      </div>
-    );
-  }
-
   // Fetch initial filters data
+  // If user is not admin, we don't need all users/locations for filters, but we fetch to filter them out safely or pass empty
   const filtersData = await getFilters();
 
-  // Filter out admin users from the user list so the dropdown only shows standard users
-  const nonAdminUsers = filtersData.users.filter((u) => u.role !== "admin");
-  const cleanFilters = {
-    ...filtersData,
-    users: nonAdminUsers,
-  };
+  let cleanFilters;
+
+  if (isAdmin) {
+    // Filter out admin users from the user list so the dropdown only shows standard users
+    const nonAdminUsers = filtersData.users.filter((u) => u.role !== "admin");
+    cleanFilters = {
+      ...filtersData,
+      users: nonAdminUsers,
+    };
+  } else {
+    // Non-admin: Don't show options for other users or regions
+    cleanFilters = {
+      users: [],
+      locations: [],
+    };
+  }
 
   // Initial Data Load (Default: Current Month/Year)
   const now = new Date();
+
+  // For non-admin, userId='all' will be overridden by the server action to be their ID
+  const userIdFilter = isAdmin ? "all" : session.user.id;
+
   const initialData = await getAdminCustomerAnalytics({
     filters: {
       month: now.getMonth().toString(),
       year: now.getFullYear().toString(),
       region: "all",
       branch: "all",
-      userId: "all",
+      userId: userIdFilter,
     },
     skip: 0,
     limit: 30,
@@ -53,7 +55,7 @@ export default async function AdminCustomersPage() {
     <div className="space-y-6">
       <div className="hidden sm:flex flex-row items-center justify-between gap-4">
         <h1 className="text-3xl font-bold bg-linear-to-r from-white to-gray-400 bg-clip-text text-transparent">
-          Report
+          {isAdmin ? "Report" : "My Report"}
         </h1>
       </div>
       <Suspense fallback={<ReportSkeleton />}>
@@ -61,6 +63,7 @@ export default async function AdminCustomersPage() {
           initialCustomers={initialData.customers}
           initialHasMore={initialData.hasMore}
           locations={cleanFilters}
+          isRestricted={!isAdmin}
         />
       </Suspense>
     </div>

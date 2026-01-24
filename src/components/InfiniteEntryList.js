@@ -1,7 +1,7 @@
 "use client";
 
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import EntryCard from "@/components/EntryCard";
 import { fetchEntries } from "@/app/actions/entryActions";
 import { Loader2 } from "lucide-react";
@@ -12,6 +12,12 @@ export default function InfiniteEntryList({ initialEntries, searchParams, isAdmi
     const [entries, setEntries] = useState(initialEntries);
     const [hasMore, setHasMore] = useState(true);
     const [loading, setLoading] = useState(false);
+
+    // Use ref to track entries length for loadMore calculation without adding 'entries' as dependency
+    const entriesLengthRef = useRef(entries.length);
+    useEffect(() => {
+        entriesLengthRef.current = entries.length;
+    }, [entries.length]);
 
     // Filter duplicates on initial load just in case
     useEffect(() => {
@@ -42,7 +48,7 @@ export default function InfiniteEntryList({ initialEntries, searchParams, isAdmi
         if (loading || !hasMore) return;
 
         setLoading(true);
-        const currentSkip = entries.length;
+        const currentSkip = entriesLengthRef.current;
         const limit = 12;
 
         try {
@@ -67,7 +73,7 @@ export default function InfiniteEntryList({ initialEntries, searchParams, isAdmi
         } finally {
             setLoading(false);
         }
-    }, [entries, loading, hasMore, searchParams]);
+    }, [loading, hasMore, searchParams]);
 
     const Footer = () => {
         return loading && hasMore ? (

@@ -13,8 +13,18 @@ export async function getAdminCustomerAnalytics({
   limit = 30,
 }) {
   const session = await auth();
-  if (!session || session.user.role !== "admin") {
+  if (!session) {
     return { customers: [], hasMore: false };
+  }
+
+  const isAdmin = session.user.role === "admin";
+
+  // Enforce restriction for non-admins
+  if (!isAdmin) {
+    // Force specific filters for non-admins
+    filters.userId = session.user.id;
+    filters.region = "all";
+    filters.branch = "all";
   }
 
   try {
@@ -73,7 +83,7 @@ export async function getAdminCustomerAnalytics({
       // Match Customers first
       { $match: customerMatch },
       // Sort by name for consistent pagination
-      { $sort: { name: 1 } },
+      { $sort: { name: 1, _id: 1 } },
       // Apply Pagination
       { $skip: skip },
       { $limit: limit },
@@ -136,9 +146,11 @@ export async function getAdminCustomerAnalytics({
 
 export async function getCustomerVisitDetails({ customerId, filters = {} }) {
   const session = await auth();
-  if (!session || session.user.role !== "admin") {
+  if (!session) {
     return { visits: [] };
   }
+
+  const isAdmin = session.user.role === "admin";
 
   try {
     await dbConnect();
@@ -146,6 +158,11 @@ export async function getCustomerVisitDetails({ customerId, filters = {} }) {
 
     // Build Entry Match Query (Same as analytics)
     const entryMatch = { customerId: new mongoose.Types.ObjectId(customerId) };
+
+    // RESTRICTION: If not admin, only show visits by this user
+    if (!isAdmin) {
+      entryMatch.userId = new mongoose.Types.ObjectId(session.user.id);
+    }
 
     if (year && year !== "all") {
       const y = parseInt(year);

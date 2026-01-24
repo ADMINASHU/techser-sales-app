@@ -160,10 +160,19 @@
     @apply bg-slate-900/95 border border-white/10 shadow-lg transition-all duration-200;
   }
 
+  .glass-card-static {
+    @apply bg-slate-900/95 border border-white/10 shadow-lg transition-all duration-200;
+  }
+
   @media (min-width: 768px) {
     .glass-card {
       @apply bg-white/8 backdrop-blur-md;
       @apply hover:border-blue-500/50 hover:shadow-blue-500/10 hover:-translate-y-1 hover:scale-[1.01];
+    }
+
+    .glass-card-static {
+      @apply bg-white/8 backdrop-blur-md;
+      /* No hover effects */
     }
   }
 
@@ -200,6 +209,7 @@
 }
 
 @media (max-width: 640px) {
+
   html,
   body {
     scrollbar-width: none;

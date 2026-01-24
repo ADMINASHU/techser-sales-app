@@ -108,8 +108,20 @@ export async function getReportData({
   branch,
 }) {
   const session = await auth();
-  if (!session || session.user.role !== "admin") {
+  if (!session) {
     throw new Error("Unauthorized");
+  }
+
+  // If not admin, FORCE userId to be valid session user
+  let effectiveUserId = userId;
+  let effectiveRegion = region;
+  let effectiveBranch = branch;
+
+  if (session.user.role !== "admin") {
+    effectiveUserId = session.user.id;
+    // Clear region/branch filters for non-admins as they are restricted to their own data
+    effectiveRegion = "all";
+    effectiveBranch = "all";
   }
 
   await dbConnect();
@@ -117,12 +129,12 @@ export async function getReportData({
   // Prepare primitive arguments for the cache key
   let userIdList = [];
 
-  if (userId && userId !== "all") {
-    userIdList = [userId];
-  } else if ((region && region !== "all") || (branch && branch !== "all")) {
+  if (effectiveUserId && effectiveUserId !== "all") {
+    userIdList = [effectiveUserId];
+  } else if ((effectiveRegion && effectiveRegion !== "all") || (effectiveBranch && effectiveBranch !== "all")) {
     let userQuery = {};
-    if (region && region !== "all") userQuery.region = region;
-    if (branch && branch !== "all") userQuery.branch = branch;
+    if (effectiveRegion && effectiveRegion !== "all") userQuery.region = effectiveRegion;
+    if (effectiveBranch && effectiveBranch !== "all") userQuery.branch = effectiveBranch;
     // Optimization: We could cache this lookup too, but it's fast enough.
     const matchingUsers = await User.find(userQuery, "_id").lean();
     userIdList = matchingUsers.map((u) => u._id.toString());
@@ -136,8 +148,8 @@ export async function getReportData({
     startDate,
     endDate,
     userIdList.length > 0 ? userIdList : null,
-    region,
-    branch
+    effectiveRegion,
+    effectiveBranch
   );
 }
 
@@ -150,8 +162,17 @@ export async function getRawEntries({
   limit,
 }) {
   const session = await auth();
-  if (!session || session.user.role !== "admin") {
+  if (!session) {
     throw new Error("Unauthorized");
+  }
+
+  const isAdmin = session.user.role === "admin";
+  
+  // Enforce restriction for non-admins
+  if (!isAdmin) {
+    userId = session.user.id;
+    region = "all";
+    branch = "all";
   }
 
   await dbConnect();
