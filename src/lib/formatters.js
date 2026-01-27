@@ -1,37 +1,51 @@
 /**
  * Efficiently serializes a plain Mongoose document (lean) or object
- * by converting ObjectIds and Dates to strings.
- * This avoids the slow JSON.parse(JSON.stringify(...)) pattern.
+ * by recursively converting ObjectIds and Dates to strings.
+ * This handles nested objects and arrays generically.
  *
- * @param {Object} doc - The document to serialize
- * @returns {Object} - The serialized document
+ * @param {any} obj - The object/document to serialize
+ * @returns {any} - The serialized object
  */
-export function serializeMongoDocument(doc) {
-  if (!doc) return null;
+export function serializeMongoDocument(obj) {
+  if (obj === null || obj === undefined) return obj;
 
-  const serialized = { ...doc };
+  // Handle primitives
+  if (typeof obj !== "object") return obj;
 
-  if (serialized._id) {
-    serialized._id = serialized._id.toString();
+  // Handle Date
+  if (obj instanceof Date) {
+    return obj.toISOString();
   }
 
-  if (serialized.userId) {
-    serialized.userId = serialized.userId.toString();
+  // Handle ObjectId (check for toString method and typical hex string behavior, or specific Mongoose type check if available, but duck typing is safer here)
+  if (
+    obj.toString &&
+    typeof obj.toString === "function" &&
+    /^[0-9a-fA-F]{24}$/.test(obj.toString())
+  ) {
+    return obj.toString();
+  }
+  // Mongoose ObjectId sometimes doesn't have constructor name straightforwardly in all envs, but usually it does.
+  // A simpler check: if it has _bsontype === 'ObjectID'
+  if (obj._bsontype === "ObjectId") {
+    return obj.toString();
   }
 
-  if (serialized.createdAt) {
-    serialized.createdAt = serialized.createdAt.toISOString();
+  // Handle Array
+  if (Array.isArray(obj)) {
+    return obj.map((item) => serializeMongoDocument(item));
   }
 
-  if (serialized.updatedAt) {
-    serialized.updatedAt = serialized.updatedAt.toISOString();
+  // Handle Object (recursive)
+  // Ensure it's a plain object or something we want to traverse
+  const serialized = {};
+  for (const key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      const value = obj[key];
+      // Skip internal Mongoose/BSON properties if necessary, but usually deep clone is fine.
+      serialized[key] = serializeMongoDocument(value);
+    }
   }
-
-  // Handle specific nested fields for Customer/Entry models if needed
-  // For example, if location has an _id (usually it doesn't in subdocs unless specified)
-
-  // Handle nested arrays if they contain ObjectIds or Dates
-  // This is a basic implementation; extend for deep nesting if specific models require it.
 
   return serialized;
 }

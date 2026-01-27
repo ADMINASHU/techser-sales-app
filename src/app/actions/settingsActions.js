@@ -17,7 +17,7 @@ async function checkAdmin() {
 export async function getLocations() {
   try {
     await dbConnect();
-    const locations = await Location.find({}).sort({ name: 1 });
+    const locations = await Location.find({}).sort({ name: 1 }).lean();
     return serializeMongoList(locations);
   } catch (error) {
     console.error("Get Locations Error", error);

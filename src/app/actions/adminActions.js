@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import { revalidatePath } from "next/cache";
+import { serializeMongoList } from "@/lib/formatters";
 
 async function checkAdmin() {
   const session = await auth();
@@ -25,7 +26,7 @@ export async function verifyUser(userId) {
     const user = await User.findOneAndUpdate(
       { _id: userId, status: { $ne: "verified" } },
       { status: "verified" },
-      { new: true }
+      { new: true },
     );
 
     // If no user found or user was already verified, user will be null
@@ -64,7 +65,7 @@ export async function declineUser(userId) {
     const user = await User.findByIdAndUpdate(
       userId,
       { status: "declined" },
-      { new: true }
+      { new: true },
     );
     revalidatePath("/users");
 
@@ -132,7 +133,7 @@ export async function updateUserRole(userId, newRole) {
     const user = await User.findByIdAndUpdate(
       userId,
       { role: newRole },
-      { new: true }
+      { new: true },
     );
     revalidatePath("/users");
 
@@ -187,16 +188,8 @@ export async function getUsers({
     ]);
     const totalPages = Math.ceil(totalUsers / limit);
 
-    // Convert _id and dates to string to be passed to client components
-    const sanitizedUsers = users.map((user) => ({
-      ...user,
-      _id: user._id.toString(),
-      createdAt: user.createdAt.toISOString(),
-      updatedAt: user.updatedAt.toISOString(),
-    }));
-
     return {
-      users: sanitizedUsers,
+      users: serializeMongoList(users),
       totalPages,
       currentPage: page,
       totalUsers,

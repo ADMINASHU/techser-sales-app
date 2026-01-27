@@ -15,7 +15,7 @@ import {
 export default function LocationManager({ initialLocations }) {
   const [locations, setLocations] = useState(initialLocations);
   const [selectedRegionId, setSelectedRegionId] = useState(
-    locations.length > 0 ? locations[0]._id : null
+    locations.length > 0 ? locations[0]._id : null,
   );
 
   // Derived selected region
@@ -61,7 +61,7 @@ export default function LocationManager({ initialLocations }) {
       setLocations(newLocations);
       if (selectedRegion?._id === id) {
         setSelectedRegionId(
-          newLocations.length > 0 ? newLocations[0]._id : null
+          newLocations.length > 0 ? newLocations[0]._id : null,
         );
       }
       toast.success("Region deleted");
@@ -82,7 +82,7 @@ export default function LocationManager({ initialLocations }) {
             return { ...l, branches: [...l.branches, newBranchName.trim()] };
           }
           return l;
-        })
+        }),
       );
       toast.success("Branch added");
       setNewBranchName("");
@@ -108,7 +108,7 @@ export default function LocationManager({ initialLocations }) {
             };
           }
           return l;
-        })
+        }),
       );
       toast.success("Branch removed");
     }
@@ -275,7 +275,7 @@ export default function LocationManager({ initialLocations }) {
               )}
 
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-                {selectedRegion.branches.map((branch) => (
+                {(selectedRegion.branches || []).map((branch) => (
                   <div
                     key={branch}
                     className="group flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/5 hover:border-white/20 hover:bg-white/10 active:bg-white/20 transition-all text-sm text-gray-300 min-h-[44px]"
