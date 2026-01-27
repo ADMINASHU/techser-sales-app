@@ -247,7 +247,7 @@ export default function UserProfileModal({
               e.stopPropagation();
               onOpenChange(false);
             }}
-            className="absolute right-4 top-4 z-[100] p-2 bg-black/40 hover:bg-black/60 text-white/80 hover:text-white rounded-full transition-all cursor-pointer shadow-lg border border-white/10"
+            className="absolute right-4 top-4 z-50 p-2 bg-black/40 hover:bg-black/60 text-white/80 hover:text-white rounded-full transition-all cursor-pointer shadow-lg border border-white/10"
             type="button"
             aria-label="Close"
           >

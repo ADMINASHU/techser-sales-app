@@ -172,14 +172,7 @@ export default function AdminCustomerTable({
   // Trigger fetch on filter change
   useEffect(() => {
     fetchCustomers(false);
-  }, [
-    selectedMonth,
-    selectedYear,
-    selectedRegion,
-    selectedBranch,
-    selectedUser,
-    searchQuery,
-  ]);
+  }, [fetchCustomers]);
 
   // Infinite Scroll Trigger
   // Infinite Scroll Trigger

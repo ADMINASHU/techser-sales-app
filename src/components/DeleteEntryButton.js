@@ -51,6 +51,7 @@ export default function DeleteEntryButton({ entryId }) {
           className="text-destructive hover:text-destructive/90 hover:bg-destructive/10 h-8 w-8"
           onClick={(e) => e.stopPropagation()}
           disabled={isDeleting}
+          aria-label="Delete entry"
         >
           <Trash2 className="h-4 w-4" />
         </Button>

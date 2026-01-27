@@ -135,6 +135,7 @@ const CustomerCard = memo(function CustomerCard({ customer, isAdmin, onEdit }) {
                 setShowDeleteDialog(true);
               }}
               className="h-8 w-8 p-0 text-red-400 hover:text-red-300 hover:bg-red-500/10"
+              aria-label="Delete customer"
             >
               <Trash2 className="w-4 h-4" />
             </Button>

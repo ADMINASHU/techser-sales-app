@@ -50,7 +50,10 @@ export default function InfiniteEntryList({
     },
   );
 
-  const flatEntries = data ? data.flatMap((page) => page.entries) : [];
+  const flatEntries = useMemo(
+    () => (data ? data.flatMap((page) => page.entries) : []),
+    [data],
+  );
   const isLoadingMore =
     isLoading || (size > 0 && data && typeof data[size - 1] === "undefined");
   const isEmpty = data?.[0]?.entries?.length === 0;
