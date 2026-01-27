@@ -270,6 +270,9 @@ export async function getCustomers({
       .sort({ name: 1 })
       .skip(skip)
       .limit(limit)
+      .select(
+        "name customerAddress district state pincode location contactPerson contactNumber region branch isActive entryCount isShared userId",
+      )
       .lean();
 
     const total = await Customer.countDocuments(query);
@@ -350,6 +353,9 @@ export async function getCustomersWithEntryCount({
       .sort({ entryCount: -1, name: 1 })
       .skip(skip)
       .limit(limit)
+      .select(
+        "name customerAddress district state pincode location contactPerson contactNumber region branch isActive entryCount isShared userId",
+      )
       .lean();
 
     // If we found an active customer and we are on page 1

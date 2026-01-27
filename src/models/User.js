@@ -53,5 +53,6 @@ const UserSchema = new mongoose.Schema(
 UserSchema.index({ createdAt: -1 });
 UserSchema.index({ role: 1, region: 1 }); // Optimize admin lookup by region
 UserSchema.index({ region: 1, branch: 1, status: 1 }); // Admin User List filtering
+UserSchema.index({ region: 1, branch: 1, createdAt: -1 }); // Optimize sorting with filters
 
 export default mongoose.models.User || mongoose.model("User", UserSchema);

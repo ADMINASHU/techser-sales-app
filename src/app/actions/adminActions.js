@@ -183,7 +183,12 @@ export async function getUsers({
     const skip = (page - 1) * limit;
 
     const [users, totalUsers] = await Promise.all([
-      User.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+      User.find(query)
+        .select("-password -fcmTokens -resetToken")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
       User.countDocuments(query),
     ]);
     const totalPages = Math.ceil(totalUsers / limit);
