@@ -17,7 +17,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Download, ArrowRight, ShieldCheck, Users, MapPin } from "lucide-react";
+import {
+  Download,
+  ArrowRight,
+  ShieldCheck,
+  Users,
+  MapPin,
+  SearchX,
+} from "lucide-react";
 // XLSX imported dynamically
 import { toast } from "sonner";
 import EntryCard from "@/components/EntryCard";
@@ -543,8 +550,16 @@ export default function AdminDashboard({
         </div>
 
         {recentEntries.length === 0 && !recentLoading ? (
-          <div className="glass-panel p-6 rounded-xl text-center text-gray-400">
-            No entries found.
+          <div className="flex flex-col items-center justify-center py-12 text-center glass-panel rounded-xl border border-white/5">
+            <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4">
+              <SearchX className="w-8 h-8 text-gray-500" />
+            </div>
+            <h3 className="text-lg font-medium text-white mb-1">
+              No recent entries
+            </h3>
+            <p className="text-gray-400 max-w-sm">
+              New entries will appear here once they are submitted.
+            </p>
           </div>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

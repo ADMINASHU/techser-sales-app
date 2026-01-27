@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Loader2, X } from "lucide-react";
+import { X, SearchX } from "lucide-react";
 import CustomerVisitsModal from "./CustomerVisitsModal";
 
 export default function AdminCustomerTable({
@@ -145,7 +145,9 @@ export default function AdminCustomerTable({
         if (isLoadMore) {
           setCustomers((prev) => {
             const existingIds = new Set(prev.map((c) => c._id));
-            const newUnique = res.customers.filter((c) => !existingIds.has(c._id));
+            const newUnique = res.customers.filter(
+              (c) => !existingIds.has(c._id),
+            );
             return [...prev, ...newUnique];
           });
         } else {
@@ -244,7 +246,9 @@ export default function AdminCustomerTable({
             </div>
 
             {/* Filters Grid */}
-            <div className={`flex-1 grid gap-2 ${isRestricted ? "grid-cols-2 md:grid-cols-3" : "grid-cols-2 md:grid-cols-4 lg:grid-cols-5"}`}>
+            <div
+              className={`flex-1 grid gap-2 ${isRestricted ? "grid-cols-2 md:grid-cols-3" : "grid-cols-2 md:grid-cols-4 lg:grid-cols-5"}`}
+            >
               {/* Region - Hide if restricted */}
               {!isRestricted && (
                 <div className="space-y-1.5">
@@ -296,11 +300,11 @@ export default function AdminCustomerTable({
               )}
 
               {/* User Selection - Hide if restricted */}
-              {!isRestricted && (
+              {!isRestricted &&
                 // Although not present in original view_file output, logic suggests there might be a User filter here if the grid-cols suggests more cols.
-                // Wait, reading original code: There was NO user select dropdown in the view_file! 
+                // Wait, reading original code: There was NO user select dropdown in the view_file!
                 // Ah, wait. Lines 223 - 348 show Region, Branch, Month, Year, Search.
-                // There is NO User dropdown in the original code visible in step 31 (lines 223-348), 
+                // There is NO User dropdown in the original code visible in step 31 (lines 223-348),
                 // BUT there is logic for `selectedUser` and `availableUsers` in lines 46, 80-88, 100-107.
                 // It seems the User dropdown was MISSING in the JSX in the original file I viewed?
                 // Let me re-read lines 223-348.
@@ -316,8 +320,7 @@ export default function AdminCustomerTable({
                 // If there was no User dropdown, I don't need to hide it.
                 // BUT, if I am enabling non-admin, I am definitely hiding Region/Branch.
                 // I will proceed with hiding Region/Branch.
-                null
-              )}
+                null}
 
               {/* Month */}
               <div className="space-y-1.5">
@@ -360,7 +363,9 @@ export default function AdminCustomerTable({
               </div>
 
               {/* Search */}
-              <div className={`space-y-1.5 relative group w-full ${isRestricted ? "col-span-2 md:col-span-1" : "col-span-2 md:col-span-1"}`}>
+              <div
+                className={`space-y-1.5 relative group w-full ${isRestricted ? "col-span-2 md:col-span-1" : "col-span-2 md:col-span-1"}`}
+              >
                 <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">
                   Search
                 </span>
@@ -403,97 +408,73 @@ export default function AdminCustomerTable({
       </div>
 
       {/* Customer Table */}
-      <div className="rounded-xl border border-white/10 overflow-hidden glass-card-static shadow-xl">
-        <Table>
-          <TableHeader className="bg-white/5">
-            <TableRow className="border-white/5 hover:bg-transparent">
-              <TableHead className="hidden sm:table-cell sm:w-[70px] px-2 text-gray-400 font-semibold">
-                Sno.
-              </TableHead>
-              <TableHead className="px-2 text-gray-400 font-semibold">
-                Customer Name
-              </TableHead>
-              <TableHead className="text-right text-gray-400 font-semibold w-auto sm:w-[120px] px-2">
-                Visits
-              </TableHead>
-              <TableHead className="text-right text-gray-400 font-semibold w-auto sm:w-[150px] px-2">
-                Duration
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {customers.map((customer, index) => (
-              <TableRow
-                key={customer._id}
-                className="border-white/5 hover:bg-white/5 transition-colors cursor-pointer"
-                onClick={() => setSelectedCustomer(customer)}
-              >
-                <TableCell className="hidden sm:table-cell font-medium text-gray-500 px-2">
-                  {index + 1}
-                </TableCell>
-                <TableCell className="px-2">
-                  <div className="flex flex-col py-1">
-                    <span className="font-medium text-white text-sm sm:text-base">
-                      {customer.name}
-                    </span>
-                    <span className="text-xs text-gray-500 mt-1 max-w-[180px] sm:max-w-lg truncate">
-                      {customer.customerAddress}
-                    </span>
-                  </div>
-                </TableCell>
-                <TableCell className="text-right px-2">
-                  <span
-                    className={`inline-flex items-center justify-center min-w-[30px] px-2 py-1 rounded-md text-xs font-bold ${customer.visitCount > 0 ? "bg-blue-500/10 text-blue-400 border border-blue-500/20" : "text-gray-600 bg-white/5"}`}
-                  >
-                    {customer.visitCount}
-                  </span>
-                </TableCell>
-                <TableCell className="text-right font-mono text-emerald-400 font-medium text-xs sm:text-base px-2">
-                  {formatDuration(customer.totalDuration)}
-                </TableCell>
+      {!loading && customers.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 text-center glass-panel rounded-xl border border-white/5">
+          <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4">
+            <SearchX className="w-8 h-8 text-gray-500" />
+          </div>
+          <h3 className="text-lg font-medium text-white mb-1">
+            No report found
+          </h3>
+          <p className="text-gray-400 max-w-sm">
+            We couldn&apos;t find any report matching your current filters.
+          </p>
+        </div>
+      ) : (
+        <div className="rounded-xl border border-white/10 overflow-hidden glass-card-static shadow-xl">
+          <Table>
+            <TableHeader className="bg-white/5">
+              <TableRow className="border-white/5 hover:bg-transparent">
+                <TableHead className="hidden sm:table-cell sm:w-[70px] px-2 text-gray-400 font-semibold">
+                  Sno.
+                </TableHead>
+                <TableHead className="px-2 text-gray-400 font-semibold">
+                  Customer Name
+                </TableHead>
+                <TableHead className="text-right text-gray-400 font-semibold w-auto sm:w-[120px] px-2">
+                  Visits
+                </TableHead>
+                <TableHead className="text-right text-gray-400 font-semibold w-auto sm:w-[150px] px-2">
+                  Duration
+                </TableHead>
               </TableRow>
-            ))}
-
-            {loading && (
-              <TableRow className="border-0 hover:bg-transparent">
-                <TableCell colSpan={4} className="h-24 text-center">
-                  <div className="flex justify-center items-center gap-2 text-blue-400">
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                    <span className="text-sm">Loading data...</span>
-                  </div>
-                </TableCell>
-              </TableRow>
-            )}
-
-            {!loading && customers.length === 0 && (
-              <TableRow className="hover:bg-transparent">
-                <TableCell
-                  colSpan={4}
-                  className="h-40 text-center text-gray-500"
+            </TableHeader>
+            <TableBody>
+              {customers.map((customer, index) => (
+                <TableRow
+                  key={customer._id}
+                  className="border-white/5 hover:bg-white/5 transition-colors cursor-pointer"
+                  onClick={() => setSelectedCustomer(customer)}
                 >
-                  <div className="flex flex-col items-center gap-2">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-8 w-8 opacity-20"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth="2"
+                  <TableCell className="hidden sm:table-cell font-medium text-gray-500 px-2">
+                    {index + 1}
+                  </TableCell>
+                  <TableCell className="px-2">
+                    <div className="flex flex-col py-1">
+                      <span className="font-medium text-white text-sm sm:text-base">
+                        {customer.name}
+                      </span>
+                      <span className="text-xs text-gray-500 mt-1 max-w-[180px] sm:max-w-lg truncate">
+                        {customer.customerAddress}
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-right px-2">
+                    <span
+                      className={`inline-flex items-center justify-center min-w-[30px] px-2 py-1 rounded-md text-xs font-bold ${customer.visitCount > 0 ? "bg-blue-500/10 text-blue-400 border border-blue-500/20" : "text-gray-600 bg-white/5"}`}
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                      />
-                    </svg>
-                    <p>No customers found matching the selected filters.</p>
-                  </div>
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+                      {customer.visitCount}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-right font-mono text-emerald-400 font-medium text-xs sm:text-base px-2">
+                    {formatDuration(customer.totalDuration)}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
 
       <div ref={ref} className="h-4 w-full" />
 
