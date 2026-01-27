@@ -16,39 +16,39 @@ export const getNavLinks = (session) => {
 
   const baseLinks = isCoreAdmin
     ? [
-        {
-          href: "/dashboard",
-          label: "Dashboard",
-          icon: <LayoutDashboard className="w-5 h-5" />,
-        },
-        {
-          href: "/entries",
-          label: "Entry Log",
-          icon: <ClipboardList className="w-5 h-5" />,
-        },
-      ]
+      {
+        href: "/dashboard",
+        label: "Dashboard",
+        icon: <LayoutDashboard className="w-5 h-5" />,
+      },
+      {
+        href: "/entries",
+        label: "Entry Log",
+        icon: <ClipboardList className="w-5 h-5" />,
+      },
+    ]
     : [
-        {
-          href: "/customer-log",
-          label: "Stamp In/Out",
-          icon: <MapPin className="w-5 h-5" />,
-        },
-        {
-          href: "/entries",
-          label: "Entry Log",
-          icon: <ClipboardList className="w-5 h-5" />,
-        },
-        {
-          href: "/customers",
-          label: "Customers",
-          icon: <Users className="w-5 h-5" />,
-        },
-        {
-          href: "/report",
-          label: "Report",
-          icon: <BarChart3 className="w-5 h-5" />,
-        },
-      ];
+      {
+        href: "/customer-log",
+        label: "Stamp In/Out",
+        icon: <MapPin className="w-5 h-5" />,
+      },
+      {
+        href: "/entries",
+        label: "Entry Log",
+        icon: <ClipboardList className="w-5 h-5" />,
+      },
+      {
+        href: "/customers",
+        label: "Customers",
+        icon: <Users className="w-5 h-5" />,
+      },
+      {
+        href: "/report",
+        label: "Report",
+        icon: <BarChart3 className="w-5 h-5" />,
+      },
+    ];
 
   if (session.user.role === "super_user") {
     const showStamping = !!session.user.enableStamping;
@@ -73,15 +73,11 @@ export const getNavLinks = (session) => {
   if (isAdminOrSuper) {
     const isSuperUser = session.user.role === "super_user";
     const showStamping = !!session.user.enableStamping;
-    const showUsersInMainNavbar = !isSuperUser || !showStamping;
-
-    if (showUsersInMainNavbar) {
-      baseLinks.push({
-        href: "/users",
-        label: "Users",
-        icon: <UserCog className="w-5 h-5" />,
-      });
-    }
+    baseLinks.push({
+      href: "/users",
+      label: "Users",
+      icon: <UserCog className="w-5 h-5" />,
+    });
 
     baseLinks.push({
       href: "/report",

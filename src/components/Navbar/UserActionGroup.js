@@ -11,9 +11,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, User, Settings as SettingsIcon } from "lucide-react";
+import { LogOut, User, Settings as SettingsIcon, UserCog } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
-import EditProfileDialog from "@/components/EditProfileDialog";
+
 export function UserActionGroup({ session, onLogout, loggingOut, mounted }) {
   if (!session?.user) return null;
 
@@ -39,10 +39,10 @@ export function UserActionGroup({ session, onLogout, loggingOut, mounted }) {
                 <AvatarFallback className="bg-linear-to-br from-violet-500 to-fuchsia-500 text-white font-bold">
                   {session.user.name
                     ? session.user.name
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")
-                        .slice(0, 2)
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")
+                      .slice(0, 2)
                     : "U"}
                 </AvatarFallback>
               </Avatar>
@@ -59,10 +59,10 @@ export function UserActionGroup({ session, onLogout, loggingOut, mounted }) {
                 <AvatarFallback className="bg-linear-to-br from-violet-500 to-fuchsia-500 text-white text-xs font-bold">
                   {session.user.name
                     ? session.user.name
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")
-                        .slice(0, 2)
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")
+                      .slice(0, 2)
                     : "U"}
                 </AvatarFallback>
               </Avatar>
@@ -76,38 +76,41 @@ export function UserActionGroup({ session, onLogout, loggingOut, mounted }) {
               </div>
             </div>
 
-            <DropdownMenuLabel className="px-2 py-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-              Account Management
-            </DropdownMenuLabel>
+
             <DropdownMenuSeparator className="bg-white/5" />
 
-            <EditProfileDialog
-              user={session.user}
-              session={session}
-              trigger={
-                <DropdownMenuItem
-                  onSelect={(e) => e.preventDefault()}
-                  className="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-md cursor-pointer transition-all group"
-                >
-                  <div className="p-1.5 rounded-md bg-white/5 group-hover:bg-cyan-500/10 group-hover:text-cyan-400 transition-colors">
-                    <User className="h-4 w-4" />
-                  </div>
-                  Edit Profile
-                </DropdownMenuItem>
-              }
-            />
+            <Link href="/profile" className="block">
+              <DropdownMenuItem className="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-md cursor-pointer transition-all group">
+                <div className="p-1.5 rounded-md bg-white/5 group-hover:bg-cyan-500/10 group-hover:text-cyan-400 transition-colors">
+                  <User className="h-4 w-4" />
+                </div>
+                Profile
+              </DropdownMenuItem>
+            </Link>
 
             {(session.user.role === "admin" ||
               session.user.role === "super_user") && (
-              <Link href="/settings" className="block">
-                <DropdownMenuItem className="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-md cursor-pointer transition-all group">
-                  <div className="p-1.5 rounded-md bg-white/5 group-hover:bg-violet-500/10 group-hover:text-violet-400 transition-colors">
-                    <SettingsIcon className="h-4 w-4" />
-                  </div>
-                  Settings
-                </DropdownMenuItem>
-              </Link>
-            )}
+                <Link href="/users" className="block">
+                  <DropdownMenuItem className="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-md cursor-pointer transition-all group">
+                    <div className="p-1.5 rounded-md bg-white/5 group-hover:bg-blue-500/10 group-hover:text-blue-400 transition-colors">
+                      <UserCog className="h-4 w-4" />
+                    </div>
+                    Users
+                  </DropdownMenuItem>
+                </Link>
+              )}
+
+            {(session.user.role === "admin" ||
+              session.user.role === "super_user") && (
+                <Link href="/settings" className="block">
+                  <DropdownMenuItem className="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-md cursor-pointer transition-all group">
+                    <div className="p-1.5 rounded-md bg-white/5 group-hover:bg-violet-500/10 group-hover:text-violet-400 transition-colors">
+                      <SettingsIcon className="h-4 w-4" />
+                    </div>
+                    Settings
+                  </DropdownMenuItem>
+                </Link>
+              )}
 
             <DropdownMenuSeparator className="bg-white/5" />
 
@@ -136,10 +139,10 @@ export function UserActionGroup({ session, onLogout, loggingOut, mounted }) {
             <AvatarFallback className="bg-linear-to-br from-violet-500 to-fuchsia-500 text-white font-bold">
               {session.user.name
                 ? session.user.name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")
-                    .slice(0, 2)
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")
+                  .slice(0, 2)
                 : "U"}
             </AvatarFallback>
           </Avatar>

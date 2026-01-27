@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { clsx } from "clsx";
-import { X, LogOut, User } from "lucide-react";
-import EditProfileDialog from "@/components/EditProfileDialog";
+import { X, LogOut, User, UserCog } from "lucide-react";
+
 
 export function MobileMenu({
   isOpen,
@@ -55,7 +55,7 @@ export function MobileMenu({
           </div>
 
           {/* Links */}
-          <div className="flex-1 overflow-y-auto py-6 px-4 space-y-2">
+          <div className="flex-1 overflow-y-auto py-6 px-4 space-y-2 hide-scrollbar">
             {links.map((link) => (
               <Link
                 key={link.href}
@@ -81,22 +81,18 @@ export function MobileMenu({
                 <span className="font-medium">{link.label}</span>
               </Link>
             ))}
-          </div>
+            <Link
+              href="/profile"
+              onClick={onClose}
+              className="flex items-center space-x-4 w-full px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all group"
+            >
+              <div className="p-2 rounded-lg bg-white/5 group-hover:text-cyan-400 transition-colors">
+                <User className="w-5 h-5" />
+              </div>
+              <span className="font-medium">Profile</span>
+            </Link>
 
-          {/* Footer Actions */}
-          <div className="p-6 border-t border-white/5 space-y-3">
-            <EditProfileDialog
-              user={session?.user}
-              session={session}
-              trigger={
-                <button className="flex items-center space-x-4 w-full px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all group">
-                  <div className="p-2 rounded-lg bg-white/5 group-hover:text-cyan-400 transition-colors">
-                    <User className="w-5 h-5" />
-                  </div>
-                  <span className="font-medium">Edit Profile</span>
-                </button>
-              }
-            />
+
 
             <button
               onClick={onLogout}
