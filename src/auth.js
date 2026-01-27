@@ -132,31 +132,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           token.image = user.image; // Already set to URL in authorize()
           token.enableStamping = !!user.enableStamping;
         }
-      } else if (token.id) {
-        // If not signing in (subsequent requests), fetch fresh data from DB to ensure role/status is up-to-date
-        try {
-          await dbConnect();
-          const dbUser = await User.findById(token.id).select(
-            "role status region branch contactNumber address image enableStamping",
-          );
-          if (dbUser) {
-            token.role = dbUser.role;
-            token.status = dbUser.status;
-            token.region = dbUser.region;
-            token.branch = dbUser.branch;
-            token.contactNumber = dbUser.contactNumber;
-            token.address = dbUser.address;
-            token.enableStamping = !!dbUser.enableStamping;
-            // Keep existing image URL logic if possible, or just trust the session one unless explicitly needed
-          }
-        } catch (error) {
-          // console.error("Error refreshing token data:", error);
-        }
       }
 
-      // HANDLE UPDATES LAST to ensure they override DB refresh
+      // HANDLE UPDATES FIRST if they exist, to prevent DB refresh from overwriting them in the same cycle
       if (trigger === "update" && session) {
-        // console.log("[Auth] JWT Update Triggered:", session);
         if (session.status) token.status = session.status;
         if (session.role) token.role = session.role;
         if (session.region) token.region = session.region;
@@ -170,6 +149,28 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           token.image = session.image.startsWith("data:image")
             ? `/api/user/image?v=${Date.now()}`
             : session.image;
+        }
+        return token; // Return early on update to avoid DB refresh in this trigger
+      }
+
+      if (token.id) {
+        // If not signing in (subsequent requests), fetch fresh data from DB
+        try {
+          await dbConnect();
+          const dbUser = await User.findById(token.id).select(
+            "role status region branch contactNumber address image enableStamping",
+          );
+          if (dbUser) {
+            token.role = dbUser.role;
+            token.status = dbUser.status;
+            token.region = dbUser.region;
+            token.branch = dbUser.branch;
+            token.contactNumber = dbUser.contactNumber;
+            token.address = dbUser.address;
+            token.enableStamping = !!dbUser.enableStamping;
+          }
+        } catch (error) {
+          // console.error("Error refreshing token data:", error);
         }
       }
 
