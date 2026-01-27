@@ -5,6 +5,13 @@ import {
   DialogTitle,
   DialogClose,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -23,6 +30,7 @@ import {
   declineUser,
   updateUserRole,
 } from "@/app/actions/adminActions";
+import { formatRole } from "@/lib/formatters";
 import { toast } from "sonner";
 
 export default function UserProfileModal({
@@ -30,8 +38,17 @@ export default function UserProfileModal({
   open,
   onOpenChange,
   showActions = true,
+  session,
 }) {
   const [isLoading, setIsLoading] = useState(false);
+  const viewerRole = session?.user?.role;
+  const isAdmin = viewerRole === "admin";
+  const isTargetPrivileged =
+    user?.role === "admin" || user?.role === "super_user";
+
+  // Super users can only manage standard users. Admins can manage anyone.
+  const canManagePrivileges =
+    isAdmin || (viewerRole === "super_user" && !isTargetPrivileged);
 
   if (!user) return null;
 
@@ -107,25 +124,6 @@ export default function UserProfileModal({
                   {user.designation}
                 </div>
               )}
-              {showActions && (
-                <div className="pt-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-7 text-xs bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white border border-white/5"
-                    onClick={() =>
-                      handleAction(
-                        updateUserRole,
-                        user._id,
-                        user.role === "admin" ? "user" : "admin",
-                      )
-                    }
-                    disabled={isLoading}
-                  >
-                    Make {user.role === "admin" ? "User" : "Admin"}
-                  </Button>
-                </div>
-              )}
             </div>
           </div>
 
@@ -152,7 +150,7 @@ export default function UserProfileModal({
                           : "bg-blue-500/20 text-blue-300 border-blue-500/30"
                       }`}
                     >
-                      {user.role}
+                      {formatRole(user.role)}
                     </Badge>
                   </div>
                 </div>
@@ -206,8 +204,32 @@ export default function UserProfileModal({
             </div>
 
             {/* Action Buttons Footer */}
-            {showActions && (
-              <div className="p-6 pt-2 mt-auto border-t border-white/5 flex gap-3 justify-end">
+            {showActions && canManagePrivileges && (
+              <div className="p-6 pt-2 mt-auto border-t border-white/5 flex flex-wrap items-center gap-3 justify-end">
+                {/* Role Selection Dropdown */}
+                <div className="mr-auto">
+                  <Select
+                    value={user.role}
+                    onValueChange={(val) =>
+                      handleAction(updateUserRole, user._id, val)
+                    }
+                    disabled={isLoading}
+                  >
+                    <SelectTrigger className="w-[140px] h-9 bg-white/5 border-white/10 text-xs text-gray-300 hover:bg-white/10 transition-colors">
+                      <SelectValue placeholder="Select Role" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card border-white/10 text-white">
+                      <SelectItem value="user">Standard User</SelectItem>
+                      {isAdmin && (
+                        <>
+                          <SelectItem value="admin">Administrator</SelectItem>
+                          <SelectItem value="super_user">Super User</SelectItem>
+                        </>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 {(user.status === "pending" || user.status === "declined") && (
                   <Button
                     onClick={() => handleAction(verifyUser, user._id)}

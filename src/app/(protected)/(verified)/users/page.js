@@ -40,6 +40,7 @@ export default async function UsersPage(props) {
         initialData={data}
         locations={locations}
         currentUserRegion={session?.user?.region}
+        session={session}
       />
     </div>
   );

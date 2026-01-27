@@ -21,6 +21,7 @@ export default function EntryFilters({
   showStatus = true,
   showSearch = true,
   defaultRegion,
+  session,
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -28,26 +29,26 @@ export default function EntryFilters({
 
   // Initialize state from URL params or defaults
   const [selectedUser, setSelectedUser] = useState(
-    searchParams.get("user") || "all"
+    searchParams.get("user") || "all",
   );
   const [selectedRegion, setSelectedRegion] = useState(
-    searchParams.get("region") || defaultRegion || "all"
+    searchParams.get("region") || defaultRegion || "all",
   );
   const [selectedBranch, setSelectedBranch] = useState(
-    searchParams.get("branch") || "all"
+    searchParams.get("branch") || "all",
   );
   const [selectedStatus, setSelectedStatus] = useState(
-    searchParams.get("status") || "all"
+    searchParams.get("status") || "all",
   );
   const [search, setSearch] = useState(searchParams.get("search") || "");
 
   // Initialize state - Default to All or specific param, prioritizing user choice logic in useEffect
   const currentDate = new Date();
   const [selectedMonth, setSelectedMonth] = useState(
-    searchParams.get("month") || currentDate.getMonth().toString()
+    searchParams.get("month") || currentDate.getMonth().toString(),
   );
   const [selectedYear, setSelectedYear] = useState(
-    searchParams.get("year") || currentDate.getFullYear().toString()
+    searchParams.get("year") || currentDate.getFullYear().toString(),
   );
 
   const [debouncedSearch] = useDebounce(search, 500);
@@ -116,14 +117,22 @@ export default function EntryFilters({
   }, [debouncedSearch, router, pathname, searchParams]);
 
   const clearFilters = () => {
+    const isSuperUser = session?.user?.role === "super_user";
+    const resetRegion = isSuperUser ? session.user.region : "all";
+
     setSelectedUser("all");
-    setSelectedRegion("all");
+    setSelectedRegion(resetRegion);
     setSelectedBranch("all");
     setSelectedStatus("all");
     setSelectedMonth("all");
     setSelectedYear("all");
     setSearch("");
-    router.push(pathname); // Clear all params
+
+    if (isSuperUser) {
+      router.push(`${pathname}?region=${resetRegion}`);
+    } else {
+      router.push(pathname);
+    }
   };
 
   const months = [
@@ -148,7 +157,7 @@ export default function EntryFilters({
   const mounted = useSyncExternalStore(
     () => () => {}, // subscribe: no-op
     () => true, // getSnapshot: returns true on client
-    () => false // getServerSnapshot: returns false on server
+    () => false, // getServerSnapshot: returns false on server
   );
 
   if (!mounted) return null; // Prevent hydration mismatch for Radix Select
@@ -228,11 +237,25 @@ export default function EntryFilters({
                     </SelectTrigger>
                     <SelectContent className="glass-card border-white/10">
                       <SelectItem value="all">All</SelectItem>
-                      {users.map((u) => (
-                        <SelectItem key={u._id} value={u._id}>
-                          {u.name}
-                        </SelectItem>
-                      ))}
+                      {users
+                        .filter((u) => {
+                          if (
+                            selectedRegion !== "all" &&
+                            u.region !== selectedRegion
+                          )
+                            return false;
+                          if (
+                            selectedBranch !== "all" &&
+                            u.branch !== selectedBranch
+                          )
+                            return false;
+                          return true;
+                        })
+                        .map((u) => (
+                          <SelectItem key={u._id} value={u._id}>
+                            {u.name}
+                          </SelectItem>
+                        ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -244,6 +267,7 @@ export default function EntryFilters({
                   <Select
                     value={selectedRegion}
                     onValueChange={handleRegionChange}
+                    disabled={session?.user?.role === "super_user"}
                   >
                     <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
                       <SelectValue placeholder="Region" />

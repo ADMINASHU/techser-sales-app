@@ -9,20 +9,42 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { sendNotificationToUsers } from "@/lib/fcmNotification";
 
 // Helper for notifications
-async function notifyAdmins(action, entry, actor) {
+async function notifySupervisors(action, entry, actor) {
   try {
-    // Only notify admins in the same region as the entry
-    const admins = await User.find({
-      role: "admin",
-      region: entry.userRegion,
-    }).select("_id");
-    const adminIds = admins.map((a) => a._id.toString());
+    // 1. Try to find Super Users in the same region first (ONLY if actor is not a super_user)
+    let recipients = [];
+    if (actor.role !== "super_user") {
+      recipients = await User.find({
+        role: "super_user",
+        region: entry.userRegion,
+      }).select("_id");
+    }
 
-    if (adminIds.length > 0) {
+    let recipientIds = recipients.map((r) => r._id.toString());
+    let titlePrefix = "Regional Update";
+
+    // 2. Fallback to Regional Administrators if no Super User exists in that region
+    if (recipientIds.length === 0) {
+      recipients = await User.find({
+        role: "admin",
+        region: entry.userRegion,
+      }).select("_id");
+      recipientIds = recipients.map((r) => r._id.toString());
+      // titlePrefix stays "Regional Update"
+    }
+
+    // 3. Final Fallback to all Administrators if no regional supervisor exists
+    if (recipientIds.length === 0) {
+      recipients = await User.find({ role: "admin" }).select("_id");
+      recipientIds = recipients.map((r) => r._id.toString());
+      titlePrefix = "New Activity";
+    }
+
+    if (recipientIds.length > 0) {
       await sendNotificationToUsers({
-        userIds: adminIds,
+        userIds: recipientIds,
         notification: {
-          title: `New Activity: ${action}`,
+          title: `${titlePrefix}: ${action}`,
           body: `${actor.name} ${action} for ${entry.customerName}`,
         },
         data: {
@@ -87,10 +109,11 @@ export async function customerStampIn(customerId, location) {
       $inc: { entryCount: 1 },
     });
 
-    const notificationPromise = notifyAdmins("Stamped In", entry, {
+    const notificationPromise = notifySupervisors("Stamped In", entry, {
       id: session.user.id,
       name: session.user.name,
       email: session.user.email,
+      role: session.user.role,
     });
 
     // We await them to ensure execution in serverless environment
@@ -138,10 +161,11 @@ export async function customerStampOut(customerId, location) {
 
     // Notify admins about stamp out
     // Perform this in parallel with any other cleanup if needed
-    await notifyAdmins("Stamped Out", entry, {
+    await notifySupervisors("Stamped Out", entry, {
       id: session.user.id,
       name: session.user.name,
       email: session.user.email,
+      role: session.user.role,
     });
 
     revalidatePath("/customer-log");

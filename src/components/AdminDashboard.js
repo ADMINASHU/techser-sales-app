@@ -38,6 +38,7 @@ export default function AdminDashboard({
   initialFilters,
   currentUserRegion,
   serverDate, // Receive serverDate
+  session,
 }) {
   const [filters, setFilters] = useState(
     initialFilters || { users: [], locations: [] },
@@ -295,7 +296,7 @@ export default function AdminDashboard({
                 size="sm"
                 onClick={() => {
                   setSelectedUser("all");
-                  setSelectedRegion("all");
+                  setSelectedRegion(currentUserRegion || "all");
                   setSelectedBranch("all");
                   const now = new Date();
                   setSelectedMonth(now.getMonth().toString());
@@ -337,6 +338,7 @@ export default function AdminDashboard({
                 <Select
                   value={selectedRegion}
                   onValueChange={setSelectedRegion}
+                  disabled={session?.user?.role === "super_user"}
                 >
                   <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10">
                     <SelectValue placeholder="Region" />

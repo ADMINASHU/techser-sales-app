@@ -208,8 +208,9 @@ const EntryCard = memo(function EntryCard({ entry, isAdmin, onDelete }) {
                 </div>
               )}
 
-              {/* Comment & Delete Buttons (Only if not admin) */}
-              {!isAdmin && (
+              {/* Comment & Delete Buttons (Show if not admin OR if owner) */}
+              {(!isAdmin ||
+                session?.user?.id === (entry.userId?._id || entry.userId)) && (
                 <div
                   className="opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity min-w-[44px] min-h-[44px] flex items-center justify-center gap-1"
                   onClick={(e) => {

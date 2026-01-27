@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { unsubscribeFromPushNotifications } from "@/lib/firebase";
@@ -69,6 +69,15 @@ export default function Navbar() {
     };
   }, [isOpen]);
 
+  const router = useRouter();
+
+  // Force a refresh when session changes to sync server/client state
+  useEffect(() => {
+    if (session) {
+      router.refresh();
+    }
+  }, [session?.user?.enableStamping, router]);
+
   const handleLogout = async () => {
     setLoggingOut(true);
     try {
@@ -87,49 +96,78 @@ export default function Navbar() {
   // Admin is always verified effectively, or handles their own status.
 
   const links = useMemo(() => {
-    const baseLinks =
-      session?.user?.role === "admin"
-        ? [
-            {
-              href: "/dashboard",
-              label: "Dashboard",
-              icon: <LayoutDashboard className="w-5 h-5" />,
-            },
-            {
-              href: "/entries",
-              label: "Entry Log",
-              icon: <ClipboardList className="w-5 h-5" />,
-            },
-          ]
-        : [
-            {
-              href: "/customer-log",
-              label: "Stamp In/Out",
-              icon: <MapPin className="w-5 h-5" />,
-            },
-            {
-              href: "/entries",
-              label: "Entry Log",
-              icon: <ClipboardList className="w-5 h-5" />,
-            },
-            {
-              href: "/customers",
-              label: "Customers",
-              icon: <Users className="w-5 h-5" />,
-            },
-            {
-              href: "/report",
-              label: "Report",
-              icon: <BarChart3 className="w-5 h-5" />,
-            },
-          ];
+    const isCoreAdmin =
+      session?.user?.role === "admin" || session?.user?.role === "super_user";
+    const baseLinks = isCoreAdmin
+      ? [
+          {
+            href: "/dashboard",
+            label: "Dashboard",
+            icon: <LayoutDashboard className="w-5 h-5" />,
+          },
+          {
+            href: "/entries",
+            label: "Entry Log",
+            icon: <ClipboardList className="w-5 h-5" />,
+          },
+        ]
+      : [
+          {
+            href: "/customer-log",
+            label: "Stamp In/Out",
+            icon: <MapPin className="w-5 h-5" />,
+          },
+          {
+            href: "/entries",
+            label: "Entry Log",
+            icon: <ClipboardList className="w-5 h-5" />,
+          },
+          {
+            href: "/customers",
+            label: "Customers",
+            icon: <Users className="w-5 h-5" />,
+          },
+          {
+            href: "/report",
+            label: "Report",
+            icon: <BarChart3 className="w-5 h-5" />,
+          },
+        ];
 
-    if (session?.user?.role === "admin") {
-      baseLinks.push({
-        href: "/users",
-        label: "Users",
-        icon: <UserCog className="w-5 h-5" />,
-      });
+    if (session?.user?.role === "super_user") {
+      const showStamping = !!session.user.enableStamping;
+
+      if (showStamping) {
+        baseLinks.unshift({
+          href: "/customer-log",
+          label: "Stamp In/Out",
+          icon: <MapPin className="w-5 h-5" />,
+        });
+        baseLinks.push({
+          href: "/customers",
+          label: "Customers",
+          icon: <Users className="w-5 h-5" />,
+        });
+      }
+    }
+
+    const isAdminOrSuper =
+      session?.user?.role === "admin" || session?.user?.role === "super_user";
+
+    if (isAdminOrSuper) {
+      // Logic for /users link position for Super User
+      const isSuperUser = session?.user?.role === "super_user";
+      const showStamping = !!session?.user?.enableStamping;
+      const showUsersInMainNavbar = !isSuperUser || !showStamping;
+
+      if (showUsersInMainNavbar) {
+        baseLinks.push({
+          href: "/users",
+          label: "Users",
+          icon: <UserCog className="w-5 h-5" />,
+        });
+      }
+
       baseLinks.push({
         href: "/report",
         label: "Report",
@@ -143,7 +181,7 @@ export default function Navbar() {
     }
 
     return baseLinks;
-  }, [session?.user?.role]);
+  }, [session]);
 
   return (
     <>
@@ -153,7 +191,13 @@ export default function Navbar() {
             {/* Logo */}
             <Link
               href={
-                session?.user?.role === "admin" ? "/dashboard" : "/customer-log"
+                session?.user?.role === "admin" ||
+                session?.user?.role === "super_user"
+                  ? session.user.role === "super_user" &&
+                    !!session.user.enableStamping
+                    ? "/customer-log"
+                    : "/dashboard"
+                  : "/customer-log"
               }
               className="shrink-0 flex items-center group"
             >
@@ -189,7 +233,10 @@ export default function Navbar() {
               <div className="bg-white/5 border border-white/5 rounded-full px-1.5 py-1.5 flex space-x-1 shadow-inner backdrop-blur-md">
                 {session?.user &&
                   links
-                    .filter((link) => link.href !== "/settings")
+                    .filter((link) => {
+                      if (link.href === "/settings") return false;
+                      return true;
+                    })
                     .map((link) => (
                       <Link
                         key={link.href}
@@ -292,7 +339,20 @@ export default function Navbar() {
                           Profile
                         </Link>
                       </DropdownMenuItem>
-                      {session?.user?.role === "admin" && (
+                      {session?.user?.role === "super_user" &&
+                        !!session?.user?.enableStamping && (
+                          <DropdownMenuItem asChild>
+                            <Link
+                              href="/users"
+                              className="cursor-pointer py-2.5 px-3 rounded-md hover:bg-white/10 focus:bg-white/10 focus:text-white transition-colors flex items-center gap-2"
+                            >
+                              <UserCog className="w-4 h-4 text-gray-400" />
+                              Users
+                            </Link>
+                          </DropdownMenuItem>
+                        )}
+                      {(session?.user?.role === "admin" ||
+                        session?.user?.role === "super_user") && (
                         <DropdownMenuItem asChild>
                           <Link
                             href="/settings"
@@ -397,52 +457,77 @@ export default function Navbar() {
             >
               <div className="space-y-1">
                 {session?.user &&
-                  links.map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      className={clsx(
-                        "flex items-center gap-3 px-4 py-4 rounded-xl text-base font-medium transition-all border border-transparent active:bg-white/10 active:scale-[0.98]",
-                        pathname === link.href
-                          ? "bg-white/10 text-white border-white/5 shadow-inner"
-                          : "text-gray-400 hover:bg-white/5 hover:text-white",
-                      )}
-                      onClick={() => setIsOpen(false)}
-                    >
-                      {link.icon}
-                      {link.label}
-                    </Link>
-                  ))}
+                  links
+                    .filter((link) => {
+                      const isSuperUser = session?.user?.role === "super_user";
+                      const showStamping = !!session?.user?.enableStamping;
+                      const isUsersLink = link.href === "/users";
+
+                      if (isSuperUser && showStamping && isUsersLink) {
+                        return false;
+                      }
+                      return true;
+                    })
+                    .map((link) => (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        className={clsx(
+                          "flex items-center gap-3 px-4 py-4 rounded-xl text-base font-medium transition-all border border-transparent active:bg-white/10 active:scale-[0.98]",
+                          pathname === link.href
+                            ? "bg-white/10 text-white border-white/5 shadow-inner"
+                            : "text-gray-400 hover:bg-white/5 hover:text-white",
+                        )}
+                        onClick={() => setIsOpen(false)}
+                      >
+                        {link.icon}
+                        {link.label}
+                      </Link>
+                    ))}
               </div>
               <div className="mt-6 pt-6 border-t border-white/10 flex items-center justify-between">
-                <Link
-                  href="/profile"
-                  onClick={() => setIsOpen(false)}
-                  className="flex items-center gap-3 active:opacity-60 transition-opacity p-2 -ml-2 rounded-lg active:bg-white/5"
-                >
-                  <Avatar className="h-10 w-10 ring-2 ring-white/10">
-                    {session?.user?.image && (
-                      <AvatarImage src={session.user.image} />
+                <div className="flex flex-col gap-2">
+                  <Link
+                    href="/profile"
+                    onClick={() => setIsOpen(false)}
+                    className="flex items-center gap-3 active:opacity-60 transition-opacity p-2 -ml-2 rounded-lg active:bg-white/5"
+                  >
+                    <Avatar className="h-10 w-10 ring-2 ring-white/10">
+                      {session?.user?.image && (
+                        <AvatarImage src={session.user.image} />
+                      )}
+                      <AvatarFallback className="bg-linear-to-br from-violet-500 to-fuchsia-500 text-white font-bold">
+                        {session?.user?.name
+                          ? session.user.name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")
+                              .slice(0, 2)
+                          : "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <div className="font-medium text-white">
+                        {session?.user?.name}
+                      </div>
+                      <div className="text-sm text-gray-400">
+                        {session?.user?.email}
+                      </div>
+                    </div>
+                  </Link>
+
+                  {session?.user?.role === "super_user" &&
+                    !!session?.user?.enableStamping && (
+                      <Link
+                        href="/users"
+                        onClick={() => setIsOpen(false)}
+                        className="flex items-center gap-3 p-2 -ml-2 rounded-lg text-gray-400 hover:text-white transition-colors"
+                      >
+                        <UserCog className="w-5 h-5" />
+                        <span className="font-medium">Users Management</span>
+                      </Link>
                     )}
-                    <AvatarFallback className="bg-linear-to-br from-violet-500 to-fuchsia-500 text-white font-bold">
-                      {session?.user?.name
-                        ? session.user.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")
-                            .slice(0, 2)
-                        : "U"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <div className="font-medium text-white">
-                      {session?.user?.name}
-                    </div>
-                    <div className="text-sm text-gray-400">
-                      {session?.user?.email}
-                    </div>
-                  </div>
-                </Link>
+                </div>
                 <Button
                   variant="ghost"
                   onClick={handleLogout}

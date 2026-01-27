@@ -114,17 +114,21 @@ export async function getReportData({
     throw new Error("Unauthorized");
   }
 
-  // If not admin, FORCE userId to be valid session user
+  const isAdmin = session.user.role === "admin";
+  const isSuperUser = session.user.role === "super_user";
+
+  if (!isAdmin && !isSuperUser) {
+    userId = session.user.id;
+    region = "all";
+    branch = "all";
+  } else if (isSuperUser) {
+    // For Super User, force their region
+    region = session.user.region;
+  }
+
   let effectiveUserId = userId;
   let effectiveRegion = region;
   let effectiveBranch = branch;
-
-  if (session.user.role !== "admin") {
-    effectiveUserId = session.user.id;
-    // Clear region/branch filters for non-admins as they are restricted to their own data
-    effectiveRegion = "all";
-    effectiveBranch = "all";
-  }
 
   await dbConnect();
 
@@ -174,12 +178,16 @@ export async function getRawEntries({
   }
 
   const isAdmin = session.user.role === "admin";
+  const isSuperUser = session.user.role === "super_user";
 
   // Enforce restriction for non-admins
-  if (!isAdmin) {
+  if (!isAdmin && !isSuperUser) {
     userId = session.user.id;
     region = "all";
     branch = "all";
+  } else if (isSuperUser) {
+    // For Super User, force their region
+    region = session.user.region;
   }
 
   await dbConnect();
@@ -229,10 +237,18 @@ export async function getRawEntries({
 }
 
 export async function getFilters() {
+  const session = await auth();
   await dbConnect();
+
+  let userQuery = { role: { $ne: "admin" } };
+  if (session?.user?.role === "super_user") {
+    userQuery.region = session.user.region;
+  }
+
   const [users, locations] = await Promise.all([
-    // UPDATED: Added 'region' and 'branch' to the selected fields
-    User.find({ role: "user" }, "name _id region branch role").lean(),
+    User.find(userQuery, "name _id region branch role")
+      .sort({ name: 1 })
+      .lean(),
     Location.find({}).sort({ name: 1 }).lean(),
   ]);
 
@@ -243,17 +259,19 @@ export async function getFilters() {
 }
 
 const getCachedSystemStats = unstable_cache(
-  async () => {
-    // ... (data fetching logic)
+  async (region) => {
     await dbConnect();
+
+    const query = {};
+    if (region) query.region = region;
 
     const [totalAdmins, verifiedAdmins, totalUsers, verifiedUsers, locations] =
       await Promise.all([
-        User.countDocuments({ role: "admin" }),
-        User.countDocuments({ role: "admin", status: "verified" }),
-        User.countDocuments({ role: "user" }),
-        User.countDocuments({ role: "user", status: "verified" }),
-        Location.find({}).lean(),
+        User.countDocuments({ role: "admin", ...query }),
+        User.countDocuments({ role: "admin", status: "verified", ...query }),
+        User.countDocuments({ role: "user", ...query }),
+        User.countDocuments({ role: "user", status: "verified", ...query }),
+        Location.find(region ? { name: region } : {}).lean(),
       ]);
 
     const totalRegions = locations.length;
@@ -269,14 +287,17 @@ const getCachedSystemStats = unstable_cache(
     };
   },
   ["system-stats"],
-  { revalidate: 300 }, // Cache for 5 minutes
+  { revalidate: 300 },
 );
 
-// Wrapper to secure it (Exported as getSystemStats to maintain compatibility)
 export async function getSystemStats() {
   const session = await auth();
-  if (!session || session.user.role !== "admin") {
-    throw new Error("Unauthorized");
-  }
-  return getCachedSystemStats();
+  if (!session) throw new Error("Unauthorized");
+  const isCoreAdmin =
+    session.user.role === "admin" || session.user.role === "super_user";
+  if (!isCoreAdmin) throw new Error("Unauthorized");
+
+  const region =
+    session.user.role === "super_user" ? session.user.region : null;
+  return getCachedSystemStats(region);
 }

@@ -19,13 +19,17 @@ export async function getAdminCustomerAnalytics({
   }
 
   const isAdmin = session.user.role === "admin";
+  const isSuperUser = session.user.role === "super_user";
 
   // Enforce restriction for non-admins
-  if (!isAdmin) {
+  if (!isAdmin && !isSuperUser) {
     // Force specific filters for non-admins
     filters.userId = session.user.id;
     filters.region = "all";
     filters.branch = "all";
+  } else if (isSuperUser) {
+    // Super User must be fixed to their region
+    filters.region = session.user.region;
   }
 
   try {
@@ -152,6 +156,7 @@ export async function getCustomerVisitDetails({ customerId, filters = {} }) {
   }
 
   const isAdmin = session.user.role === "admin";
+  const isSuperUser = session.user.role === "super_user";
 
   try {
     await dbConnect();
@@ -160,8 +165,8 @@ export async function getCustomerVisitDetails({ customerId, filters = {} }) {
     // Build Entry Match Query (Same as analytics)
     const entryMatch = { customerId: new mongoose.Types.ObjectId(customerId) };
 
-    // RESTRICTION: If not admin, only show visits by this user
-    if (!isAdmin) {
+    // RESTRICTION: If not admin or super_user, only show visits by this user
+    if (!isAdmin && !isSuperUser) {
       entryMatch.userId = new mongoose.Types.ObjectId(session.user.id);
     }
 

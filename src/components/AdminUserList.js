@@ -30,6 +30,7 @@ export default function AdminUserList({
   initialData,
   locations = [],
   currentUserRegion,
+  session,
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -210,6 +211,9 @@ export default function AdminUserList({
                     setRegion(val);
                     updateFilters("region", val);
                   }}
+                  disabled={
+                    currentUserRegion && session?.user?.role === "super_user"
+                  }
                 >
                   <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10">
                     <SelectValue placeholder="Region" />
@@ -305,16 +309,18 @@ export default function AdminUserList({
               <TableHead className="text-gray-200 uppercase tracking-wider font-semibold text-xs">
                 Status
               </TableHead>
-              <TableHead className="text-right text-gray-200 uppercase tracking-wider font-semibold text-xs">
-                Actions
-              </TableHead>
+              {session?.user?.role === "admin" && (
+                <TableHead className="text-right text-gray-200 uppercase tracking-wider font-semibold text-xs">
+                  Actions
+                </TableHead>
+              )}
             </TableRow>
           </TableHeader>
           <TableBody className="divide-y divide-white/5">
             {users.length === 0 ? (
               <TableRow className="hover:bg-white/5 border-white/5">
                 <TableCell
-                  colSpan={8}
+                  colSpan={session?.user?.role === "admin" ? 8 : 7}
                   className="text-center py-8 text-gray-400"
                 >
                   No users found.
@@ -322,7 +328,12 @@ export default function AdminUserList({
               </TableRow>
             ) : (
               users.map((user, idx) => (
-                <AdminUserRow key={user._id} user={user} index={idx + 1} />
+                <AdminUserRow
+                  key={user._id}
+                  user={user}
+                  index={idx + 1}
+                  session={session}
+                />
               ))
             )}
           </TableBody>
@@ -336,7 +347,9 @@ export default function AdminUserList({
             <p className="text-gray-400">No users found.</p>
           </div>
         ) : (
-          users.map((user) => <AdminUserCard key={user._id} user={user} />)
+          users.map((user) => (
+            <AdminUserCard key={user._id} user={user} session={session} />
+          ))
         )}
       </div>
 

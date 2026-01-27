@@ -28,6 +28,7 @@ export default function AdminCustomerTable({
   initialHasMore,
   locations, // { users: [], locations: [] }
   isRestricted = false, // new prop
+  session,
 }) {
   const [customers, setCustomers] = useState(initialCustomers);
   const [hasMore, setHasMore] = useState(initialHasMore);
@@ -44,7 +45,9 @@ export default function AdminCustomerTable({
     setSelectedMonth(now.getMonth().toString());
     setSelectedYear(now.getFullYear().toString());
   }, []);
-  const [selectedRegion, setSelectedRegion] = useState("all");
+  const [selectedRegion, setSelectedRegion] = useState(
+    session?.user?.region || "all",
+  );
   const [selectedBranch, setSelectedBranch] = useState("all");
   const [selectedUser, setSelectedUser] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -225,9 +228,10 @@ export default function AdminCustomerTable({
                 variant="ghost"
                 size="sm"
                 onClick={() => {
+                  const isSuperUser = session?.user?.role === "super_user";
                   setSelectedMonth("all");
                   setSelectedYear("all");
-                  setSelectedRegion("all");
+                  setSelectedRegion(isSuperUser ? session.user.region : "all");
                   setSelectedBranch("all");
                   setSelectedUser("all");
                   setSearchQuery("");
@@ -251,6 +255,7 @@ export default function AdminCustomerTable({
                   <Select
                     value={selectedRegion}
                     onValueChange={setSelectedRegion}
+                    disabled={session?.user?.role === "super_user"}
                   >
                     <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
                       <SelectValue placeholder="Region" />

@@ -80,13 +80,14 @@ const getCachedEntries = unstable_cache(
 
     const query = {};
 
+    const isCoreAdmin = role === "admin" || role === "super_user";
     // 1. Role-based Base Query
-    if (role !== "admin") {
-      query.userId = userId;
-    } else {
+    if (isCoreAdmin) {
       if (filters.user && filters.user !== "all") {
         query.userId = filters.user;
       }
+    } else {
+      query.userId = userId;
     }
 
     // 2. Date Filter
@@ -143,15 +144,15 @@ const getCachedEntries = unstable_cache(
       .skip(skip)
       .limit(limit)
       .select(
-        "customerName entryDate status createdAt updatedAt userId customerId stampIn stampOut googleSheetRowId comment"
+        "customerName entryDate status createdAt updatedAt userId customerId stampIn stampOut googleSheetRowId comment",
       )
       .populate(
         "userId",
-        "name email region branch role designation image status contactNumber address"
+        "name email region branch role designation image status contactNumber address",
       )
       .populate(
         "customerId",
-        "name customerAddress contactPerson contactNumber location"
+        "name customerAddress contactPerson contactNumber location",
       ) // Populate specific customer details
       .lean();
 
@@ -161,15 +162,15 @@ const getCachedEntries = unstable_cache(
       _id: entry._id.toString(),
       userId: entry.userId
         ? {
-          ...entry.userId,
-          _id: entry.userId._id.toString(),
-        }
+            ...entry.userId,
+            _id: entry.userId._id.toString(),
+          }
         : null,
       customerId: entry.customerId
         ? {
-          ...entry.customerId,
-          _id: entry.customerId._id.toString(),
-        }
+            ...entry.customerId,
+            _id: entry.customerId._id.toString(),
+          }
         : null,
       createdAt: entry.createdAt.toISOString(),
       updatedAt: entry.updatedAt.toISOString(),
@@ -185,7 +186,7 @@ const getCachedEntries = unstable_cache(
     };
   },
   ["entries-list-v2"], // Base key helps internal organization (v2 includes comment field)
-  { tags: ["entries"] } // Tag for revalidation
+  { tags: ["entries"] }, // Tag for revalidation
 );
 
 export async function fetchEntries({
@@ -203,13 +204,18 @@ export async function fetchEntries({
     // Use customSkip if provided, otherwise calculate from page/limit
     const skip = customSkip !== undefined ? customSkip : (page - 1) * limit;
 
+    // For Super User, always restrict by region
+    if (session.user.role === "super_user") {
+      filters.region = session.user.region;
+    }
+
     // We pass primitive values to the cached function to ensure strict key generation
     return await getCachedEntries(
       session.user.id,
       session.user.role,
       filters,
       skip,
-      limit
+      limit,
     );
   } catch (error) {
     console.error("Fetch Entries Error:", error);
