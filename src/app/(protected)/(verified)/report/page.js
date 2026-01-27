@@ -12,9 +12,25 @@ export default async function AdminCustomersPage() {
 
   const isAdmin = session.user.role === "admin";
 
-  // Fetch initial filters data
-  // If user is not admin, we don't need all users/locations for filters, but we fetch to filter them out safely or pass empty
-  const filtersData = await getFilters();
+  // Initial Data Load (Default: Current Month/Year)
+  const now = new Date();
+  // For non-admin, userId='all' will be overridden by the server action to be their ID
+  const userIdFilter = isAdmin ? "all" : session.user.id;
+
+  const [filtersData, initialData] = await Promise.all([
+    getFilters(),
+    getAdminCustomerAnalytics({
+      filters: {
+        month: now.getMonth().toString(),
+        year: now.getFullYear().toString(),
+        region: "all",
+        branch: "all",
+        userId: userIdFilter,
+      },
+      skip: 0,
+      limit: 30,
+    }),
+  ]);
 
   let cleanFilters;
 
@@ -32,24 +48,6 @@ export default async function AdminCustomersPage() {
       locations: [],
     };
   }
-
-  // Initial Data Load (Default: Current Month/Year)
-  const now = new Date();
-
-  // For non-admin, userId='all' will be overridden by the server action to be their ID
-  const userIdFilter = isAdmin ? "all" : session.user.id;
-
-  const initialData = await getAdminCustomerAnalytics({
-    filters: {
-      month: now.getMonth().toString(),
-      year: now.getFullYear().toString(),
-      region: "all",
-      branch: "all",
-      userId: userIdFilter,
-    },
-    skip: 0,
-    limit: 30,
-  });
 
   return (
     <div className="space-y-6">

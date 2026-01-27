@@ -4,8 +4,9 @@ import { auth } from "@/auth";
 import dbConnect from "@/lib/db";
 import Customer from "@/models/Customer";
 import Entry from "@/models/Entry";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import mongoose from "mongoose";
+import { serializeMongoList, serializeMongoDocument } from "@/lib/formatters";
 
 export async function createCustomer(formData) {
   const session = await auth();
@@ -53,6 +54,7 @@ export async function createCustomer(formData) {
 
     revalidatePath("/customers");
     revalidatePath("/customer-log"); // Ensure check-in/out page shows new customer immediately
+    revalidateTag("customers"); // Invalidate all customer-related cache
     return { success: true, id: customer._id.toString() };
   } catch (error) {
     console.error("Create Customer Error:", error);
@@ -269,6 +271,9 @@ export async function getCustomers({
       .sort({ name: 1 })
       .skip(skip)
       .limit(limit)
+      .select(
+        "name customerAddress district state pincode location contactPerson contactNumber region branch isActive entryCount isShared userId",
+      )
       .lean();
 
     const total = await Customer.countDocuments(query);
@@ -349,6 +354,9 @@ export async function getCustomersWithEntryCount({
       .sort({ entryCount: -1, name: 1 })
       .skip(skip)
       .limit(limit)
+      .select(
+        "name customerAddress district state pincode location contactPerson contactNumber region branch isActive entryCount isShared userId",
+      )
       .lean();
 
     // If we found an active customer and we are on page 1
@@ -356,7 +364,7 @@ export async function getCustomersWithEntryCount({
     if (activeCustomerId) {
       // Check if it's already in the list
       const idx = customers.findIndex(
-        (c) => c._id.toString() === activeCustomerId
+        (c) => c._id.toString() === activeCustomerId,
       );
       if (idx !== -1) {
         // Move to top
@@ -441,7 +449,7 @@ export async function getCustomerActionStatus(customerId, userId) {
       .sort({ createdAt: -1 })
       .lean();
 
-    return JSON.parse(JSON.stringify(activeEntry));
+    return serializeMongoDocument(activeEntry);
   } catch (error) {
     return null;
   }

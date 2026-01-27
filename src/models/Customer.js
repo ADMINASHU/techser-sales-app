@@ -46,7 +46,7 @@ const CustomerSchema = new mongoose.Schema(
       default: false,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Indexes for faster lookups and filtering
@@ -57,6 +57,8 @@ CustomerSchema.index({ location: "2dsphere" }); // Geospatial index for proximit
 CustomerSchema.index({ isActive: 1 }); // Index for active/inactive filtering
 // Index for sorting by popularity
 CustomerSchema.index({ entryCount: -1 });
+CustomerSchema.index({ isShared: 1, region: 1 }); // Shared customers in region
+CustomerSchema.index({ region: 1, branch: 1, isActive: 1 }); // Active customers in branch
 
 export default mongoose.models.Customer ||
   mongoose.model("Customer", CustomerSchema);

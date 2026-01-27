@@ -14,27 +14,30 @@ export default async function CustomerLogPage({ searchParams }) {
   if (session?.user?.role === "admin") {
     redirect("/dashboard");
   }
+
   const params = await searchParams;
-  const filtersData = await getFilters();
 
-  // Get initial batch of customers sorted by entry count (only active customers)
-  const { customers, hasMore } = await getCustomersWithEntryCount({
-    filters: params,
-    skip: 0,
-    limit: 10,
-    activeOnly: true, // Only show active customers on check-in page
-  });
-
-  // Import batch function at the top of the file
-  const { batchGetCustomerActionStatus } = await import(
-    "@/app/actions/batchCustomerActions"
-  );
+  // Parallelize independent fetches
+  const [
+    filtersData,
+    { customers, hasMore },
+    { batchGetCustomerActionStatus },
+  ] = await Promise.all([
+    getFilters(),
+    getCustomersWithEntryCount({
+      filters: params,
+      skip: 0,
+      limit: 10,
+      activeOnly: true, // Only show active customers on check-in page
+    }),
+    import("@/app/actions/batchCustomerActions"),
+  ]);
 
   // Batch fetch active entry statuses for all initial customers
   const customerIds = customers.map((c) => c._id.toString());
   const statusMap = await batchGetCustomerActionStatus(
     customerIds,
-    session.user.id
+    session.user.id,
   );
 
   // Attach activeEntry to each customer

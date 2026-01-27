@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import dbConnect from "@/lib/db";
 import Customer from "@/models/Customer";
 import mongoose from "mongoose";
+import { serializeMongoList } from "@/lib/formatters";
 
 import Entry from "@/models/Entry";
 
@@ -135,7 +136,7 @@ export async function getAdminCustomerAnalytics({
     const hasMore = skip + customers.length < totalMatching;
 
     return {
-      customers: JSON.parse(JSON.stringify(customers)),
+      customers: serializeMongoList(customers),
       hasMore,
     };
   } catch (error) {
@@ -208,7 +209,7 @@ export async function getCustomerVisitDetails({ customerId, filters = {} }) {
       },
     ]);
 
-    return { visits: JSON.parse(JSON.stringify(visits)) };
+    return { visits: serializeMongoList(visits) };
   } catch (error) {
     console.error("Get Customer Visit Details Error:", error);
     return { visits: [] };

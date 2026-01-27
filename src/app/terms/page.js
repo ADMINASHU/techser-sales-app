@@ -1,5 +1,3 @@
-"use client";
-
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
@@ -9,7 +7,7 @@ export default function TermsOfService() {
     <div className="min-h-screen bg-[#0b0f19] text-white p-6 md:p-12">
       <div className="max-w-4xl mx-auto space-y-8">
         <Link
-          href="/"
+          href="/dashboard"
           className="inline-flex items-center text-sm text-gray-400 hover:text-white transition-colors"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />

@@ -22,7 +22,12 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-const CustomerCard = memo(function CustomerCard({ customer, isAdmin, onEdit }) {
+const CustomerCard = memo(function CustomerCard({
+  customer,
+  isAdmin,
+  onEdit,
+  onDelete,
+}) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isActive, setIsActive] = useState(customer.isActive !== false); // Handle undefined as true
@@ -39,6 +44,10 @@ const CustomerCard = memo(function CustomerCard({ customer, isAdmin, onEdit }) {
       toast.error(res.error);
     } else {
       toast.success("Customer deleted");
+      // Optimistic UI Update: Use callback if provided
+      if (onDelete) {
+        onDelete(customer._id);
+      }
     }
   };
 
@@ -135,6 +144,7 @@ const CustomerCard = memo(function CustomerCard({ customer, isAdmin, onEdit }) {
                 setShowDeleteDialog(true);
               }}
               className="h-8 w-8 p-0 text-red-400 hover:text-red-300 hover:bg-red-500/10"
+              aria-label="Delete customer"
             >
               <Trash2 className="w-4 h-4" />
             </Button>

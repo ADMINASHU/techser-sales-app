@@ -2,13 +2,17 @@
 
 import UserCard from "./UserCard";
 import UserProfileModal from "./UserProfileModal";
-import { useState } from "react";
+import { useState, memo } from "react";
 
 /**
  * EntryUserCard is a wrapper around UserCard that adds the UserProfileModal
  * for use in the Entry Detail page.
  */
-export default function EntryUserCard({ user, className, ...props }) {
+const EntryUserCard = memo(function EntryUserCard({
+  user,
+  className,
+  ...props
+}) {
   const [showProfile, setShowProfile] = useState(false);
 
   if (!user) return null;
@@ -29,4 +33,6 @@ export default function EntryUserCard({ user, className, ...props }) {
       />
     </>
   );
-}
+});
+
+export default EntryUserCard;

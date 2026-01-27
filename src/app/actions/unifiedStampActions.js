@@ -97,6 +97,8 @@ export async function customerStampIn(customerId, location) {
     await Promise.all([updateCustomerPromise, notificationPromise]);
 
     revalidatePath("/customer-log");
+    revalidatePath("/entries");
+    revalidatePath("/dashboard");
     revalidateTag("entries"); // Invalidate cached entry lists
     return { success: true };
   } catch (error) {
@@ -127,7 +129,7 @@ export async function customerStampOut(customerId, location) {
           },
         },
       },
-      { new: true, sort: { createdAt: -1 } }
+      { new: true, sort: { createdAt: -1 } },
     ); // Removed critical-path populates
 
     if (!entry) {
@@ -143,6 +145,8 @@ export async function customerStampOut(customerId, location) {
     });
 
     revalidatePath("/customer-log");
+    revalidatePath("/entries");
+    revalidatePath("/dashboard");
     revalidateTag("entries");
     return { success: true };
   } catch (error) {

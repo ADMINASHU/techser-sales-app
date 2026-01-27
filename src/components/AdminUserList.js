@@ -38,7 +38,7 @@ export default function AdminUserList({
   // State
   const [users, setUsers] = useState(initialData.users);
   const [hasMore, setHasMore] = useState(
-    initialData.currentPage < initialData.totalPages
+    initialData.currentPage < initialData.totalPages,
   );
   const [page, setPage] = useState(initialData.currentPage);
   const [loading, setLoading] = useState(false);
@@ -46,7 +46,7 @@ export default function AdminUserList({
   // Filters
   const [search, setSearch] = useState(searchParams.get("search") || "");
   const [region, setRegion] = useState(
-    searchParams.get("region") || currentUserRegion || "all"
+    searchParams.get("region") || currentUserRegion || "all",
   );
   const [branch, setBranch] = useState(searchParams.get("branch") || "all");
 
@@ -114,7 +114,12 @@ export default function AdminUserList({
       });
 
       if (res && res.users) {
-        setUsers((prev) => [...prev, ...res.users]);
+        setUsers((prev) => {
+          const newUsers = res.users.filter(
+            (u) => !prev.some((p) => p._id === u._id),
+          );
+          return [...prev, ...newUsers];
+        });
         setHasMore(res.currentPage < res.totalPages);
         setPage(res.currentPage);
       }

@@ -5,6 +5,7 @@ import { deleteEntry } from "@/app/actions/entryActions";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useSWRConfig } from "swr";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -18,20 +19,28 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-export default function DeleteEntryButton({ entryId }) {
+export default function DeleteEntryButton({ entryId, onDelete }) {
   const [open, setOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
 
   const handleDelete = async (e) => {
     // e.preventDefault(); // Handled by button onClick
+    // e.stopPropagation(); // Handled by button onClick
+
     setIsDeleting(true);
     try {
       const result = await deleteEntry(entryId);
       if (result.success) {
         toast.success("Entry deleted successfully");
         setOpen(false); // Close dialog on success
-        router.refresh();
+
+        // Optimistic UI Update: Use callback if provided
+        if (onDelete) {
+          onDelete(entryId);
+        } else {
+          router.refresh(); // Fallback
+        }
       } else {
         toast.error(result.error || "Failed to delete entry");
       }
@@ -51,6 +60,7 @@ export default function DeleteEntryButton({ entryId }) {
           className="text-destructive hover:text-destructive/90 hover:bg-destructive/10 h-8 w-8"
           onClick={(e) => e.stopPropagation()}
           disabled={isDeleting}
+          aria-label="Delete entry"
         >
           <Trash2 className="h-4 w-4" />
         </Button>
