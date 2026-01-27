@@ -5,6 +5,7 @@ import { updateEntryComment } from "@/app/actions/entryActions";
 import { Button } from "@/components/ui/button";
 import { MessageSquare } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useSWRConfig } from "swr";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -22,6 +23,7 @@ export default function AddCommentButton({ entryId, currentComment = "" }) {
   const [isSaving, setIsSaving] = useState(false);
   const [comment, setComment] = useState(currentComment);
   const router = useRouter();
+  const { mutate } = useSWRConfig();
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -31,6 +33,11 @@ export default function AddCommentButton({ entryId, currentComment = "" }) {
         toast.success("Comment saved successfully");
         setOpen(false);
         router.refresh();
+
+        // Invalidate InfiniteEntryList cache to show new comment
+        mutate((key) => Array.isArray(key) && key[0] === "entries", undefined, {
+          revalidate: true,
+        });
       } else {
         toast.error(result.error || "Failed to save comment");
       }

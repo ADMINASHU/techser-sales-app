@@ -5,6 +5,7 @@ import { deleteEntry } from "@/app/actions/entryActions";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useSWRConfig } from "swr";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -22,6 +23,7 @@ export default function DeleteEntryButton({ entryId }) {
   const [open, setOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
+  const { mutate } = useSWRConfig();
 
   const handleDelete = async (e) => {
     // e.preventDefault(); // Handled by button onClick
@@ -32,6 +34,11 @@ export default function DeleteEntryButton({ entryId }) {
         toast.success("Entry deleted successfully");
         setOpen(false); // Close dialog on success
         router.refresh();
+
+        // Invalidate InfiniteEntryList cache
+        mutate((key) => Array.isArray(key) && key[0] === "entries", undefined, {
+          revalidate: true,
+        });
       } else {
         toast.error(result.error || "Failed to delete entry");
       }

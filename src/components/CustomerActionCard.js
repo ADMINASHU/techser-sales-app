@@ -14,8 +14,9 @@ import { LoadingButton } from "@/components/ui/LoadingButton";
 import DurationDisplay from "@/components/DurationDisplay";
 import { Timer } from "lucide-react";
 
-import PermissionRequestModal from "@/components/PermissionRequestModal";
+import { PermissionRequestModal } from "@/components/PermissionRequestModal";
 import { useNotification } from "@/components/FCMNotificationProvider";
+import { useRouter } from "next/navigation";
 
 export default function CustomerActionCard({
   customer,
@@ -23,6 +24,7 @@ export default function CustomerActionCard({
   userId,
   hasActiveStampIn,
 }) {
+  const router = useRouter(); // Initialize router
   const [loading, setLoading] = useState(false);
   const [showPermissionModal, setShowPermissionModal] = useState(false);
   const [pendingAction, setPendingAction] = useState(null); // "in" or "out"
@@ -93,6 +95,7 @@ export default function CustomerActionCard({
           toast.error(res.error);
         } else {
           toast.success(type === "in" ? "Stamped In!" : "Stamped Out!");
+          router.refresh();
         }
       },
       (error) => {
@@ -105,7 +108,7 @@ export default function CustomerActionCard({
           toast.error("Unable to retrieve your location");
         }
         setLoading(false);
-      }
+      },
     );
   };
 
@@ -147,8 +150,8 @@ export default function CustomerActionCard({
           isStampedIn
             ? "bg-yellow-500 shadow-[0_0_10px_rgba(234,179,8,0.5)]"
             : isCompleted
-            ? "bg-emerald-500"
-            : "bg-blue-500/20"
+              ? "bg-emerald-500"
+              : "bg-blue-500/20"
         }`}
       />
 
