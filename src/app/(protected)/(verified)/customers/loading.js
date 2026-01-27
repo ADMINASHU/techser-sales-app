@@ -1,11 +1,20 @@
-import { Loader2 } from "lucide-react";
+import CustomerCardSkeleton from "@/components/skeletons/CustomerCardSkeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Loading() {
   return (
-    <div className="flex h-[calc(100vh-100px)] w-full items-center justify-center">
-      <div className="flex flex-col items-center gap-4">
-        <Loader2 className="h-10 w-10 animate-spin text-cyan-500" />
-        <p className="text-gray-400 animate-pulse">Loading Customers...</p>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <Skeleton className="h-10 w-48" />
+      </div>
+
+      {/* Search/Filter Bar Skeleton */}
+      <Skeleton className="h-14 w-full rounded-xl" />
+
+      <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <CustomerCardSkeleton key={i} />
+        ))}
       </div>
     </div>
   );
