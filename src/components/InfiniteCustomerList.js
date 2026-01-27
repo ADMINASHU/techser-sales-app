@@ -56,12 +56,14 @@ export default function InfiniteCustomerList({
       parallel: true, // Optimistic prefetching check (not strictly needed but good)
     });
 
-  // Expose refresh function to parent
+  // Expose refresh function to parent (optimized with useCallback)
+  const handleRefresh = useCallback(() => mutate(), [mutate]);
+
   useEffect(() => {
     if (onRefresh && typeof onRefresh === "function") {
-      onRefresh(() => mutate());
+      onRefresh(handleRefresh);
     }
-  }, [onRefresh, mutate]);
+  }, [onRefresh, handleRefresh]);
 
   // Optimistic handler for customer deletion
   const handleCustomerDeleted = useCallback(

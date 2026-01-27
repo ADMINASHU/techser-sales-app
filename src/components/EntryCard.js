@@ -100,7 +100,7 @@ const EntryCard = memo(function EntryCard({ entry, isAdmin, onDelete }) {
           </h3>
           <Badge
             variant="outline"
-            className={`flex-shrink-0 ${
+            className={`shrink-0 ${
               entry.status === "Completed"
                 ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
                 : entry.status === "In Process"
@@ -115,7 +115,7 @@ const EntryCard = memo(function EntryCard({ entry, isAdmin, onDelete }) {
         {/* Address - Full Display */}
         <div className="relative mb-3 flex-1 z-10">
           <p className="text-xs text-gray-400 group-hover:text-gray-300 transition-colors flex items-start gap-1.5">
-            <MapPin className="w-3 h-3 mt-0.5 flex-shrink-0" />
+            <MapPin className="w-3 h-3 mt-0.5 shrink-0" />
             <span>
               {entry.customerId?.customerAddress ||
                 entry.customerAddress ||
@@ -126,7 +126,7 @@ const EntryCard = memo(function EntryCard({ entry, isAdmin, onDelete }) {
           {/* Comment Display (Visible to all users) */}
           {entry.comment && (
             <div className="mt-2 flex items-start gap-1.5">
-              <MessageSquare className="w-3 h-3 mt-0.5 flex-shrink-0 text-yellow-400" />
+              <MessageSquare className="w-3 h-3 mt-0.5 shrink-0 text-yellow-400" />
               <p className="text-xs text-yellow-400 line-clamp-2">
                 {entry.comment}
               </p>

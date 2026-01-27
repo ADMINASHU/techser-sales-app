@@ -17,6 +17,7 @@ import { Timer } from "lucide-react";
 import PermissionRequestModal from "@/components/PermissionRequestModal";
 import { useNotification } from "@/components/FCMNotificationProvider";
 import { useRouter } from "next/navigation";
+import { useSWRConfig } from "swr";
 
 export default function CustomerActionCard({
   customer,
@@ -25,6 +26,7 @@ export default function CustomerActionCard({
   hasActiveStampIn,
 }) {
   const router = useRouter(); // Initialize router
+  const { mutate } = useSWRConfig(); // For SWR cache invalidation
   const [loading, setLoading] = useState(false);
   const [showPermissionModal, setShowPermissionModal] = useState(false);
   const [pendingAction, setPendingAction] = useState(null); // "in" or "out"
@@ -95,6 +97,16 @@ export default function CustomerActionCard({
           toast.error(res.error);
         } else {
           toast.success(type === "in" ? "Stamped In!" : "Stamped Out!");
+
+          // Invalidate SWR cache for entries to show new stamp immediately
+          mutate(
+            (key) => Array.isArray(key) && key[0] === "entries",
+            undefined,
+            {
+              revalidate: true,
+            },
+          );
+
           router.refresh();
         }
       },

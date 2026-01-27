@@ -1,8 +1,9 @@
+import { memo } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { Circle, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export default function NotificationItem({
+const NotificationItem = memo(function NotificationItem({
   notification,
   onMarkAsRead,
   onDelete,
@@ -41,7 +42,7 @@ export default function NotificationItem({
       onClick={handleClick}
       className={cn(
         "px-4 py-3 cursor-pointer transition-colors hover:bg-white/5 group relative",
-        !read && "bg-violet-500/5"
+        !read && "bg-violet-500/5",
       )}
     >
       <div className="flex items-start gap-3">
@@ -57,7 +58,7 @@ export default function NotificationItem({
           <p
             className={cn(
               "text-sm leading-snug",
-              read ? "text-gray-300" : "text-white font-medium"
+              read ? "text-gray-300" : "text-white font-medium",
             )}
           >
             {title}
@@ -77,4 +78,6 @@ export default function NotificationItem({
       </div>
     </div>
   );
-}
+});
+
+export default NotificationItem;

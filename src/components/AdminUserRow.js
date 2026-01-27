@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, memo } from "react";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,7 +20,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-export default function AdminUserRow({ user, index }) {
+const AdminUserRow = memo(function AdminUserRow({ user, index }) {
   const [isLoading, setIsLoading] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -141,4 +141,6 @@ export default function AdminUserRow({ user, index }) {
       </TableCell>
     </TableRow>
   );
-}
+});
+
+export default AdminUserRow;
