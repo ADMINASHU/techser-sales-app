@@ -6,6 +6,8 @@ import Customer from "@/models/Customer";
 import Entry from "@/models/Entry";
 import { revalidatePath } from "next/cache";
 import mongoose from "mongoose";
+import { serializeMongoList, serializeMongoDocument } from "@/lib/formatters";
+import { serializeMongoList } from "@/lib/formatters";
 
 export async function createCustomer(formData) {
   const session = await auth();
@@ -356,7 +358,7 @@ export async function getCustomersWithEntryCount({
     if (activeCustomerId) {
       // Check if it's already in the list
       const idx = customers.findIndex(
-        (c) => c._id.toString() === activeCustomerId
+        (c) => c._id.toString() === activeCustomerId,
       );
       if (idx !== -1) {
         // Move to top
@@ -441,7 +443,7 @@ export async function getCustomerActionStatus(customerId, userId) {
       .sort({ createdAt: -1 })
       .lean();
 
-    return JSON.parse(JSON.stringify(activeEntry));
+    return serializeMongoDocument(activeEntry);
   } catch (error) {
     return null;
   }
