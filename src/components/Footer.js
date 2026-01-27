@@ -38,8 +38,8 @@ export default function Footer() {
           </Link>
         </div>
         {/* Powered By */}
-        <div className="flex items-center gap-1.5 text-sm text-slate-500">
-          <span className="text-slate-400 text-sm">Powered by</span>
+        <div className="flex items-center gap-1.5 text-xs text-slate-500">
+          <span className="text-slate-400 text-xs text-nowrap">powered by</span>
           <PoweredLogo />
         </div>
       </div>
