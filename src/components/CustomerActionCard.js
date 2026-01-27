@@ -14,7 +14,7 @@ import { LoadingButton } from "@/components/ui/LoadingButton";
 import DurationDisplay from "@/components/DurationDisplay";
 import { Timer } from "lucide-react";
 
-import { PermissionRequestModal } from "@/components/PermissionRequestModal";
+import PermissionRequestModal from "@/components/PermissionRequestModal";
 import { useNotification } from "@/components/FCMNotificationProvider";
 import { useRouter } from "next/navigation";
 

@@ -19,26 +19,28 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-export default function DeleteEntryButton({ entryId }) {
+export default function DeleteEntryButton({ entryId, onDelete }) {
   const [open, setOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
-  const { mutate } = useSWRConfig();
 
   const handleDelete = async (e) => {
     // e.preventDefault(); // Handled by button onClick
+    // e.stopPropagation(); // Handled by button onClick
+
     setIsDeleting(true);
     try {
       const result = await deleteEntry(entryId);
       if (result.success) {
         toast.success("Entry deleted successfully");
         setOpen(false); // Close dialog on success
-        router.refresh();
 
-        // Invalidate InfiniteEntryList cache
-        mutate((key) => Array.isArray(key) && key[0] === "entries", undefined, {
-          revalidate: true,
-        });
+        // Optimistic UI Update: Use callback if provided
+        if (onDelete) {
+          onDelete(entryId);
+        } else {
+          router.refresh(); // Fallback
+        }
       } else {
         toast.error(result.error || "Failed to delete entry");
       }

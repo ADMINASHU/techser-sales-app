@@ -4,7 +4,7 @@ import { auth } from "@/auth";
 import dbConnect from "@/lib/db";
 import Customer from "@/models/Customer";
 import Entry from "@/models/Entry";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import mongoose from "mongoose";
 import { serializeMongoList, serializeMongoDocument } from "@/lib/formatters";
 
@@ -54,6 +54,7 @@ export async function createCustomer(formData) {
 
     revalidatePath("/customers");
     revalidatePath("/customer-log"); // Ensure check-in/out page shows new customer immediately
+    revalidateTag("customers"); // Invalidate all customer-related cache
     return { success: true, id: customer._id.toString() };
   } catch (error) {
     console.error("Create Customer Error:", error);

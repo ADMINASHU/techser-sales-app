@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { useSWRConfig } from "swr";
 import CustomerForm from "@/components/CustomerForm";
 import CustomerFilters from "@/components/CustomerFilters";
 import InfiniteCustomerList from "@/components/InfiniteCustomerList";
@@ -22,6 +24,9 @@ export default function CustomerPageClient({
   user,
   searchParams,
 }) {
+  const router = useRouter();
+  const { mutate } = useSWRConfig();
+  const refreshListRef = useRef(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState(null);
 
@@ -30,10 +35,21 @@ export default function CustomerPageClient({
     setIsFormOpen(true);
   };
 
-  const handleFormSuccess = () => {
+  const handleFormSuccess = async () => {
     setIsFormOpen(false);
     setEditingCustomer(null);
-    window.location.reload();
+
+    // Try direct list refresh first
+    if (refreshListRef.current) {
+      await refreshListRef.current();
+    }
+
+    // Fallback to global invalidation
+    mutate((key) => Array.isArray(key) && key[0] === "customers", undefined, {
+      revalidate: true,
+    });
+
+    router.refresh(); // Also refresh server data
   };
 
   return (
@@ -118,6 +134,7 @@ export default function CustomerPageClient({
           searchParams={searchParams}
           isAdmin={isAdmin}
           onEdit={handleEdit}
+          onRefresh={(refreshFn) => (refreshListRef.current = refreshFn)}
         />
       ) : (
         <div className="flex flex-col items-center justify-center py-20 text-center glass-panel rounded-2xl border border-white/5">

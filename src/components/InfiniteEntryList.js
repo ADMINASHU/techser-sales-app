@@ -32,10 +32,8 @@ export default function InfiniteEntryList({
     });
   };
 
-  const { data, size, setSize, isLoading, isValidating } = useSWRInfinite(
-    getKey,
-    fetcher,
-    {
+  const { data, size, setSize, isLoading, isValidating, mutate } =
+    useSWRInfinite(getKey, fetcher, {
       fallbackData: [
         {
           entries: initialEntries || [],
@@ -47,7 +45,23 @@ export default function InfiniteEntryList({
       ],
       revalidateFirstPage: false,
       parallel: true,
+    });
+
+  const handleEntryDeleted = useCallback(
+    async (deletedId) => {
+      // Optimistically update the cache bound to this specific list instance
+      await mutate(
+        (currentData) => {
+          if (!currentData) return [];
+          return currentData.map((page) => ({
+            ...page,
+            entries: page.entries.filter((e) => e._id !== deletedId),
+          }));
+        },
+        { revalidate: false },
+      );
     },
+    [mutate],
   );
 
   const flatEntries = useMemo(
@@ -125,7 +139,11 @@ export default function InfiniteEntryList({
                 <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                   {group.entries.map((entry) => (
                     <div key={entry._id} className="h-full">
-                      <EntryCard entry={entry} isAdmin={isAdmin} />
+                      <EntryCard
+                        entry={entry}
+                        isAdmin={isAdmin}
+                        onDelete={handleEntryDeleted}
+                      />
                     </div>
                   ))}
                 </div>

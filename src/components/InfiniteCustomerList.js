@@ -5,6 +5,7 @@ import { getCustomers } from "@/app/actions/customerActions";
 import { Loader2 } from "lucide-react";
 import { VirtuosoGrid } from "react-virtuoso";
 import useSWRInfinite from "swr/infinite";
+import { useCallback, useEffect } from "react";
 
 const PAGE_SIZE = 10;
 
@@ -23,6 +24,8 @@ export default function InfiniteCustomerList({
   searchParams,
   isAdmin,
   onEdit,
+  onCustomerCreated, // Expose this callback to parent
+  onRefresh, // NEW: Callback to expose refresh function
 }) {
   const getKey = (pageIndex, previousPageData) => {
     // If we have previous data and no more items, stop
@@ -41,10 +44,8 @@ export default function InfiniteCustomerList({
     });
   };
 
-  const { data, size, setSize, isLoading, isValidating } = useSWRInfinite(
-    getKey,
-    fetcher,
-    {
+  const { data, size, setSize, isLoading, isValidating, mutate } =
+    useSWRInfinite(getKey, fetcher, {
       fallbackData: [
         {
           customers: initialCustomers || [],
@@ -53,7 +54,31 @@ export default function InfiniteCustomerList({
       ],
       revalidateFirstPage: false,
       parallel: true, // Optimistic prefetching check (not strictly needed but good)
+    });
+
+  // Expose refresh function to parent
+  useEffect(() => {
+    if (onRefresh && typeof onRefresh === "function") {
+      onRefresh(() => mutate());
+    }
+  }, [onRefresh, mutate]);
+
+  // Optimistic handler for customer deletion
+  const handleCustomerDeleted = useCallback(
+    async (deletedId) => {
+      // Optimistically remove from cache immediately
+      await mutate(
+        (currentData) => {
+          if (!currentData) return [];
+          return currentData.map((page) => ({
+            ...page,
+            customers: page.customers.filter((c) => c._id !== deletedId),
+          }));
+        },
+        { revalidate: false },
+      );
     },
+    [mutate],
   );
 
   const customers = data ? data.flatMap((page) => page.customers) : [];
@@ -96,6 +121,7 @@ export default function InfiniteCustomerList({
                   customer={customer}
                   isAdmin={isAdmin}
                   onEdit={onEdit}
+                  onDelete={handleCustomerDeleted}
                 />
               </div>
             )}
