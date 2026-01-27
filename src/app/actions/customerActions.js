@@ -7,7 +7,6 @@ import Entry from "@/models/Entry";
 import { revalidatePath } from "next/cache";
 import mongoose from "mongoose";
 import { serializeMongoList, serializeMongoDocument } from "@/lib/formatters";
-import { serializeMongoList } from "@/lib/formatters";
 
 export async function createCustomer(formData) {
   const session = await auth();
