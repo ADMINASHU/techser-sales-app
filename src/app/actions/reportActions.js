@@ -8,6 +8,7 @@ import Location from "@/models/Location";
 import "@/models/Customer"; // Register Customer model
 import { formatInIST } from "@/lib/utils";
 import { unstable_cache } from "next/cache";
+import { serializeMongoList } from "@/lib/formatters";
 
 // Helper: Calculate distance between two coordinates in km (Haversine formula)
 function calculateDistance(loc1, loc2) {
@@ -19,9 +20,9 @@ function calculateDistance(loc1, loc2) {
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos(deg2rad(loc1.lat)) *
-    Math.cos(deg2rad(loc2.lat)) *
-    Math.sin(dLon / 2) *
-    Math.sin(dLon / 2);
+      Math.cos(deg2rad(loc2.lat)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   const d = R * c; // Distance in km
   return d.toFixed(2); // Return as string with 2 decimals
@@ -52,15 +53,15 @@ const getCachedReportData = unstable_cache(
 
     const entries = await Entry.find(query)
       .select(
-        "entryDate status userName userRegion userBranch customerName customerAddress contactPerson contactNumber stampIn stampOut location createdAt customerId userId"
+        "entryDate status userName userRegion userBranch customerName customerAddress contactPerson contactNumber stampIn stampOut location createdAt customerId userId",
       )
       .populate(
         "userId",
-        "name email region branch role status image designation contactNumber address"
+        "name email region branch role status image designation contactNumber address",
       )
       .populate(
         "customerId",
-        "name customerAddress contactPerson contactNumber location"
+        "name customerAddress contactPerson contactNumber location",
       ) // Only populate needed customer fields
       .lean(); // Use lean() for better performance
 
@@ -81,8 +82,9 @@ const getCachedReportData = unstable_cache(
         "User Name": e.userName || e.userId?.name || "",
         "Customer Name": e.customerName || customer.name || "",
         "Customer Address": customer.customerAddress || e.customerAddress || "",
-        "Contact Person & Number": `${customer.contactPerson || e.contactPerson || ""
-          } ${customer.contactNumber || e.contactNumber || ""}`.trim(),
+        "Contact Person & Number": `${
+          customer.contactPerson || e.contactPerson || ""
+        } ${customer.contactNumber || e.contactNumber || ""}`.trim(),
         "StampIn Time": e.stampIn?.time
           ? formatInIST(e.stampIn.time, "dd/MM/yyyy HH:mm:ss")
           : "",
@@ -97,7 +99,7 @@ const getCachedReportData = unstable_cache(
     return data;
   },
   ["report-data"],
-  { tags: ["reports"], revalidate: 60 } // Cache for 60 seconds
+  { tags: ["reports"], revalidate: 60 }, // Cache for 60 seconds
 );
 
 export async function getReportData({
@@ -131,10 +133,15 @@ export async function getReportData({
 
   if (effectiveUserId && effectiveUserId !== "all") {
     userIdList = [effectiveUserId];
-  } else if ((effectiveRegion && effectiveRegion !== "all") || (effectiveBranch && effectiveBranch !== "all")) {
+  } else if (
+    (effectiveRegion && effectiveRegion !== "all") ||
+    (effectiveBranch && effectiveBranch !== "all")
+  ) {
     let userQuery = {};
-    if (effectiveRegion && effectiveRegion !== "all") userQuery.region = effectiveRegion;
-    if (effectiveBranch && effectiveBranch !== "all") userQuery.branch = effectiveBranch;
+    if (effectiveRegion && effectiveRegion !== "all")
+      userQuery.region = effectiveRegion;
+    if (effectiveBranch && effectiveBranch !== "all")
+      userQuery.branch = effectiveBranch;
     // Optimization: We could cache this lookup too, but it's fast enough.
     const matchingUsers = await User.find(userQuery, "_id").lean();
     userIdList = matchingUsers.map((u) => u._id.toString());
@@ -149,7 +156,7 @@ export async function getReportData({
     endDate,
     userIdList.length > 0 ? userIdList : null,
     effectiveRegion,
-    effectiveBranch
+    effectiveBranch,
   );
 }
 
@@ -167,7 +174,7 @@ export async function getRawEntries({
   }
 
   const isAdmin = session.user.role === "admin";
-  
+
   // Enforce restriction for non-admins
   if (!isAdmin) {
     userId = session.user.id;
@@ -199,15 +206,15 @@ export async function getRawEntries({
   // We sort by createdAt -1 to get recent ones
   let queryBuilder = Entry.find(query)
     .select(
-      "entryDate status userName userRegion userBranch customerName customerAddress contactPerson contactNumber stampIn stampOut location createdAt customerId userId comment"
+      "entryDate status userName userRegion userBranch customerName customerAddress contactPerson contactNumber stampIn stampOut location createdAt customerId userId comment",
     )
     .populate(
       "userId",
-      "name email region branch role status image designation contactNumber address"
+      "name email region branch role status image designation contactNumber address",
     )
     .populate(
       "customerId",
-      "name customerAddress contactPerson contactNumber location"
+      "name customerAddress contactPerson contactNumber location",
     ) // Only populate needed fields
     .sort({ createdAt: -1 })
     .lean(); // Use lean() for better performance
@@ -218,7 +225,7 @@ export async function getRawEntries({
 
   const entries = await queryBuilder;
 
-  return JSON.parse(JSON.stringify(entries));
+  return serializeMongoList(entries);
 }
 
 export async function getFilters() {
@@ -230,8 +237,8 @@ export async function getFilters() {
   ]);
 
   return {
-    users: JSON.parse(JSON.stringify(users)),
-    locations: JSON.parse(JSON.stringify(locations)),
+    users: serializeMongoList(users),
+    locations: serializeMongoList(locations),
   };
 }
 
@@ -252,7 +259,7 @@ const getCachedSystemStats = unstable_cache(
     const totalRegions = locations.length;
     const totalBranches = locations.reduce(
       (acc, loc) => acc + (loc.branches?.length || 0),
-      0
+      0,
     );
 
     return {
@@ -262,7 +269,7 @@ const getCachedSystemStats = unstable_cache(
     };
   },
   ["system-stats"],
-  { revalidate: 300 } // Cache for 5 minutes
+  { revalidate: 300 }, // Cache for 5 minutes
 );
 
 // Wrapper to secure it (Exported as getSystemStats to maintain compatibility)
