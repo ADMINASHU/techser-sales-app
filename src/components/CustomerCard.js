@@ -55,7 +55,7 @@ const CustomerCard = memo(function CustomerCard({ customer, isAdmin, onEdit }) {
     } else {
       setIsActive(res.isActive);
       toast.success(
-        `Customer marked as ${res.isActive ? "Active" : "Inactive"}`
+        `Customer marked as ${res.isActive ? "Active" : "Inactive"}`,
       );
     }
   };
@@ -177,7 +177,7 @@ const CustomerCard = memo(function CustomerCard({ customer, isAdmin, onEdit }) {
             {/* Share Toggle */}
             <div
               onClick={handleToggleShare}
-              className="flex items-center gap-2 px-2 py-1 rounded border cursor-pointer transition-colors"
+              className="hidden items-center gap-2 px-2 py-1 rounded border cursor-pointer transition-colors"
               style={{
                 backgroundColor: isShared
                   ? "rgba(59, 130, 246, 0.1)"
