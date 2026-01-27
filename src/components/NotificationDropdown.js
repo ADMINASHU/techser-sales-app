@@ -183,17 +183,15 @@ export default function NotificationDropdown({
       {/* Permission Request Banner */}
       {permission !== "granted" && isSupported && (
         <div
-          className={`px-4 py-3 border-b border-white/5 ${
-            permission === "denied" ? "bg-red-500/10" : "bg-blue-500/10"
-          }`}
+          className={`px-4 py-3 border-b border-white/5 ${permission === "denied" ? "bg-red-500/10" : "bg-blue-500/10"
+            }`}
         >
           <div className="flex items-start gap-3">
             <div
-              className={`p-2 rounded-full ${
-                permission === "denied"
+              className={`p-2 rounded-full ${permission === "denied"
                   ? "bg-red-500/20 text-red-400"
                   : "bg-blue-500/20 text-blue-400"
-              }`}
+                }`}
             >
               {permission === "denied" ? (
                 <BellOff className="w-4 h-4" />

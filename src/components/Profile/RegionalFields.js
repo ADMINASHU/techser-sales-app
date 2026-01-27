@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -13,19 +13,10 @@ import { useLocations } from "@/hooks/useLocations";
 
 export function RegionalFields({ formData, onSelectChange, setFormData }) {
   const { locations, getBranchesForRegion } = useLocations();
-  const [availableBranches, setAvailableBranches] = useState([]);
-
-  useEffect(() => {
-    if (formData.region && locations.length > 0) {
-      const branches = getBranchesForRegion(formData.region);
-      setAvailableBranches(branches);
-
-      // Reset branch if it's not valid for the new region
-      if (formData.branch && !branches.includes(formData.branch)) {
-        setFormData((prev) => ({ ...prev, branch: "" }));
-      }
-    }
-  }, [formData.region, locations, getBranchesForRegion]);
+  const availableBranches = useMemo(
+    () => (formData.region ? getBranchesForRegion(formData.region) : []),
+    [formData.region, getBranchesForRegion],
+  );
 
   return (
     <div className="grid grid-cols-2 gap-4">
@@ -35,7 +26,10 @@ export function RegionalFields({ formData, onSelectChange, setFormData }) {
         </Label>
         <Select
           value={formData.region}
-          onValueChange={(val) => onSelectChange("region", val)}
+          onValueChange={(val) => {
+            onSelectChange("region", val);
+            onSelectChange("branch", ""); // Reset branch on region change
+          }}
           required
         >
           <SelectTrigger className="w-full bg-[#1e293b]/50 border-white/10 text-white focus:ring-1 focus:ring-fuchsia-500/50">

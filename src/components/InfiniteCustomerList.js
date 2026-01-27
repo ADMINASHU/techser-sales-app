@@ -1,22 +1,24 @@
-"use client";
-
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { deleteCustomer, getCustomers } from "@/app/actions/customerActions";
+import { toast } from "sonner";
+import { useState, useCallback, useEffect } from "react";
 import CustomerCard from "@/components/CustomerCard";
-import { getCustomers } from "@/app/actions/customerActions";
 import { Loader2 } from "lucide-react";
 import { VirtuosoGrid } from "react-virtuoso";
 import useSWRInfinite from "swr/infinite";
-import { useCallback, useEffect } from "react";
 
-const PAGE_SIZE = 10;
+// Helper function safely outside component if needed, or keep logic inside.
 
-const ListFooter = ({ context }) => {
-  const { loading, hasMore } = context;
-  return loading && hasMore ? (
-    <div className="flex justify-center p-4 col-span-full">
-      <Loader2 className="h-6 w-6 animate-spin text-blue-500" />
-    </div>
-  ) : null;
-};
+// Helper function safely outside component if needed, or keep logic inside.
 
 export default function InfiniteCustomerList({
   initialCustomers,
@@ -24,18 +26,42 @@ export default function InfiniteCustomerList({
   searchParams,
   isAdmin,
   onEdit,
-  onCustomerCreated, // Expose this callback to parent
-  onRefresh, // NEW: Callback to expose refresh function
+  onCustomerCreated,
+  onRefresh,
 }) {
-  const getKey = (pageIndex, previousPageData) => {
-    // If we have previous data and no more items, stop
-    if (previousPageData && !previousPageData.hasMore) return null;
+  // ... existing hooks ...
 
-    // Stable key for caching, includes filters and page index
+  // Delete State
+  const [customerToDelete, setCustomerToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const confirmDelete = async () => {
+    if (!customerToDelete) return;
+    setIsDeleting(true);
+    try {
+      const res = await deleteCustomer(customerToDelete._id);
+      if (res?.error) {
+        toast.error(res.error);
+      } else {
+        toast.success("Customer deleted");
+        await handleCustomerDeleted(customerToDelete._id);
+      }
+    } catch (error) {
+      toast.error("Failed to delete customer");
+    } finally {
+      setIsDeleting(false);
+      setCustomerToDelete(null);
+    }
+  };
+
+  const getKey = (pageIndex, previousPageData) => {
+    // ... existing getKey logic ...
+    if (previousPageData && !previousPageData.hasMore) return null;
     return ["customers", JSON.stringify(searchParams), pageIndex];
   };
 
   const fetcher = async ([_, paramsStr, pageIndex]) => {
+    // ... existing fetcher logic ...
     const params = JSON.parse(paramsStr);
     return await getCustomers({
       filters: params,
@@ -53,10 +79,9 @@ export default function InfiniteCustomerList({
         },
       ],
       revalidateFirstPage: false,
-      parallel: true, // Optimistic prefetching check (not strictly needed but good)
+      parallel: true,
     });
 
-  // Expose refresh function to parent (optimized with useCallback)
   const handleRefresh = useCallback(() => mutate(), [mutate]);
 
   useEffect(() => {
@@ -65,10 +90,8 @@ export default function InfiniteCustomerList({
     }
   }, [onRefresh, handleRefresh]);
 
-  // Optimistic handler for customer deletion
   const handleCustomerDeleted = useCallback(
     async (deletedId) => {
-      // Optimistically remove from cache immediately
       await mutate(
         (currentData) => {
           if (!currentData) return [];
@@ -91,9 +114,6 @@ export default function InfiniteCustomerList({
     isEmpty || (data && data[data.length - 1]?.hasMore === false);
   const hasMore = !isReachingEnd;
   const isRefreshing = isValidating && data && data.length === size;
-
-  // Combined loading state for UI feedback
-  // We show spinner at bottom if we are loading more pages
   const showLoadingSpinner = isLoadingMore || (isRefreshing && size > 1);
 
   const loadMore = () => {
@@ -103,7 +123,6 @@ export default function InfiniteCustomerList({
 
   return (
     <div className="pb-20 h-full min-h-[500px]">
-      {/* Entry List (Grid View) */}
       <div className="h-full">
         {customers.length === 0 && !isLoading ? (
           <EmptyCustomerState />
@@ -123,7 +142,7 @@ export default function InfiniteCustomerList({
                   customer={customer}
                   isAdmin={isAdmin}
                   onEdit={onEdit}
-                  onDelete={handleCustomerDeleted}
+                  onDeleteClick={(c) => setCustomerToDelete(c)}
                 />
               </div>
             )}
@@ -131,6 +150,30 @@ export default function InfiniteCustomerList({
           />
         )}
       </div>
+
+      {/* Shared Delete Dialog */}
+      <AlertDialog open={!!customerToDelete} onOpenChange={(open) => !open && setCustomerToDelete(null)}>
+        <AlertDialogContent className="glass-card border-white/10">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-400">
+              This will permanently delete the customer &quot;{customerToDelete?.name}&quot;. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-white/5 border-white/10 text-white hover:bg-white/10">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-red-600 hover:bg-red-700 text-white border-0"
+              disabled={isDeleting}
+            >
+              {isDeleting ? "Deleting..." : "Delete Customer"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {!hasMore && customers.length > 0 && (
         <div className="flex flex-col items-center justify-center py-8 opacity-50">
@@ -168,6 +211,22 @@ function EmptyCustomerState() {
       <p className="text-gray-400 max-w-sm">
         Try adjusting your filters or add a new customer to get started.
       </p>
+    </div>
+  );
+}
+
+function ListFooter({ context }) {
+  const { loading, hasMore } = context;
+
+  if (!loading && !hasMore) return null;
+
+  return (
+    <div className="flex justify-center py-8">
+      {loading ? (
+        <Loader2 className="w-8 h-8 animate-spin text-fuchsia-500" />
+      ) : (
+        <div className="h-8" />
+      )}
     </div>
   );
 }

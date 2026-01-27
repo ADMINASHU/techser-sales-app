@@ -9,6 +9,7 @@ import { useNavbar } from "@/hooks/useNavbar";
 import { NavLinks } from "./Navbar/NavLinks";
 import { MobileMenu } from "./Navbar/MobileMenu";
 import { UserActionGroup } from "./Navbar/UserActionGroup";
+import NotificationBell from "@/components/NotificationBell";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -33,7 +34,7 @@ export default function Navbar() {
             <Link
               href={
                 session?.user?.role === "admin" ||
-                session?.user?.role === "super_user"
+                  session?.user?.role === "super_user"
                   ? session.user.role === "super_user" &&
                     !!session.user.enableStamping
                     ? "/customer-log"
@@ -80,8 +81,9 @@ export default function Navbar() {
               mounted={mounted}
             />
 
-            {/* Mobile Menu Button */}
-            <div className="flex md:hidden items-center">
+            {/* Mobile Actions */}
+            <div className="flex md:hidden items-center gap-4">
+              <NotificationBell />
               <button
                 ref={buttonRef}
                 onClick={() => setIsOpen(!isOpen)}

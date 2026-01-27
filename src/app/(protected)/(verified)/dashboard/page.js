@@ -3,7 +3,6 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import AdminDashboard from "@/components/AdminDashboard";
 
-export const dynamic = "force-dynamic";
 export const metadata = {
   title: "Dashboard",
 };

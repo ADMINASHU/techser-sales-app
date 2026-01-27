@@ -10,7 +10,7 @@ import {
   updateUserRole,
 } from "@/app/actions/adminActions";
 import { toast } from "sonner";
-import UserProfileModal from "./UserProfileModal";
+
 import UserCard from "./UserCard";
 
 import {
@@ -24,7 +24,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-const AdminUserCard = memo(function AdminUserCard({ user, session }) {
+const AdminUserCard = memo(function AdminUserCard({ user, session, onViewProfile }) {
   const [isLoading, setIsLoading] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -140,7 +140,7 @@ const AdminUserCard = memo(function AdminUserCard({ user, session }) {
         className="h-8 px-2 text-violet-400 hover:text-violet-300 hover:bg-violet-500/10"
         onClick={(e) => {
           e.stopPropagation();
-          setShowProfile(true);
+          onViewProfile(user);
         }}
       >
         <User className="h-3.5 w-3.5 mr-1" />
@@ -153,16 +153,8 @@ const AdminUserCard = memo(function AdminUserCard({ user, session }) {
     <>
       <UserCard
         user={user}
-        onClick={() => setShowProfile(true)}
+        onClick={() => onViewProfile(user)}
         actions={!isSelf && canManage ? actions : isSelf ? selfActions : null}
-      />
-
-      <UserProfileModal
-        user={user}
-        open={showProfile}
-        onOpenChange={setShowProfile}
-        session={session}
-        showActions={!isSelf}
       />
 
       <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>

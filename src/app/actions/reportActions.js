@@ -20,9 +20,9 @@ function calculateDistance(loc1, loc2) {
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos(deg2rad(loc1.lat)) *
-      Math.cos(deg2rad(loc2.lat)) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
+    Math.cos(deg2rad(loc2.lat)) *
+    Math.sin(dLon / 2) *
+    Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   const d = R * c; // Distance in km
   return d.toFixed(2); // Return as string with 2 decimals
@@ -82,9 +82,8 @@ const getCachedReportData = unstable_cache(
         "User Name": e.userName || e.userId?.name || "",
         "Customer Name": e.customerName || customer.name || "",
         "Customer Address": customer.customerAddress || e.customerAddress || "",
-        "Contact Person & Number": `${
-          customer.contactPerson || e.contactPerson || ""
-        } ${customer.contactNumber || e.contactNumber || ""}`.trim(),
+        "Contact Person & Number": `${customer.contactPerson || e.contactPerson || ""
+          } ${customer.contactNumber || e.contactNumber || ""}`.trim(),
         "StampIn Time": e.stampIn?.time
           ? formatInIST(e.stampIn.time, "dd/MM/yyyy HH:mm:ss")
           : "",
@@ -238,10 +237,12 @@ export async function getRawEntries({
 
 export async function getFilters() {
   const session = await auth();
+  if (!session) throw new Error("Unauthorized");
+
   await dbConnect();
 
   let userQuery = { role: { $ne: "admin" } };
-  if (session?.user?.role === "super_user") {
+  if (session.user.role === "super_user") {
     userQuery.region = session.user.region;
   }
 

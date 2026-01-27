@@ -8,8 +8,6 @@ import { Trash2, User } from "lucide-react";
 import { deleteUser } from "@/app/actions/adminActions";
 import { toast } from "sonner";
 import { formatRole } from "@/lib/formatters";
-import UserProfileModal from "./UserProfileModal";
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,9 +19,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-const AdminUserRow = memo(function AdminUserRow({ user, index, session }) {
+const AdminUserRow = memo(function AdminUserRow({ user, index, session, onViewProfile }) {
   const [isLoading, setIsLoading] = useState(false);
-  const [showProfile, setShowProfile] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const isAdmin = session?.user?.role === "admin";
   const isSelf = session?.user?.id === user._id;
@@ -47,7 +44,7 @@ const AdminUserRow = memo(function AdminUserRow({ user, index, session }) {
   return (
     <TableRow
       className="hover:bg-white/5 border-white/5 group cursor-pointer transition-colors"
-      onClick={() => setShowProfile(true)}
+      onClick={() => onViewProfile(user)}
     >
       <TableCell className="hidden md:table-cell text-center text-gray-500 font-mono text-xs w-12">
         {index}
@@ -81,13 +78,6 @@ const AdminUserRow = memo(function AdminUserRow({ user, index, session }) {
         {/* Modals rendered here when Actions column is hidden */}
         {!isAdmin && (
           <>
-            <UserProfileModal
-              user={user}
-              open={showProfile}
-              onOpenChange={setShowProfile}
-              session={session}
-              showActions={!isSelf}
-            />
             <AlertDialog
               open={showDeleteConfirm}
               onOpenChange={setShowDeleteConfirm}
@@ -142,7 +132,7 @@ const AdminUserRow = memo(function AdminUserRow({ user, index, session }) {
               className="h-8 w-8 text-violet-400 hover:text-violet-300 hover:bg-violet-500/10"
               onClick={(e) => {
                 e.stopPropagation();
-                setShowProfile(true);
+                onViewProfile(user);
               }}
               title="View Profile"
             >
@@ -162,17 +152,10 @@ const AdminUserRow = memo(function AdminUserRow({ user, index, session }) {
             </Button>
           )}
 
-          <UserProfileModal
-            user={user}
-            open={showProfile}
-            onOpenChange={setShowProfile}
-            session={session}
-            showActions={!isSelf}
-          />
-
           <AlertDialog
             open={showDeleteConfirm}
             onOpenChange={setShowDeleteConfirm}
+          // ... (keep this dialog)
           >
             <AlertDialogContent className="glass-panel border-white/10 text-white">
               <AlertDialogHeader>

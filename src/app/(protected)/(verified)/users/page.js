@@ -3,7 +3,9 @@ import { getUsers } from "@/app/actions/adminActions";
 import { getLocations } from "@/app/actions/settingsActions";
 import AdminUserList from "@/components/AdminUserList";
 
-export const dynamic = "force-dynamic";
+export const metadata = {
+  title: "Users",
+};
 
 export default async function UsersPage(props) {
   const session = await auth();

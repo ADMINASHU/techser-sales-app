@@ -4,6 +4,10 @@ import { getFilters } from "@/app/actions/reportActions";
 import CustomerPageClient from "@/components/CustomerPageClient";
 import { redirect } from "next/navigation";
 
+export const metadata = {
+  title: "Customers",
+};
+
 export default async function CustomersPage({ searchParams }) {
   const session = await auth();
   if (session?.user?.role === "admin") {

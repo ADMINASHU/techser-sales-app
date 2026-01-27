@@ -155,7 +155,7 @@ export default function EntryFilters({
 
   // Proper way to detect if we're on the client
   const mounted = useSyncExternalStore(
-    () => () => {}, // subscribe: no-op
+    () => () => { }, // subscribe: no-op
     () => true, // getSnapshot: returns true on client
     () => false, // getServerSnapshot: returns false on server
   );
@@ -349,7 +349,7 @@ export default function EntryFilters({
 
             {/* Search - Full width on mobile */}
             {showSearch && (
-              <div className="space-y-1.5 col-span-3 md:col-span-1 relative group w-full max-w-md">
+              <div className="space-y-1.5 relative group">
                 <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">
                   Search
                 </span>
