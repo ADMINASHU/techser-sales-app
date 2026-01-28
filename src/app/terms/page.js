@@ -28,18 +28,6 @@ export default function TermsOfService() {
                 1. Agreement to Terms
               </h2>
               <p>
-                By accessing or using our website, you agree to be bound by
-                these Terms of Service and all applicable laws and regulations.
-                If you do not agree with any of these terms, you are prohibited
-                from using or accessing this site.
-              </p>
-            </section>
-
-            <section className="space-y-2">
-              <h2 className="text-xl font-semibold text-white">
-                1. Agreement to Terms
-              </h2>
-              <p>
                 By accessing or using the Techser Sales Application (&quot;the
                 App&quot;), you agree to be bound by these Terms of Service.
                 This App is a workforce management tool intended for authorized

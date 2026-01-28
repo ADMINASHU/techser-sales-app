@@ -4,6 +4,8 @@ const PoweredLogo = () => {
   return (
     <Link
       href="https://aasoftlabs.com"
+      target="_blank"
+      rel="noopener noreferrer"
       className="flex items-center gap-2 group"
     >
       <div className="flex items-center bg-transparent">
