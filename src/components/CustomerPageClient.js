@@ -63,12 +63,11 @@ export default function CustomerPageClient({
         </div>
 
         {/* Search / Filters - Flex-1 to take middle space */}
-        {/* Search / Filters - Flex-1 to take middle space */}
+
         <div className="flex-1 w-full order-3 md:order-2 flex md:justify-end">
           <CustomerFilters locations={locations} isAdmin={isAdmin} />
         </div>
 
-        {/* Add Button - Top on mobile, right on desktop */}
         {/* Add Button - Desktop Only */}
         <div className="hidden md:flex justify-end order-3 shrink-0">
           <Button

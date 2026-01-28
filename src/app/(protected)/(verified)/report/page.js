@@ -11,11 +11,13 @@ export default async function AdminCustomersPage() {
   if (!session) redirect("/login");
 
   const isAdmin = session.user.role === "admin";
+  const isSuperUser = session.user.role === "super_user";
+  const isAdminOrSuper = isAdmin || isSuperUser;
 
   // Initial Data Load (Default: Current Month/Year)
   const now = new Date();
-  // For non-admin, userId='all' will be overridden by the server action to be their ID
-  const userIdFilter = isAdmin ? "all" : session.user.id;
+  // For non-admin/non-super, userId='all' will be overridden by the server action to be their ID
+  const userIdFilter = isAdminOrSuper ? "all" : session.user.id;
 
   const [filtersData, initialData] = await Promise.all([
     getFilters(),
@@ -23,7 +25,7 @@ export default async function AdminCustomersPage() {
       filters: {
         month: now.getMonth().toString(),
         year: now.getFullYear().toString(),
-        region: "all",
+        region: session.user.region || "all",
         branch: "all",
         userId: userIdFilter,
       },
@@ -34,9 +36,11 @@ export default async function AdminCustomersPage() {
 
   let cleanFilters;
 
-  if (isAdmin) {
+  if (isAdminOrSuper) {
     // Filter out admin users from the user list so the dropdown only shows standard users
-    const nonAdminUsers = filtersData.users.filter((u) => u.role !== "admin");
+    const nonAdminUsers = filtersData.users.filter(
+      (u) => u.role !== "admin" && u.role !== "super_user",
+    );
     cleanFilters = {
       ...filtersData,
       users: nonAdminUsers,
@@ -53,7 +57,7 @@ export default async function AdminCustomersPage() {
     <div className="space-y-6">
       <div className="hidden sm:flex flex-row items-center justify-between gap-4">
         <h1 className="text-3xl font-bold bg-linear-to-r from-white to-gray-400 bg-clip-text text-transparent">
-          {isAdmin ? "Report" : "My Report"}
+          {isAdminOrSuper ? "Report" : "My Report"}
         </h1>
       </div>
       <Suspense fallback={<ReportSkeleton />}>
@@ -61,7 +65,10 @@ export default async function AdminCustomersPage() {
           initialCustomers={initialData.customers}
           initialHasMore={initialData.hasMore}
           locations={cleanFilters}
-          isRestricted={!isAdmin}
+          isRestricted={!isAdminOrSuper}
+          session={session}
+          defaultMonth={now.getMonth().toString()}
+          defaultYear={now.getFullYear().toString()}
         />
       </Suspense>
     </div>

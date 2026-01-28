@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { useDebounce } from "use-debounce";
+import { useDebouncedCallback } from "use-debounce";
 import { useInView } from "react-intersection-observer";
 import { getUsers } from "@/app/actions/adminActions";
 import { Loader2, Search, X } from "lucide-react";
@@ -16,8 +16,13 @@ import {
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import dynamic from "next/dynamic";
 import AdminUserRow from "./AdminUserRow";
 import AdminUserCard from "./AdminUserCard";
+
+const UserProfileModal = dynamic(() => import("./UserProfileModal"), {
+  ssr: false,
+});
 import {
   Select,
   SelectContent,
@@ -30,6 +35,7 @@ export default function AdminUserList({
   initialData,
   locations = [],
   currentUserRegion,
+  session,
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -43,6 +49,15 @@ export default function AdminUserList({
   const [page, setPage] = useState(initialData.currentPage);
   const [loading, setLoading] = useState(false);
 
+  // Modal State
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [profileOpen, setProfileOpen] = useState(false);
+
+  const handleViewProfile = (user) => {
+    setSelectedUser(user);
+    setProfileOpen(true);
+  };
+
   // Filters
   const [search, setSearch] = useState(searchParams.get("search") || "");
   const [region, setRegion] = useState(
@@ -50,10 +65,17 @@ export default function AdminUserList({
   );
   const [branch, setBranch] = useState(searchParams.get("branch") || "all");
 
-  // Debounce
-  const [debouncedSearch] = useDebounce(search, 500);
-  // Remove debouncedRegion/Branch from hook usage if we want instant reaction or keep consistency
-  // Keeping logic simple: Effect triggers on filtered values change
+  // Debounced URL update
+  const handleSearch = useDebouncedCallback((term) => {
+    const params = new URLSearchParams(searchParams);
+    if (term) {
+      params.set("search", term);
+    } else {
+      params.delete("search");
+    }
+    params.set("page", "1");
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }, 500);
 
   const { ref, inView } = useInView({
     threshold: 0,
@@ -66,19 +88,6 @@ export default function AdminUserList({
     setHasMore(initialData.currentPage < initialData.totalPages);
     setPage(initialData.currentPage);
   }, [initialData]);
-
-  // Handle Search Debounce
-  useEffect(() => {
-    const params = new URLSearchParams(searchParams);
-    if (debouncedSearch) {
-      params.set("search", debouncedSearch);
-    } else {
-      params.delete("search");
-    }
-    params.set("page", "1"); // Reset to page 1 on search
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedSearch, router, pathname]); // Intentionally exclude searchParams to prevent loop
 
   // Handle Filter Changes
   const updateFilters = (key, value) => {
@@ -105,10 +114,12 @@ export default function AdminUserList({
     setLoading(true);
     try {
       const nextPage = page + 1;
+      const currentSearch = searchParams.get("search") || "";
+
       const res = await getUsers({
         page: nextPage,
         limit: 10,
-        search: debouncedSearch,
+        search: currentSearch,
         region: region === "all" ? "" : region,
         branch: branch === "all" ? "" : branch,
       });
@@ -128,7 +139,7 @@ export default function AdminUserList({
     } finally {
       setLoading(false);
     }
-  }, [loading, hasMore, page, debouncedSearch, region, branch]);
+  }, [loading, hasMore, page, searchParams, region, branch]);
 
   useEffect(() => {
     if (inView && hasMore && !loading) {
@@ -137,7 +148,7 @@ export default function AdminUserList({
   }, [inView, hasMore, loading, loadMore]);
 
   // Derived branches
-  const getAvailableBranches = () => {
+  const availableBranches = useMemo(() => {
     if (!region || region === "all") {
       const allBranches = new Set();
       locations.forEach((loc) => {
@@ -148,9 +159,7 @@ export default function AdminUserList({
       const loc = locations.find((l) => l.name === region);
       return loc ? loc.branches.sort() : [];
     }
-  };
-
-  const availableBranches = getAvailableBranches();
+  }, [locations, region]);
 
   return (
     <div className="space-y-6">
@@ -210,8 +219,11 @@ export default function AdminUserList({
                     setRegion(val);
                     updateFilters("region", val);
                   }}
+                  disabled={
+                    currentUserRegion && session?.user?.role === "super_user"
+                  }
                 >
-                  <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10">
+                  <SelectTrigger className="w-full bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10">
                     <SelectValue placeholder="Region" />
                   </SelectTrigger>
                   <SelectContent className="glass-card border-white/10">
@@ -236,7 +248,7 @@ export default function AdminUserList({
                     updateFilters("branch", val);
                   }}
                 >
-                  <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10">
+                  <SelectTrigger className="w-full bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10">
                     <SelectValue placeholder="Branch" />
                   </SelectTrigger>
                   <SelectContent className="glass-card border-white/10">
@@ -261,7 +273,10 @@ export default function AdminUserList({
                   <Input
                     placeholder="Search users..."
                     value={search}
-                    onChange={(e) => setSearch(e.target.value)}
+                    onChange={(e) => {
+                      setSearch(e.target.value);
+                      handleSearch(e.target.value);
+                    }}
                     className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 pl-9 pr-10 rounded-xl transition-all hover:bg-white/10 shadow-lg"
                   />
                   {search && (
@@ -305,16 +320,18 @@ export default function AdminUserList({
               <TableHead className="text-gray-200 uppercase tracking-wider font-semibold text-xs">
                 Status
               </TableHead>
-              <TableHead className="text-right text-gray-200 uppercase tracking-wider font-semibold text-xs">
-                Actions
-              </TableHead>
+              {session?.user?.role === "admin" && (
+                <TableHead className="text-right text-gray-200 uppercase tracking-wider font-semibold text-xs">
+                  Actions
+                </TableHead>
+              )}
             </TableRow>
           </TableHeader>
           <TableBody className="divide-y divide-white/5">
             {users.length === 0 ? (
               <TableRow className="hover:bg-white/5 border-white/5">
                 <TableCell
-                  colSpan={8}
+                  colSpan={session?.user?.role === "admin" ? 8 : 7}
                   className="text-center py-8 text-gray-400"
                 >
                   No users found.
@@ -322,7 +339,13 @@ export default function AdminUserList({
               </TableRow>
             ) : (
               users.map((user, idx) => (
-                <AdminUserRow key={user._id} user={user} index={idx + 1} />
+                <AdminUserRow
+                  key={user._id}
+                  user={user}
+                  index={idx + 1}
+                  session={session}
+                  onViewProfile={handleViewProfile}
+                />
               ))
             )}
           </TableBody>
@@ -336,7 +359,14 @@ export default function AdminUserList({
             <p className="text-gray-400">No users found.</p>
           </div>
         ) : (
-          users.map((user) => <AdminUserCard key={user._id} user={user} />)
+          users.map((user) => (
+            <AdminUserCard
+              key={user._id}
+              user={user}
+              session={session}
+              onViewProfile={handleViewProfile}
+            />
+          ))
         )}
       </div>
 
@@ -350,6 +380,17 @@ export default function AdminUserList({
         <div className="text-center text-xs text-gray-500 py-4">
           End of user list
         </div>
+      )}
+
+      {/* Shared Profile Modal */}
+      {selectedUser && (
+        <UserProfileModal
+          user={selectedUser}
+          open={profileOpen}
+          onOpenChange={setProfileOpen}
+          session={session}
+          showActions={session?.user?.id !== selectedUser._id}
+        />
       )}
     </div>
   );

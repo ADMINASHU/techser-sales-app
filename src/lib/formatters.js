@@ -59,3 +59,17 @@ export function serializeMongoList(docs) {
   if (!Array.isArray(docs)) return [];
   return docs.map(serializeMongoDocument);
 }
+
+/**
+ * Formats user roles into human-readable labels.
+ * @param {string} role - The user role (e.g., 'admin', 'super_user', 'user')
+ * @returns {string} - The formatted label
+ */
+export function formatRole(role) {
+  const roles = {
+    admin: "Administrator",
+    super_user: "Super User",
+    user: "Standard User",
+  };
+  return roles[role] || role;
+}

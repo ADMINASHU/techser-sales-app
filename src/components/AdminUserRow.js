@@ -4,11 +4,10 @@ import { useState, memo } from "react";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { Trash2, User } from "lucide-react";
 import { deleteUser } from "@/app/actions/adminActions";
 import { toast } from "sonner";
-import UserProfileModal from "./UserProfileModal";
-
+import { formatRole } from "@/lib/formatters";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,10 +19,11 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-const AdminUserRow = memo(function AdminUserRow({ user, index }) {
+const AdminUserRow = memo(function AdminUserRow({ user, index, session, onViewProfile }) {
   const [isLoading, setIsLoading] = useState(false);
-  const [showProfile, setShowProfile] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const isAdmin = session?.user?.role === "admin";
+  const isSelf = session?.user?.id === user._id;
 
   const handleAction = async (actionFn, ...args) => {
     setIsLoading(true);
@@ -44,7 +44,7 @@ const AdminUserRow = memo(function AdminUserRow({ user, index }) {
   return (
     <TableRow
       className="hover:bg-white/5 border-white/5 group cursor-pointer transition-colors"
-      onClick={() => setShowProfile(true)}
+      onClick={() => onViewProfile(user)}
     >
       <TableCell className="hidden md:table-cell text-center text-gray-500 font-mono text-xs w-12">
         {index}
@@ -73,8 +73,41 @@ const AdminUserRow = memo(function AdminUserRow({ user, index }) {
               : "bg-blue-500/10 text-blue-400 border-blue-500/20"
           }
         >
-          {user.role}
+          {formatRole(user.role)}
         </Badge>
+        {/* Modals rendered here when Actions column is hidden */}
+        {!isAdmin && (
+          <>
+            <AlertDialog
+              open={showDeleteConfirm}
+              onOpenChange={setShowDeleteConfirm}
+            >
+              <AlertDialogContent className="glass-panel border-white/10 text-white">
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription className="text-gray-400">
+                    This action cannot be undone. This will permanently delete
+                    the user account and remove their data from our servers.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel className="bg-white/5 border-white/10 hover:bg-white/10 text-white">
+                    Cancel
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={(e) => {
+                      handleAction(e, deleteUser, user._id);
+                      setShowDeleteConfirm(false);
+                    }}
+                    className="bg-red-600 hover:bg-red-700 text-white border-none"
+                  >
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </>
+        )}
       </TableCell>
       <TableCell>
         <Badge
@@ -90,55 +123,66 @@ const AdminUserRow = memo(function AdminUserRow({ user, index }) {
           {user.status}
         </Badge>
       </TableCell>
-      <TableCell className="text-right">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 text-gray-400 hover:text-red-400 hover:bg-red-500/10"
-          onClick={(e) => {
-            e.stopPropagation();
-            setShowDeleteConfirm(true);
-          }}
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
+      {isAdmin && (
+        <TableCell className="text-right">
+          {isSelf ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-violet-400 hover:text-violet-300 hover:bg-violet-500/10"
+              onClick={(e) => {
+                e.stopPropagation();
+                onViewProfile(user);
+              }}
+              title="View Profile"
+            >
+              <User className="h-4 w-4" />
+            </Button>
+          ) : (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-gray-400 hover:text-red-400 hover:bg-red-500/10"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowDeleteConfirm(true);
+              }}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
 
-        {/* Modals moved inside TableCell to maintain valid HTML (tbody > tr > td) */}
-        <UserProfileModal
-          user={user}
-          open={showProfile}
-          onOpenChange={setShowProfile}
-        />
-
-        <AlertDialog
-          open={showDeleteConfirm}
-          onOpenChange={setShowDeleteConfirm}
-        >
-          <AlertDialogContent className="glass-panel border-white/10 text-white">
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-              <AlertDialogDescription className="text-gray-400">
-                This action cannot be undone. This will permanently delete the
-                user account and remove their data from our servers.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel className="bg-white/5 border-white/10 hover:bg-white/10 text-white">
-                Cancel
-              </AlertDialogCancel>
-              <AlertDialogAction
-                onClick={(e) => {
-                  handleAction(e, deleteUser, user._id);
-                  setShowDeleteConfirm(false);
-                }}
-                className="bg-red-600 hover:bg-red-700 text-white border-none"
-              >
-                Delete
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </TableCell>
+          <AlertDialog
+            open={showDeleteConfirm}
+            onOpenChange={setShowDeleteConfirm}
+          // ... (keep this dialog)
+          >
+            <AlertDialogContent className="glass-panel border-white/10 text-white">
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription className="text-gray-400">
+                  This action cannot be undone. This will permanently delete the
+                  user account and remove their data from our servers.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel className="bg-white/5 border-white/10 hover:bg-white/10 text-white">
+                  Cancel
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={(e) => {
+                    handleAction(e, deleteUser, user._id);
+                    setShowDeleteConfirm(false);
+                  }}
+                  className="bg-red-600 hover:bg-red-700 text-white border-none"
+                >
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </TableCell>
+      )}
     </TableRow>
   );
 });

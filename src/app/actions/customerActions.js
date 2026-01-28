@@ -332,25 +332,23 @@ export async function getCustomersWithEntryCount({
       ];
     }
 
-    // OPTIMIZATION: Removed heavy Aggregation.
+    // OPTIMIZATION: Removed heavy Aggregation and Parallelized Queries
     // Strategy:
-    // 1. Find the single "Prioritized" (Active) Customer for this user.
+    // 1. Run Active Entry Check AND Customer Fetch in Parallel.
     // 2. Fetch customers sorted by entryCount (indexed).
     // 3. If on page 1, ensure Active Customer is at top.
 
-    let activeCustomerId = null;
-    if (skip === 0) {
-      const activeEntry = await Entry.findOne({
-        userId: session.user.id,
-        status: "In Process",
-        entryDate: { $gte: new Date(new Date().setHours(0, 0, 0, 0)) },
-      })
-        .select("customerId")
-        .lean();
-      if (activeEntry) activeCustomerId = activeEntry.customerId.toString();
-    }
+    const activeEntryPromise =
+      skip === 0
+        ? Entry.findOne({
+          userId: session.user.id,
+          status: "In Process",
+        })
+          .select("customerId")
+          .lean()
+        : Promise.resolve(null);
 
-    let customers = await Customer.find(query)
+    const customersPromise = Customer.find(query)
       .sort({ entryCount: -1, name: 1 })
       .skip(skip)
       .limit(limit)
@@ -358,6 +356,14 @@ export async function getCustomersWithEntryCount({
         "name customerAddress district state pincode location contactPerson contactNumber region branch isActive entryCount isShared userId",
       )
       .lean();
+
+    const [activeEntry, initialCustomers] = await Promise.all([
+      activeEntryPromise,
+      customersPromise,
+    ]);
+
+    let activeCustomerId = activeEntry ? activeEntry.customerId.toString() : null;
+    let customers = [...initialCustomers];
 
     // If we found an active customer and we are on page 1
     let activeCustomer = null;

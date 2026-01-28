@@ -28,6 +28,9 @@ export default function AdminCustomerTable({
   initialHasMore,
   locations, // { users: [], locations: [] }
   isRestricted = false, // new prop
+  session,
+  defaultMonth = "all",
+  defaultYear = "all",
 }) {
   const [customers, setCustomers] = useState(initialCustomers);
   const [hasMore, setHasMore] = useState(initialHasMore);
@@ -36,15 +39,11 @@ export default function AdminCustomerTable({
 
   // Filters State
   // Initialize with consistent default to prevent hydration mismatch
-  const [selectedMonth, setSelectedMonth] = useState("all");
-  const [selectedYear, setSelectedYear] = useState("all");
-
-  useEffect(() => {
-    const now = new Date();
-    setSelectedMonth(now.getMonth().toString());
-    setSelectedYear(now.getFullYear().toString());
-  }, []);
-  const [selectedRegion, setSelectedRegion] = useState("all");
+  const [selectedMonth, setSelectedMonth] = useState(defaultMonth);
+  const [selectedYear, setSelectedYear] = useState(defaultYear);
+  const [selectedRegion, setSelectedRegion] = useState(
+    session?.user?.region || "all",
+  );
   const [selectedBranch, setSelectedBranch] = useState("all");
   const [selectedUser, setSelectedUser] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -225,9 +224,10 @@ export default function AdminCustomerTable({
                 variant="ghost"
                 size="sm"
                 onClick={() => {
-                  setSelectedMonth("all");
-                  setSelectedYear("all");
-                  setSelectedRegion("all");
+                  const isSuperUser = session?.user?.role === "super_user";
+                  setSelectedMonth(defaultMonth);
+                  setSelectedYear(defaultYear);
+                  setSelectedRegion(isSuperUser ? session.user.region : "all");
                   setSelectedBranch("all");
                   setSelectedUser("all");
                   setSearchQuery("");
@@ -251,8 +251,9 @@ export default function AdminCustomerTable({
                   <Select
                     value={selectedRegion}
                     onValueChange={setSelectedRegion}
+                    disabled={session?.user?.role === "super_user"}
                   >
-                    <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
+                    <SelectTrigger className="w-full bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
                       <SelectValue placeholder="Region" />
                     </SelectTrigger>
                     <SelectContent className="glass-card-static border-white/10">
@@ -277,7 +278,7 @@ export default function AdminCustomerTable({
                     value={selectedBranch}
                     onValueChange={setSelectedBranch}
                   >
-                    <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
+                    <SelectTrigger className="w-full bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
                       <SelectValue placeholder="Branch" />
                     </SelectTrigger>
                     <SelectContent className="glass-card-static border-white/10">
@@ -321,7 +322,7 @@ export default function AdminCustomerTable({
                   Month
                 </span>
                 <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                  <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
+                  <SelectTrigger className="w-full bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
                     <SelectValue placeholder="Month" />
                   </SelectTrigger>
                   <SelectContent className="glass-card-static border-white/10">
@@ -341,7 +342,7 @@ export default function AdminCustomerTable({
                   Year
                 </span>
                 <Select value={selectedYear} onValueChange={setSelectedYear}>
-                  <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
+                  <SelectTrigger className="w-full bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
                     <SelectValue placeholder="Year" />
                   </SelectTrigger>
                   <SelectContent className="glass-card-static border-white/10">

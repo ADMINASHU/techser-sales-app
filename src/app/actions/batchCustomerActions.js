@@ -3,6 +3,8 @@ import dbConnect from "@/lib/db";
 import Entry from "@/models/Entry";
 import { serializeMongoDocument } from "@/lib/formatters";
 
+import { auth } from "@/auth";
+
 /**
  * Batch fetch active entry statuses for multiple customers
  * This replaces the N+1 query pattern in getCustomerActionStatus
@@ -12,6 +14,9 @@ import { serializeMongoDocument } from "@/lib/formatters";
  * @returns {Object} Map of customerId -> activeEntry
  */
 export async function batchGetCustomerActionStatus(customerIds, userId) {
+  const session = await auth();
+  if (!session) return {};
+
   try {
     await dbConnect();
 

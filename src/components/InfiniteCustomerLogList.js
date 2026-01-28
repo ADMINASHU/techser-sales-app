@@ -49,20 +49,21 @@ export default function InfiniteCustomerLogList({
 
         if (newCustomers.length > 0) {
           // For each new customer, we need to fetch their action status
+          // Parallelize fetching action status for new customers
           const newCustomersWithStatus = await Promise.all(
             newCustomers.map(async (customer) => {
               const activeEntry = await getCustomerActionStatus(
                 customer._id,
-                userId
+                userId,
               );
               return { ...customer, activeEntry };
-            })
+            }),
           );
 
           setCustomers((prev) => {
             const existingIds = new Set(prev.map((c) => c._id));
             const uniqueNew = newCustomersWithStatus.filter(
-              (c) => !existingIds.has(c._id)
+              (c) => !existingIds.has(c._id),
             );
             return [...prev, ...uniqueNew];
           });
@@ -85,7 +86,7 @@ export default function InfiniteCustomerLogList({
 
   // Check if any customer is currently stamped in
   const hasActiveStampIn = customers.some(
-    (customer) => customer.activeEntry?.status === "In Process"
+    (customer) => customer.activeEntry?.status === "In Process",
   );
 
   return (

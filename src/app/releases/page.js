@@ -135,7 +135,7 @@ export default async function ReleasesPage() {
 
             return (
               <div
-                key={idx}
+                key={release.version}
                 className="glass-panel rounded-xl border border-white/5 overflow-hidden"
               >
                 {/* Header */}

@@ -18,7 +18,11 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 
-export default function AddCommentButton({ entryId, currentComment = "" }) {
+export default function AddCommentButton({
+  entryId,
+  currentComment = "",
+  onUpdate,
+}) {
   const [open, setOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [comment, setComment] = useState(currentComment);
@@ -38,6 +42,11 @@ export default function AddCommentButton({ entryId, currentComment = "" }) {
         mutate((key) => Array.isArray(key) && key[0] === "entries", undefined, {
           revalidate: true,
         });
+
+        // Optimistic UI Update
+        if (onUpdate) {
+          onUpdate({ _id: entryId, comment });
+        }
       } else {
         toast.error(result.error || "Failed to save comment");
       }

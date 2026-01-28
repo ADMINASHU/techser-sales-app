@@ -67,7 +67,7 @@ export async function subscribeToPushNotifications() {
                 body: JSON.stringify({ token: currentToken })
             });
 
-            console.log("[FCM] Token registered successfully");
+            // console.log("[FCM] Token registered successfully");
             return currentToken;
         } else {
             console.warn("[FCM] No registration token available");
@@ -93,7 +93,7 @@ export function onForegroundMessage(callback) {
     const { onMessage } = require("firebase/messaging");
 
     const unsubscribe = onMessage(messaging, (payload) => {
-        console.log("[FCM] Foreground message received:", payload);
+        // console.log("[FCM] Foreground message received:", payload);
         callback(payload);
     });
 
@@ -128,7 +128,7 @@ export async function unsubscribeFromPushNotifications() {
             const { deleteToken } = await import("firebase/messaging");
             await deleteToken(messaging);
 
-            console.log("[FCM] Token deleted successfully");
+            // console.log("[FCM] Token deleted successfully");
         }
 
         // Unregister service worker
@@ -136,7 +136,7 @@ export async function unsubscribeFromPushNotifications() {
         for (const registration of registrations) {
             if (registration.active?.scriptURL.includes("firebase-messaging-sw")) {
                 await registration.unregister();
-                console.log("[FCM] Service worker unregistered");
+                // console.log("[FCM] Service worker unregistered");
             }
         }
 

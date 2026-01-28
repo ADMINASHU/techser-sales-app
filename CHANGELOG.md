@@ -1,6 +1,29 @@
 # Changelog
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+## [2.6.0](https://github.com/ADMINASHU/techser-sales-app/compare/v2.5.1...v2.6.0) (2026-01-26)
+
+### Features
+
+- Super User Access: Introduced a new high-level account type for complete system oversight and management.
+- New Reports Portal: Launched a dedicated Report page with advanced filtering options and smoother data browsing.
+- Features Showcase: Completely updated the Features page to highlight the new Real-Time Dashboard and Live Visit Verification.
+- Smoother Experience: Improved the Profile and Release pages for a faster, more responsive user experience.
+- Legal Compliance: Updated Privacy Policy and Terms of Service for better clarity and accuracy.
+- Performance Boost: applied general improvements to make the application load faster and run smoother.
+
+### Bug Fixes
+
+- UI Cleanup: Removed the share option to streamline the user interface.
+- Access Update: Enabled the Report page for all users, providing broader access to insights.
+- Super User Control: Added a toggle for Super Users to manually enable or disable entry actions.
+
+### UI Improvements
+
+- Mobile Navigation: Redesigned the Navbar for a cleaner, more intuitive mobile experience.
+- Enhanced Filters: Updated the look and feel of filter selection fields for better readability.
+
 ## [2.5.1](https://github.com/ADMINASHU/techser-sales-app/compare/v2.5.0...v2.5.1) (2026-01-22)
 
 ### Features

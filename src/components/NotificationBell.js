@@ -18,7 +18,7 @@ export default function NotificationBell() {
 
   // Proper way to detect if we're on the client
   const mounted = useSyncExternalStore(
-    () => () => {}, // subscribe: no-op
+    () => () => { }, // subscribe: no-op
     () => true, // getSnapshot: returns true on client
     () => false // getServerSnapshot: returns false on server
   );

@@ -64,6 +64,25 @@ export default function InfiniteEntryList({
     [mutate],
   );
 
+  const handleEntryUpdated = useCallback(
+    async (updatedEntry) => {
+      // Optimistically update the cache bound to this specific list instance
+      await mutate(
+        (currentData) => {
+          if (!currentData) return [];
+          return currentData.map((page) => ({
+            ...page,
+            entries: page.entries.map((e) =>
+              e._id === updatedEntry._id ? { ...e, ...updatedEntry } : e,
+            ),
+          }));
+        },
+        { revalidate: false },
+      );
+    },
+    [mutate],
+  );
+
   const flatEntries = useMemo(
     () => (data ? data.flatMap((page) => page.entries) : []),
     [data],
@@ -106,14 +125,6 @@ export default function InfiniteEntryList({
     setSize(size + 1);
   }, [isLoadingMore, hasMore, setSize, size]);
 
-  const Footer = () => {
-    return showLoadingSpinner ? (
-      <div className="flex justify-center p-4">
-        <Loader2 className="h-6 w-6 animate-spin text-blue-500" />
-      </div>
-    ) : null;
-  };
-
   return (
     <div className="pb-20 h-full min-h-[500px]">
       {/* Entry List (Grid View) */}
@@ -125,6 +136,7 @@ export default function InfiniteEntryList({
             useWindowScroll
             data={groupedEntries}
             endReached={loadMore}
+            context={{ showLoadingSpinner }}
             components={{
               Footer: Footer,
             }}
@@ -143,6 +155,7 @@ export default function InfiniteEntryList({
                         entry={entry}
                         isAdmin={isAdmin}
                         onDelete={handleEntryDeleted}
+                        onUpdate={handleEntryUpdated}
                       />
                     </div>
                   ))}
@@ -189,4 +202,13 @@ function EmptyState() {
       </p>
     </div>
   );
+}
+
+function Footer({ context }) {
+  const { showLoadingSpinner } = context;
+  return showLoadingSpinner ? (
+    <div className="flex justify-center p-4">
+      <Loader2 className="h-6 w-6 animate-spin text-blue-500" />
+    </div>
+  ) : null;
 }

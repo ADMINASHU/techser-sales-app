@@ -81,95 +81,95 @@ const SpecItem = ({ label, value, icon: Icon }) => (
   </div>
 );
 
+const coreFeatures = [
+  {
+    icon: Fingerprint,
+    title: "Smart Attendance",
+    description:
+      "Geofenced check-in/out system with strict Region/Branch access control and real-time IST synchronization.",
+    tags: ["Location Verified", "Region Locked", "Audit Trail"],
+  },
+  {
+    icon: BarChart3,
+    title: "Real-Time Dashboard",
+    description:
+      "Interactive analytics hub featuring revenue tracking, visit statistics, and performance metrics at a glance.",
+    tags: ["Live Stats", "Revenue Charts", "Activity Feed"],
+  },
+  {
+    icon: MapPin,
+    title: "Live Visit Verification",
+    description:
+      "Precise GPS coordinate capture during client visits to ensure authentic field presence and route optimization.",
+    tags: ["GPS Snapshot", "Google Maps", "Anti-Spoofing"],
+  },
+  {
+    icon: Users,
+    title: "Admin Command Center",
+    description:
+      "Comprehensive control over users, roles, and system settings, including granular region and branch management.",
+    tags: ["RBAC", "User Management", "System Config"],
+  },
+  {
+    icon: ShieldCheck,
+    title: "Smart Duplicate Shield",
+    description:
+      "Proximity-based detection system that prevents data redundancy by warning users of existing customers within 50m.",
+    tags: ["50m Radius", "Haversine Algo", "Data Integrity"],
+  },
+  {
+    icon: FileSpreadsheet,
+    title: "Advanced Reporting",
+    description:
+      "Powerful reporting suite with multi-level filtering (Region/Branch/User) and one-click Excel/CSV data exports.",
+    tags: ["Custom Filters", "Excel Export", "Deep Insights"],
+  },
+];
+
+const techSpecs = [
+  {
+    label: "Frontend Framework",
+    value: "Next.js 16",
+    icon: Globe,
+  },
+  {
+    label: "Styling & UI",
+    value: "Tailwind CSS 4, Shadcn UI, Lucide Icons",
+    icon: Layers,
+  },
+  {
+    label: "Primary Database",
+    value: "MongoDB with Mongoose ODM",
+    icon: Database,
+  },
+  {
+    label: "Authentication",
+    value: "NextAuth.js v5 (Beta)",
+    icon: ShieldCheck,
+  },
+  {
+    label: "Notifications",
+    value: "Firebase Cloud Messaging (FCM)",
+    icon: Zap,
+  },
+  { label: "Maps Integration", value: "Google Maps Platform", icon: MapIcon },
+  {
+    label: "PWA Support",
+    value: "Service Workers & Web App Manifest",
+    icon: Smartphone,
+  },
+  {
+    label: "Analytics",
+    value: "Vercel Analytics & Speed Insights",
+    icon: BarChart3,
+  },
+];
+
 export default async function FeaturesPage() {
   const session = await auth();
   if (session?.user?.role !== "admin") {
     redirect("/dashboard");
   }
-
-  const coreFeatures = [
-    {
-      icon: Fingerprint,
-      title: "Smart Attendance (Stamping)",
-      description:
-        "Geofenced check-in/out system with strict Region/Branch access control and real-time IST synchronization.",
-      tags: ["Location Verified", "Region Locked", "Audit Trail"],
-    },
-    {
-      icon: MapPin,
-      title: "Visit Location Verification",
-      description:
-        "Precise GPS coordinate capture during Check-In and Check-Out actions to authenticate field visit locations.",
-      tags: ["Google Maps", "Event-Based", "GPS Snapshot"],
-    },
-    {
-      icon: ShieldCheck,
-      title: "Smart Duplicate Shield",
-      description:
-        "Proximity-based detection system that prevents data redundancy by warning users of existing customers within 50m.",
-      tags: ["50m Radius", "Haversine Algo", "Data Integrity"],
-    },
-    {
-      icon: Users,
-      title: "Admin Command Center",
-      description:
-        "Comprehensive user management, account verification, and system-wide visibility for administrators.",
-      tags: ["RBAC", "User Approval", "Admin Tools"],
-    },
-    {
-      icon: Bell,
-      title: "Push Notifications",
-      description:
-        "Instant alerts via Google FCM for check-ins, check-outs, and critical system updates directly to your device.",
-      tags: ["Firebase FCM", "Real-time", "Push API"],
-    },
-    {
-      icon: FileSpreadsheet,
-      title: "Data Export",
-      description:
-        "Robust data export functionality allowing administrators to download customer and visit logs as Excel/CSV files.",
-      tags: ["Excel Export", "CSV", "Reporting"],
-    },
-  ];
-
-  const techSpecs = [
-    {
-      label: "Frontend Framework",
-      value: "Next.js 16",
-      icon: Globe,
-    },
-    {
-      label: "Styling & UI",
-      value: "Tailwind CSS 4, Shadcn UI, Lucide Icons",
-      icon: Layers,
-    },
-    {
-      label: "Primary Database",
-      value: "MongoDB with Mongoose ODM",
-      icon: Database,
-    },
-    {
-      label: "Authentication",
-      value: "NextAuth.js v5 (Beta)",
-      icon: ShieldCheck,
-    },
-    {
-      label: "Notifications",
-      value: "Firebase Cloud Messaging (FCM)",
-      icon: Zap,
-    },
-    { label: "Maps Integration", value: "Google Maps Platform", icon: MapIcon },
-    {
-      label: "PWA Support",
-      value: "Service Workers & Web App Manifest",
-      icon: Smartphone,
-    },
-    {
-      label: "Analytics",
-      value: "Vercel Analytics & Speed Insights",
-      icon: BarChart3,
-    },
-  ];
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 md:py-16 space-y-16">
@@ -211,7 +211,7 @@ export default async function FeaturesPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {coreFeatures.map((feature, index) => (
             <div
-              key={index}
+              key={feature.title}
               className="animate-in fade-in slide-in-from-bottom-4 duration-500"
               style={{ animationDelay: `${index * 100}ms` }}
             >
@@ -235,8 +235,8 @@ export default async function FeaturesPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {techSpecs.map((spec, index) => (
-              <SpecItem key={index} {...spec} />
+            {techSpecs.map((spec) => (
+              <SpecItem key={spec.label} {...spec} />
             ))}
           </div>
 
@@ -285,7 +285,7 @@ export default async function FeaturesPage() {
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground pt-2">
-                  Automated onboarding flow including profile setup, avatar
+                  Automated onboarding including rich profile setup, avatar
                   upload, and administrative verification for secure access
                   control.
                 </AccordionContent>

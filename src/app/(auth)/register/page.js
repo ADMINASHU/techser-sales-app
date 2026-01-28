@@ -11,6 +11,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Lock, Mail, User, Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
+import { registerSchema } from "@/lib/validations/auth";
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -31,6 +32,24 @@ export default function RegisterPage() {
   const router = useRouter();
 
   async function clientAction(formData) {
+    setError(""); // Clear previous errors
+
+    const rawData = {
+      name: formData.get("name"),
+      email: formData.get("email"),
+      password: formData.get("password"),
+    };
+
+    // Client-side Validation using Zod
+    const validationResult = registerSchema.safeParse(rawData);
+
+    if (!validationResult.success) {
+      const errorMessage = validationResult.error.errors[0].message;
+      setError(errorMessage);
+      toast.error(errorMessage);
+      return;
+    }
+
     const res = await register(formData);
     if (res?.error) {
       setError(res.error);
@@ -109,6 +128,7 @@ export default function RegisterPage() {
                 placeholder="•••••••"
                 className="pl-10 pr-10 h-11 glass-inputs"
                 required
+                minLength={6} // Basic HTML5 backup
               />
               <button
                 type="button"
@@ -122,6 +142,9 @@ export default function RegisterPage() {
                 )}
               </button>
             </div>
+            <p className="text-xs text-gray-500">
+              Must be at least 6 characters
+            </p>
           </div>
 
           {error && (

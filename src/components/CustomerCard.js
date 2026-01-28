@@ -6,50 +6,21 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Phone, User, Trash2, Home, Navigation } from "lucide-react";
 import {
-  deleteCustomer,
   toggleCustomerStatus,
   toggleCustomerShare,
 } from "@/app/actions/customerActions";
 import { toast } from "sonner";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 
 const CustomerCard = memo(function CustomerCard({
   customer,
   isAdmin,
   onEdit,
-  onDelete,
+  onDeleteClick,
 }) {
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isActive, setIsActive] = useState(customer.isActive !== false); // Handle undefined as true
   const [isShared, setIsShared] = useState(customer.isShared || false);
   const [isTogglingStatus, setIsTogglingStatus] = useState(false);
   const [isTogglingShare, setIsTogglingShare] = useState(false);
-
-  const handleDelete = async () => {
-    setIsDeleting(true);
-    const res = await deleteCustomer(customer._id);
-    setIsDeleting(false);
-    setShowDeleteDialog(false);
-    if (res?.error) {
-      toast.error(res.error);
-    } else {
-      toast.success("Customer deleted");
-      // Optimistic UI Update: Use callback if provided
-      if (onDelete) {
-        onDelete(customer._id);
-      }
-    }
-  };
 
   const handleToggleStatus = async (e) => {
     e.stopPropagation(); // Prevent card click
@@ -141,7 +112,7 @@ const CustomerCard = memo(function CustomerCard({
               size="sm"
               onClick={(e) => {
                 e.stopPropagation();
-                setShowDeleteDialog(true);
+                onDeleteClick(customer);
               }}
               className="h-8 w-8 p-0 text-red-400 hover:text-red-300 hover:bg-red-500/10"
               aria-label="Delete customer"
@@ -163,23 +134,20 @@ const CustomerCard = memo(function CustomerCard({
               }}
             >
               <span
-                className={`text-[10px] font-medium whitespace-nowrap ${
-                  isActive ? "text-green-400" : "text-gray-400"
-                }`}
+                className={`text-[10px] font-medium whitespace-nowrap ${isActive ? "text-green-400" : "text-gray-400"
+                  }`}
               >
                 {isActive ? "Active" : "Inactive"}
               </span>
               <div
-                className={`w-7 h-3.5 rounded-full transition-colors ${
-                  isActive ? "bg-green-500/30" : "bg-gray-500/30"
-                }`}
+                className={`w-7 h-3.5 rounded-full transition-colors ${isActive ? "bg-green-500/30" : "bg-gray-500/30"
+                  }`}
               >
                 <div
-                  className={`w-3 h-3 rounded-full transition-all ${
-                    isActive
-                      ? "bg-green-400 translate-x-3.5"
-                      : "bg-gray-400 translate-x-0.5"
-                  }`}
+                  className={`w-3 h-3 rounded-full transition-all ${isActive
+                    ? "bg-green-400 translate-x-3.5"
+                    : "bg-gray-400 translate-x-0.5"
+                    }`}
                 />
               </div>
             </div>
@@ -198,23 +166,20 @@ const CustomerCard = memo(function CustomerCard({
               }}
             >
               <span
-                className={`text-[10px] font-medium whitespace-nowrap ${
-                  isShared ? "text-blue-400" : "text-gray-400"
-                }`}
+                className={`text-[10px] font-medium whitespace-nowrap ${isShared ? "text-blue-400" : "text-gray-400"
+                  }`}
               >
                 {isShared ? "Shared" : "Private"}
               </span>
               <div
-                className={`w-7 h-3.5 rounded-full transition-colors ${
-                  isShared ? "bg-blue-500/30" : "bg-gray-500/30"
-                }`}
+                className={`w-7 h-3.5 rounded-full transition-colors ${isShared ? "bg-blue-500/30" : "bg-gray-500/30"
+                  }`}
               >
                 <div
-                  className={`w-3 h-3 rounded-full transition-all ${
-                    isShared
-                      ? "bg-blue-400 translate-x-3.5"
-                      : "bg-gray-400 translate-x-0.5"
-                  }`}
+                  className={`w-3 h-3 rounded-full transition-all ${isShared
+                    ? "bg-blue-400 translate-x-3.5"
+                    : "bg-gray-400 translate-x-0.5"
+                    }`}
                 />
               </div>
             </div>
@@ -239,30 +204,6 @@ const CustomerCard = memo(function CustomerCard({
           )}
         </div>
       </div>
-
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent className="glass-card border-white/10">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-400">
-              This will permanently delete the customer &quot;{customer.name}
-              &quot;. This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="bg-white/5 border-white/10 text-white hover:bg-white/10">
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              className="bg-red-600 hover:bg-red-700 text-white border-0"
-              disabled={isDeleting}
-            >
-              {isDeleting ? "Deleting..." : "Delete Customer"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   );
 });

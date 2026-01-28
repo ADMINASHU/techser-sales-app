@@ -1,6 +1,7 @@
 import { memo } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { formatRole } from "@/lib/formatters";
 
 const UserCard = memo(function UserCard({
   user,
@@ -42,7 +43,7 @@ const UserCard = memo(function UserCard({
               : "bg-blue-500/20 text-blue-300"
           }`}
         >
-          {user.role}
+          {formatRole(user.role)}
         </Badge>
       </div>
 
