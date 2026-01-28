@@ -6,6 +6,19 @@ export default async function EntryListContainer({ searchParams, session }) {
   await dbConnect();
 
   const params = await searchParams;
+
+  // Default to current month/year if not specified (Matching Client-side EntryFilters defaults)
+  if (
+    !params.year &&
+    !params.month &&
+    !params.user &&
+    !params.region &&
+    !params.search
+  ) {
+    const now = new Date();
+    params.year = now.getFullYear().toString();
+    params.month = now.getMonth().toString();
+  }
   const page = parseInt(params.page) || 1;
 
   // Reduced from 18 to 12 for better mobile performance

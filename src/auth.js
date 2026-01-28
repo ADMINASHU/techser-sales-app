@@ -67,6 +67,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             contactNumber: user.contactNumber,
             address: user.address,
             enableStamping: user.enableStamping,
+            designation: user.designation,
           };
         } catch (error) {
           //   console.error("Auth error:", error);
@@ -113,6 +114,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             token.contactNumber = dbUser.contactNumber;
             token.address = dbUser.address;
             token.enableStamping = !!dbUser.enableStamping;
+            token.designation = dbUser.designation;
 
             // Only set image URL if user has an image
             token.image = hasImage
@@ -131,6 +133,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           token.address = user.address;
           token.image = user.image; // Already set to URL in authorize()
           token.enableStamping = !!user.enableStamping;
+          token.designation = user.designation;
         }
       }
 
@@ -144,6 +147,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (session.address) token.address = session.address;
         if (typeof session.enableStamping !== "undefined")
           token.enableStamping = session.enableStamping;
+        if (session.designation) token.designation = session.designation;
 
         if (session.image) {
           token.image = session.image.startsWith("data:image")
@@ -158,7 +162,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         try {
           await dbConnect();
           const dbUser = await User.findById(token.id).select(
-            "role status region branch contactNumber address image enableStamping",
+            "role status region branch contactNumber address image enableStamping designation",
           );
           if (dbUser) {
             token.role = dbUser.role;
@@ -168,6 +172,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             token.contactNumber = dbUser.contactNumber;
             token.address = dbUser.address;
             token.enableStamping = !!dbUser.enableStamping;
+            token.designation = dbUser.designation;
           }
         } catch (error) {
           // console.error("Error refreshing token data:", error);
@@ -187,6 +192,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.address = token.address;
         session.user.image = token.image;
         session.user.enableStamping = !!token.enableStamping;
+        session.user.designation = token.designation;
       }
       return session;
     },

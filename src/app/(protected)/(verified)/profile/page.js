@@ -268,7 +268,11 @@ export default async function ProfilePage() {
                     variant="outline"
                     className={`uppercase tracking-wider px-2 py-0.5 w-fit text-[10px] md:text-xs ${user.role === "admin" ? "bg-violet-500/20 text-violet-300 border-violet-500/30" : "bg-blue-500/20 text-blue-300 border-blue-500/30"}`}
                   >
-                    {user.role === "admin" ? "Administrator" : "User Account"}
+                    {user.role === "admin"
+                      ? "Administrator"
+                      : user.role === "super_user"
+                        ? "Super User"
+                        : "Standard User"}
                   </Badge>
                 </div>
                 <div>

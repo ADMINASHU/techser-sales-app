@@ -64,6 +64,25 @@ export default function InfiniteEntryList({
     [mutate],
   );
 
+  const handleEntryUpdated = useCallback(
+    async (updatedEntry) => {
+      // Optimistically update the cache bound to this specific list instance
+      await mutate(
+        (currentData) => {
+          if (!currentData) return [];
+          return currentData.map((page) => ({
+            ...page,
+            entries: page.entries.map((e) =>
+              e._id === updatedEntry._id ? { ...e, ...updatedEntry } : e,
+            ),
+          }));
+        },
+        { revalidate: false },
+      );
+    },
+    [mutate],
+  );
+
   const flatEntries = useMemo(
     () => (data ? data.flatMap((page) => page.entries) : []),
     [data],
@@ -143,6 +162,7 @@ export default function InfiniteEntryList({
                         entry={entry}
                         isAdmin={isAdmin}
                         onDelete={handleEntryDeleted}
+                        onUpdate={handleEntryUpdated}
                       />
                     </div>
                   ))}

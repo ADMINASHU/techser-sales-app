@@ -67,6 +67,8 @@ export default async function AdminCustomersPage() {
           locations={cleanFilters}
           isRestricted={!isAdminOrSuper}
           session={session}
+          defaultMonth={now.getMonth().toString()}
+          defaultYear={now.getFullYear().toString()}
         />
       </Suspense>
     </div>

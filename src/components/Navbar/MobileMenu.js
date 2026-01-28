@@ -4,7 +4,6 @@ import Link from "next/link";
 import { clsx } from "clsx";
 import { X, LogOut, User, UserCog } from "lucide-react";
 
-
 export function MobileMenu({
   isOpen,
   onClose,
@@ -34,15 +33,27 @@ export function MobileMenu({
           {/* Header */}
           <div className="p-6 flex items-center justify-between border-b border-white/5">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-full bg-linear-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center text-white font-bold text-lg">
-                {session?.user?.name?.[0] || "U"}
-              </div>
+              {session?.user?.image ? (
+                <div className="relative w-10 h-10 rounded-full overflow-hidden border border-white/10">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={session.user.image}
+                    alt={session.user.name}
+                    className="object-cover w-full h-full"
+                  />
+                </div>
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-linear-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center text-white font-bold text-lg">
+                  {session?.user?.name?.[0] || "U"}
+                </div>
+              )}
               <div className="flex flex-col">
                 <span className="text-white font-semibold truncate max-w-[150px]">
                   {session?.user?.name}
                 </span>
                 <span className="text-xs text-gray-500 uppercase tracking-wider">
-                  {session?.user?.role?.replace("_", " ")}
+                  {session?.user?.designation ||
+                    session?.user?.role?.replace("_", " ")}
                 </span>
               </div>
             </div>
@@ -91,8 +102,6 @@ export function MobileMenu({
               </div>
               <span className="font-medium">Profile</span>
             </Link>
-
-
 
             <button
               onClick={onLogout}

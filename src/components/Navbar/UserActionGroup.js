@@ -39,10 +39,10 @@ export function UserActionGroup({ session, onLogout, loggingOut, mounted }) {
                 <AvatarFallback className="bg-linear-to-br from-violet-500 to-fuchsia-500 text-white font-bold">
                   {session.user.name
                     ? session.user.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")
-                      .slice(0, 2)
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")
+                        .slice(0, 2)
                     : "U"}
                 </AvatarFallback>
               </Avatar>
@@ -59,10 +59,10 @@ export function UserActionGroup({ session, onLogout, loggingOut, mounted }) {
                 <AvatarFallback className="bg-linear-to-br from-violet-500 to-fuchsia-500 text-white text-xs font-bold">
                   {session.user.name
                     ? session.user.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")
-                      .slice(0, 2)
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")
+                        .slice(0, 2)
                     : "U"}
                 </AvatarFallback>
               </Avatar>
@@ -71,11 +71,11 @@ export function UserActionGroup({ session, onLogout, loggingOut, mounted }) {
                   {session.user.name}
                 </span>
                 <span className="text-xs text-gray-400 truncate">
-                  {session.user.email}
+                  {session.user.designation ||
+                    session?.user?.role?.replace("_", " ")}
                 </span>
               </div>
             </div>
-
 
             <DropdownMenuSeparator className="bg-white/5" />
 
@@ -90,27 +90,15 @@ export function UserActionGroup({ session, onLogout, loggingOut, mounted }) {
 
             {(session.user.role === "admin" ||
               session.user.role === "super_user") && (
-                <Link href="/users" className="block">
-                  <DropdownMenuItem className="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-md cursor-pointer transition-all group">
-                    <div className="p-1.5 rounded-md bg-white/5 group-hover:bg-blue-500/10 group-hover:text-blue-400 transition-colors">
-                      <UserCog className="h-4 w-4" />
-                    </div>
-                    Users
-                  </DropdownMenuItem>
-                </Link>
-              )}
-
-            {(session.user.role === "admin" ||
-              session.user.role === "super_user") && (
-                <Link href="/settings" className="block">
-                  <DropdownMenuItem className="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-md cursor-pointer transition-all group">
-                    <div className="p-1.5 rounded-md bg-white/5 group-hover:bg-violet-500/10 group-hover:text-violet-400 transition-colors">
-                      <SettingsIcon className="h-4 w-4" />
-                    </div>
-                    Settings
-                  </DropdownMenuItem>
-                </Link>
-              )}
+              <Link href="/settings" className="block">
+                <DropdownMenuItem className="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-md cursor-pointer transition-all group">
+                  <div className="p-1.5 rounded-md bg-white/5 group-hover:bg-violet-500/10 group-hover:text-violet-400 transition-colors">
+                    <SettingsIcon className="h-4 w-4" />
+                  </div>
+                  Settings
+                </DropdownMenuItem>
+              </Link>
+            )}
 
             <DropdownMenuSeparator className="bg-white/5" />
 
@@ -139,10 +127,10 @@ export function UserActionGroup({ session, onLogout, loggingOut, mounted }) {
             <AvatarFallback className="bg-linear-to-br from-violet-500 to-fuchsia-500 text-white font-bold">
               {session.user.name
                 ? session.user.name
-                  .split(" ")
-                  .map((n) => n[0])
-                  .join("")
-                  .slice(0, 2)
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                    .slice(0, 2)
                 : "U"}
             </AvatarFallback>
           </Avatar>

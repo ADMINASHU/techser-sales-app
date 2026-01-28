@@ -155,7 +155,7 @@ export default function EntryFilters({
 
   // Proper way to detect if we're on the client
   const mounted = useSyncExternalStore(
-    () => () => { }, // subscribe: no-op
+    () => () => {}, // subscribe: no-op
     () => true, // getSnapshot: returns true on client
     () => false, // getServerSnapshot: returns false on server
   );
@@ -209,7 +209,7 @@ export default function EntryFilters({
                   value={selectedStatus}
                   onValueChange={handleStatusChange}
                 >
-                  <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
+                  <SelectTrigger className="w-full bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
                     <SelectValue placeholder="Status" />
                   </SelectTrigger>
                   <SelectContent className="glass-card border-white/10">
@@ -232,7 +232,7 @@ export default function EntryFilters({
                     Account
                   </span>
                   <Select value={selectedUser} onValueChange={handleUserChange}>
-                    <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
+                    <SelectTrigger className="w-full bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
                       <SelectValue placeholder="User" />
                     </SelectTrigger>
                     <SelectContent className="glass-card border-white/10">
@@ -269,7 +269,7 @@ export default function EntryFilters({
                     onValueChange={handleRegionChange}
                     disabled={session?.user?.role === "super_user"}
                   >
-                    <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
+                    <SelectTrigger className="w-full bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
                       <SelectValue placeholder="Region" />
                     </SelectTrigger>
                     <SelectContent className="glass-card border-white/10">
@@ -291,7 +291,7 @@ export default function EntryFilters({
                     value={selectedBranch}
                     onValueChange={handleBranchChange}
                   >
-                    <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
+                    <SelectTrigger className="w-full bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
                       <SelectValue placeholder="Branch" />
                     </SelectTrigger>
                     <SelectContent className="glass-card border-white/10">
@@ -313,7 +313,7 @@ export default function EntryFilters({
                 Month
               </span>
               <Select value={selectedMonth} onValueChange={handleMonthChange}>
-                <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
+                <SelectTrigger className="w-full bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
                   <SelectValue placeholder="Month" />
                 </SelectTrigger>
                 <SelectContent className="glass-card border-white/10">
@@ -333,7 +333,7 @@ export default function EntryFilters({
                 Year
               </span>
               <Select value={selectedYear} onValueChange={handleYearChange}>
-                <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
+                <SelectTrigger className="w-full bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10 px-2 text-xs">
                   <SelectValue placeholder="Year" />
                 </SelectTrigger>
                 <SelectContent className="glass-card border-white/10">
@@ -349,7 +349,7 @@ export default function EntryFilters({
 
             {/* Search - Full width on mobile */}
             {showSearch && (
-              <div className="space-y-1.5 relative group">
+              <div className="space-y-1.5 relative group col-span-3 md:col-span-2 lg:col-span-4">
                 <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">
                   Search
                 </span>

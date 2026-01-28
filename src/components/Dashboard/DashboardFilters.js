@@ -128,7 +128,7 @@ function FilterSelect({ label, value, onValueChange, items, disabled }) {
         {label}
       </span>
       <Select value={value} onValueChange={onValueChange} disabled={disabled}>
-        <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10">
+        <SelectTrigger className="w-full bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10">
           <SelectValue placeholder={label} />
         </SelectTrigger>
         <SelectContent className="glass-card border-white/10">

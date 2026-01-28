@@ -11,7 +11,12 @@ import EntryDetailsModal from "@/components/EntryDetailsModal";
 import { useSession } from "next-auth/react";
 import { ShieldAlert, MapPin, MessageSquare, Clock } from "lucide-react";
 
-const EntryCard = memo(function EntryCard({ entry, isAdmin, onDelete }) {
+const EntryCard = memo(function EntryCard({
+  entry,
+  isAdmin,
+  onDelete,
+  onUpdate,
+}) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { data: session } = useSession();
 
@@ -221,6 +226,7 @@ const EntryCard = memo(function EntryCard({ entry, isAdmin, onDelete }) {
                   <AddCommentButton
                     entryId={entry._id.toString()}
                     currentComment={entry.comment || ""}
+                    onUpdate={onUpdate}
                   />
                   <DeleteEntryButton
                     entryId={entry._id.toString()}

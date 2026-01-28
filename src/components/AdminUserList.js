@@ -225,7 +225,7 @@ export default function AdminUserList({
                     currentUserRegion && session?.user?.role === "super_user"
                   }
                 >
-                  <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10">
+                  <SelectTrigger className="w-full bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10">
                     <SelectValue placeholder="Region" />
                   </SelectTrigger>
                   <SelectContent className="glass-card border-white/10">
@@ -250,7 +250,7 @@ export default function AdminUserList({
                     updateFilters("branch", val);
                   }}
                 >
-                  <SelectTrigger className="bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10">
+                  <SelectTrigger className="w-full bg-white/5 border-white/10 text-gray-300 focus:ring-1 focus:ring-blue-500/50 h-10">
                     <SelectValue placeholder="Branch" />
                   </SelectTrigger>
                   <SelectContent className="glass-card border-white/10">

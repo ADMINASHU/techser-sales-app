@@ -92,7 +92,7 @@ export default function UserProfileModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="bg-card border-white/10 text-white sm:max-w-2xl p-0 overflow-hidden gap-0"
+        className="bg-card border-white/10 text-white sm:max-w-3xl p-0 overflow-hidden gap-0"
         showCloseButton={false}
       >
         <DialogTitle className="sr-only">User Details</DialogTitle>
@@ -205,9 +205,9 @@ export default function UserProfileModal({
 
             {/* Action Buttons Footer */}
             {showActions && canManagePrivileges && (
-              <div className="p-6 pt-2 mt-auto border-t border-white/5 flex flex-wrap items-center gap-3 justify-end">
+              <div className="p-4 sm:p-6 pt-2 mt-auto border-t border-white/5 flex flex-wrap items-center gap-2 sm:gap-3 justify-end">
                 {/* Role Selection Dropdown */}
-                <div className="mr-auto">
+                <div>
                   <Select
                     value={user.role}
                     onValueChange={(val) =>
@@ -237,11 +237,11 @@ export default function UserProfileModal({
                     className="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20"
                   >
                     {isLoading ? (
-                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      <Loader2 className="w-4 h-4 animate-spin sm:mr-2" />
                     ) : (
-                      <Check className="w-4 h-4 mr-2" />
+                      <Check className="w-4 h-4 sm:mr-2" />
                     )}
-                    Verify User
+                    <span className="hidden sm:inline">Verify User</span>
                   </Button>
                 )}
 
@@ -252,11 +252,11 @@ export default function UserProfileModal({
                     className="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20"
                   >
                     {isLoading ? (
-                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      <Loader2 className="w-4 h-4 animate-spin sm:mr-2" />
                     ) : (
-                      <X className="w-4 h-4 mr-2" />
+                      <X className="w-4 h-4 sm:mr-2" />
                     )}
-                    Decline User
+                    <span className="hidden sm:inline">Decline User</span>
                   </Button>
                 )}
               </div>

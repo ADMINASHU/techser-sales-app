@@ -8,7 +8,7 @@ export function NavLinks({ links, pathname }) {
     <div className="hidden md:flex items-center justify-center">
       <div className="bg-white/5 border border-white/5 rounded-full px-1.5 py-1.5 flex space-x-1 shadow-inner backdrop-blur-md">
         {links
-          .filter((link) => link.href !== "/settings" && link.href !== "/users")
+          .filter((link) => link.href !== "/settings")
           .map((link) => (
             <Link
               key={link.href}
