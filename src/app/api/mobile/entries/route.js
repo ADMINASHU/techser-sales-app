@@ -161,6 +161,7 @@ async function notifySupervisors(action, entry, actor) {
         notification: {
           title: `${titlePrefix}: ${action}`,
           body: `${actor.name} ${action} for ${entry.customerName}`,
+          tag: `entry-${entry._id}-${action}`,
         },
         data: {
           link: `/entries/${entry._id}`,
