@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useDebouncedCallback } from "use-debounce";
 import { useInView } from "react-intersection-observer";
@@ -148,7 +148,7 @@ export default function AdminUserList({
   }, [inView, hasMore, loading, loadMore]);
 
   // Derived branches
-  const getAvailableBranches = () => {
+  const availableBranches = useMemo(() => {
     if (!region || region === "all") {
       const allBranches = new Set();
       locations.forEach((loc) => {
@@ -159,9 +159,7 @@ export default function AdminUserList({
       const loc = locations.find((l) => l.name === region);
       return loc ? loc.branches.sort() : [];
     }
-  };
-
-  const availableBranches = getAvailableBranches();
+  }, [locations, region]);
 
   return (
     <div className="space-y-6">

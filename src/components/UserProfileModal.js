@@ -70,18 +70,6 @@ export default function UserProfileModal({
     }
   };
 
-  const DetailItem = ({ label, value, icon: Icon, fullWidth = false }) => (
-    <div className={`${fullWidth ? "col-span-2" : "col-span-1"} space-y-1.5`}>
-      <div className="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-        {Icon && <Icon className="w-3.5 h-3.5" />}
-        {label}
-      </div>
-      <div className="text-sm font-medium text-gray-200 wrap-break-word pl-5.5">
-        {value}
-      </div>
-    </div>
-  );
-
   const initials = user.name
     ?.split(" ")
     .map((n) => n[0])
@@ -280,3 +268,15 @@ export default function UserProfileModal({
     </Dialog>
   );
 }
+
+const DetailItem = ({ label, value, icon: Icon, fullWidth = false }) => (
+  <div className={`${fullWidth ? "col-span-2" : "col-span-1"} space-y-1.5`}>
+    <div className="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+      {Icon && <Icon className="w-3.5 h-3.5" />}
+      {label}
+    </div>
+    <div className="text-sm font-medium text-gray-200 wrap-break-word pl-5.5">
+      {value}
+    </div>
+  </div>
+);
