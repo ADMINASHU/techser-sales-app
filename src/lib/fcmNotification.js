@@ -1,25 +1,27 @@
 // Server-side FCM notification utility using Firebase Admin SDK
-import admin from 'firebase-admin';
+import admin from "firebase-admin";
 
 // Initialize Firebase Admin SDK
 let adminApp;
 
 try {
-    if (!admin.apps.length) {
-        const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+  if (!admin.apps.length) {
+    const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
 
-        if (serviceAccount) {
-            adminApp = admin.initializeApp({
-                credential: admin.credential.cert(JSON.parse(serviceAccount))
-            });
-        } else {
-            console.warn("[FCM] Firebase Admin SDK not initialized: FIREBASE_SERVICE_ACCOUNT_KEY missing");
-        }
+    if (serviceAccount) {
+      adminApp = admin.initializeApp({
+        credential: admin.credential.cert(JSON.parse(serviceAccount)),
+      });
     } else {
-        adminApp = admin.app();
+      console.warn(
+        "[FCM] Firebase Admin SDK not initialized: FIREBASE_SERVICE_ACCOUNT_KEY missing",
+      );
     }
+  } else {
+    adminApp = admin.app();
+  }
 } catch (error) {
-    console.error("[FCM] Failed to initialize Firebase Admin SDK:", error);
+  console.error("[FCM] Failed to initialize Firebase Admin SDK:", error);
 }
 
 /**
@@ -33,81 +35,85 @@ try {
  * @returns {Promise<Object>} - Result with success/failure counts
  */
 export async function sendFCMNotification({ tokens, notification, data = {} }) {
-    if (!adminApp) {
-        console.warn("[FCM] Skipping notification: Firebase Admin SDK not initialized");
-        return { success: false, error: "Firebase Admin not initialized" };
-    }
+  if (!adminApp) {
+    console.warn(
+      "[FCM] Skipping notification: Firebase Admin SDK not initialized",
+    );
+    return { success: false, error: "Firebase Admin not initialized" };
+  }
 
-    if (!tokens || tokens.length === 0) {
-        console.warn("[FCM] No tokens provided for notification");
-        return { success: false, error: "No FCM tokens provided" };
-    }
+  if (!tokens || tokens.length === 0) {
+    console.warn("[FCM] No tokens provided for notification");
+    return { success: false, error: "No FCM tokens provided" };
+  }
 
-    try {
+  try {
+    const message = {
+      notification: {
+        title: notification.title,
+        body: notification.body,
+        // Add icon and tag for PWA/Android
+        icon: "/icon-192x192.png",
+        tag: notification.tag, // Collapse key
+      },
+      data: {
+        ...data,
+        // Add timestamp for client-side handling
+        timestamp: new Date().toISOString(),
+      },
+      // Android specific options
+      android: {
+        priority: "high",
+        notification: {
+          sound: "default",
+          clickAction: "FLUTTER_NOTIFICATION_CLICK",
+        },
+      },
+      // iOS specific options
+      apns: {
+        payload: {
+          aps: {
+            sound: "default",
+            badge: 1,
+          },
+        },
+      },
+    };
 
-        const message = {
-            notification: {
-                title: notification.title,
-                body: notification.body,
-            },
-            data: {
-                ...data,
-                // Add timestamp for client-side handling
-                timestamp: new Date().toISOString(),
-            },
-            // Android specific options
-            android: {
-                priority: 'high',
-                notification: {
-                    sound: 'default',
-                    clickAction: 'FLUTTER_NOTIFICATION_CLICK',
-                }
-            },
-            // iOS specific options
-            apns: {
-                payload: {
-                    aps: {
-                        sound: 'default',
-                        badge: 1,
-                    }
-                }
-            }
-        };
+    // Send to multiple tokens
+    const response = await admin.messaging().sendEachForMulticast({
+      tokens,
+      ...message,
+    });
 
-        // Send to multiple tokens
-        const response = await admin.messaging().sendEachForMulticast({
-            tokens,
-            ...message
-        });
+    // Collect invalid/expired tokens for cleanup
+    const invalidTokens = [];
+    response.responses.forEach((resp, idx) => {
+      if (!resp.success) {
+        const errorCode = resp.error?.code;
 
-        // Collect invalid/expired tokens for cleanup
-        const invalidTokens = [];
-        response.responses.forEach((resp, idx) => {
-            if (!resp.success) {
-                const errorCode = resp.error?.code;
+        // These error codes indicate the token is invalid and should be removed
+        if (
+          errorCode === "messaging/registration-token-not-registered" ||
+          errorCode === "messaging/invalid-registration-token" ||
+          errorCode === "messaging/invalid-argument"
+        ) {
+          invalidTokens.push(tokens[idx]);
+        }
+      }
+    });
 
-
-                // These error codes indicate the token is invalid and should be removed
-                if (errorCode === 'messaging/registration-token-not-registered' ||
-                    errorCode === 'messaging/invalid-registration-token' ||
-                    errorCode === 'messaging/invalid-argument') {
-                    invalidTokens.push(tokens[idx]);
-                }
-            }
-        });
-
-
-        return {
-            success: true,
-            successCount: response.successCount,
-            failureCount: response.failureCount,
-            responses: response.responses,
-            invalidTokens // Return for cleanup by caller
-        };
-    } catch (error) {
-        console.error("[FCM] Error sending notification:", error);
-        return { success: false, error: error.message, invalidTokens: [] };
-    }
+    return {
+      success: true,
+      successCount: response.successCount,
+      failureCount: response.failureCount,
+      responses: response.responses,
+      invalidTokens, // Return for cleanup by caller
+    };
+  } catch (error) {
+    console.error("[FCM] Error sending notification:", error);
+    return { success: false, error: error.message, invalidTokens: [] };
+  }
 }
 
 /**
@@ -119,58 +125,74 @@ export async function sendFCMNotification({ tokens, notification, data = {} }) {
  * @param {boolean} params.saveToDb - Whether to save notification to database (default: true)
  * @returns {Promise<Object>} - Result with success/failure counts
  */
-export async function sendNotificationToUsers({ userIds, notification, data = {}, saveToDb = true }) {
-    try {
-        // Import models dynamically to avoid circular dependencies
-        const { default: User } = await import('@/models/User');
-        const { default: Notification } = await import('@/models/Notification');
+export async function sendNotificationToUsers({
+  userIds,
+  notification,
+  data = {},
+  saveToDb = true,
+}) {
+  try {
+    // Import models dynamically to avoid circular dependencies
+    const { default: User } = await import("@/models/User");
+    const { default: Notification } = await import("@/models/Notification");
 
-        // Fetch users and get their FCM tokens
-        const users = await User.find({ _id: { $in: userIds } }, 'fcmTokens').lean();
+    // Fetch users and get their FCM tokens
+    const users = await User.find(
+      { _id: { $in: userIds } },
+      "fcmTokens",
+    ).lean();
 
-        // Flatten all FCM tokens from all users
-        const tokens = users.reduce((acc, user) => {
-            if (user.fcmTokens && user.fcmTokens.length > 0) {
-                acc.push(...user.fcmTokens);
-            }
-            return acc;
-        }, []);
+    // Flatten all FCM tokens from all users
+    const tokens = users.reduce((acc, user) => {
+      if (user.fcmTokens && user.fcmTokens.length > 0) {
+        acc.push(...user.fcmTokens);
+      }
+      return acc;
+    }, []);
 
+    // Deduplicate tokens
+    const uniqueTokens = [...new Set(tokens)];
 
-        // Save notification to database for each user
-        if (saveToDb) {
-            const notificationDocs = userIds.map(userId => ({
-                userId,
-                title: notification.title,
-                body: notification.body,
-                data: data,
-                link: data?.link || null,
-                read: false
-            }));
+    // Save notification to database for each user
+    if (saveToDb) {
+      const notificationDocs = userIds.map((userId) => ({
+        userId,
+        title: notification.title,
+        body: notification.body,
+        data: data,
+        link: data?.link || null,
+        read: false,
+      }));
 
-            await Notification.insertMany(notificationDocs);
-        }
-
-        // Send FCM notification
-        if (tokens.length === 0) {
-            return { success: true, successCount: 0, failureCount: 0, message: "No FCM tokens available" };
-        }
-
-        const result = await sendFCMNotification({ tokens, notification, data });
-
-        // Clean up invalid tokens from database
-        if (result.invalidTokens && result.invalidTokens.length > 0) {
-
-            await User.updateMany(
-                { _id: { $in: userIds } },
-                { $pull: { fcmTokens: { $in: result.invalidTokens } } }
-            );
-
-        }
-
-        return result;
-    } catch (error) {
-     
-        return { success: false, error: error.message };
+      await Notification.insertMany(notificationDocs);
     }
+
+    // Send FCM notification
+    if (uniqueTokens.length === 0) {
+      return {
+        success: true,
+        successCount: 0,
+        failureCount: 0,
+        message: "No FCM tokens available",
+      };
+    }
+
+    const result = await sendFCMNotification({
+      tokens: uniqueTokens,
+      notification,
+      data,
+    });
+
+    // Clean up invalid tokens from database
+    if (result.invalidTokens && result.invalidTokens.length > 0) {
+      await User.updateMany(
+        { _id: { $in: userIds } },
+        { $pull: { fcmTokens: { $in: result.invalidTokens } } },
+      );
+    }
+
+    return result;
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
 }
