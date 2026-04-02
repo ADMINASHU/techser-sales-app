@@ -20,7 +20,7 @@ export default function AuthLayout({ children }) {
               width={100}
               height={20}
               className="h-5 w-auto object-contain opacity-80"
-              style={{ width: "auto" }}
+              style={{ width: "auto", height: "20px" }}
               unoptimized
             />
             <span className="hidden md:inline text-gray-600">|</span>

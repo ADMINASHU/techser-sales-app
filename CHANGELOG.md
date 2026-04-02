@@ -1,6 +1,18 @@
-# Changelog
+## [2.7.0](https://github.com/ADMINASHU/techser-sales-app/compare/v2.6.0...v2.7.0) (2026-04-02)
 
-All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+### Features
+- Stamping Optimization: Optimized stamping process to reduce geolocation timeout and improve response times for high-concurrency.
+- Performance Overhaul: Global implementation of `.lean()` queries reducing database memory footprint and improving response times for high-concurrency.
+- Hardened Notifications: Enhanced FCM engine with global token self-healing and improved background synchronization.
+- Framework Modernization: Upgraded to Next.js 16.2.2 and React 19.2.1 for improved build stability and Turbopack performance.
+- Security Audit: Patched 12+ security vulnerabilities and implemented strict dependency overrides (vulnerability mitigation).
+
+### Bug Fixes
+
+- Accessibility: Resolved global Dialog and AlertDialog accessibility warnings (screen reader support).
+- Deprecation Fixes: Modernized all `revalidateTag` usage to resolve Next.js 16 deprecation warnings.
+- UI Polish: Fixed logo image aspect ratio warnings and stabilized layout shifts across all authentication and navigation components.
+- Atomic Operations: Refactored critical state updates to atomic MongoDB operations to prevent race conditions.
 
 ## [2.6.0](https://github.com/ADMINASHU/techser-sales-app/compare/v2.5.1...v2.6.0) (2026-01-26)
 

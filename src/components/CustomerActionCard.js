@@ -74,10 +74,13 @@ export default function CustomerActionCard({
       return;
     }
 
+    // Show initial feedback
+    const locationToastId = toast.loading("Fetching high-accuracy location...");
+
     // We use check logic inside geolocation to catch denial
     navigator.geolocation.getCurrentPosition(
       async (position) => {
-        // ... existing success logic ...
+        toast.dismiss(locationToastId);
         const { latitude, longitude } = position.coords;
         const location = {
           lat: latitude,
@@ -111,16 +114,30 @@ export default function CustomerActionCard({
         }
       },
       (error) => {
-        console.error(error);
+        toast.dismiss(locationToastId);
+        console.error("Geolocation Error:", error);
+        
         if (error.code === error.PERMISSION_DENIED) {
-          // If location denied, show the modal to help them enable it
           setPendingAction(type);
           setShowPermissionModal(true);
+        } else if (error.code === error.TIMEOUT) {
+          toast.error("Location request timed out. Please check your GPS signal and try again (open skies help).", {
+            duration: 5000,
+          });
+        } else if (error.code === error.POSITION_UNAVAILABLE) {
+          toast.error("Location information is unavailable. Please check your network/GPS connection.", {
+            duration: 5000,
+          });
         } else {
-          toast.error("Unable to retrieve your location");
+          toast.error("Unable to retrieve your location. Please ensure GPS is enabled.");
         }
         setLoading(false);
       },
+      { 
+        enableHighAccuracy: true, 
+        timeout: 15000, 
+        maximumAge: 0 
+      }
     );
   };
 

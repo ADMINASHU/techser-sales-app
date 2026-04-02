@@ -19,7 +19,7 @@ export async function deleteEntry(entryId) {
     await dbConnect();
 
     // Optional: Ensure the user actually owns the entry being deleted
-    const entry = await Entry.findById(entryId);
+    const entry = await Entry.findById(entryId).lean();
     if (!entry) return { error: "Entry not found" };
 
     if (entry.userId.toString() !== session.user.id) {
@@ -34,7 +34,7 @@ export async function deleteEntry(entryId) {
     }
 
     await Entry.findByIdAndDelete(entryId);
-    revalidateTag("entries"); // Invalidate cache
+    revalidateTag("entries", "max"); // Invalidate cache
     revalidatePath("/entries");
     revalidatePath("/dashboard");
     return { success: true };
@@ -56,7 +56,7 @@ export async function updateEntryComment(entryId, comment) {
     await dbConnect();
 
     // Ensure the user owns the entry
-    const entry = await Entry.findById(entryId);
+    const entry = await Entry.findById(entryId).lean();
     if (!entry) return { error: "Entry not found" };
 
     if (entry.userId.toString() !== session.user.id) {
@@ -66,7 +66,7 @@ export async function updateEntryComment(entryId, comment) {
     // Update the entry with the new comment
     await Entry.findByIdAndUpdate(entryId, { comment: comment || "" });
 
-    revalidateTag("entries"); // Invalidate cache
+    revalidateTag("entries", "max"); // Invalidate cache
     revalidatePath("/entries");
     revalidatePath("/dashboard");
     return { success: true };

@@ -26,7 +26,9 @@ async function notifySupervisors(action, targetUser, adminName) {
     let recipients = await User.find({
       role: "super_user",
       region: targetUser.region,
-    }).select("_id");
+    })
+      .select("_id")
+      .lean();
 
     let recipientIds = recipients.map((r) => r._id.toString());
     let titlePrefix = "Regional Update";
@@ -36,13 +38,15 @@ async function notifySupervisors(action, targetUser, adminName) {
       recipients = await User.find({
         role: "admin",
         region: targetUser.region,
-      }).select("_id");
+      })
+        .select("_id")
+        .lean();
       recipientIds = recipients.map((r) => r._id.toString());
     }
 
     // 3. Final Fallback to all Administrators
     if (recipientIds.length === 0) {
-      recipients = await User.find({ role: "admin" }).select("_id");
+      recipients = await User.find({ role: "admin" }).select("_id").lean();
       recipientIds = recipients.map((r) => r._id.toString());
       titlePrefix = "User Management";
     }

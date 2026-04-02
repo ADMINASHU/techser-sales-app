@@ -186,7 +186,7 @@ export async function sendNotificationToUsers({
     // Clean up invalid tokens from database
     if (result.invalidTokens && result.invalidTokens.length > 0) {
       await User.updateMany(
-        { _id: { $in: userIds } },
+        {}, // Global cleanup for these invalid tokens
         { $pull: { fcmTokens: { $in: result.invalidTokens } } },
       );
     }

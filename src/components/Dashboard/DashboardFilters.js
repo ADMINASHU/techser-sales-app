@@ -10,7 +10,6 @@ import {
 import { Button } from "@/components/ui/button";
 
 const months = [
-  { value: "all", label: "All Months" },
   { value: "0", label: "January" },
   { value: "1", label: "February" },
   { value: "2", label: "March" },
@@ -25,7 +24,7 @@ const months = [
   { value: "11", label: "December" },
 ];
 
-const years = ["all", "2024", "2025", "2026", "2027", "2028", "2029", "2030"];
+const years = ["2024", "2025", "2026", "2027", "2028", "2029", "2030"];
 
 export function DashboardFilters({
   filters,

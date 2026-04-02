@@ -325,7 +325,7 @@ export default function AdminCustomerTable({
                     <SelectValue placeholder="Month" />
                   </SelectTrigger>
                   <SelectContent className="glass-card-static border-white/10">
-                    <SelectItem value="all">All Months</SelectItem>
+                    <SelectItem value="all">All</SelectItem>
                     {months.map((m) => (
                       <SelectItem key={m.value} value={m.value}>
                         {m.label}
@@ -345,7 +345,7 @@ export default function AdminCustomerTable({
                     <SelectValue placeholder="Year" />
                   </SelectTrigger>
                   <SelectContent className="glass-card-static border-white/10">
-                    <SelectItem value="all">All Years</SelectItem>
+                    <SelectItem value="all">All</SelectItem>
                     {years.map((y) => (
                       <SelectItem key={y} value={y}>
                         {y}

@@ -41,15 +41,25 @@ export default function PermissionRequestModal({ open, onOpenChange, onSuccess }
 
     const requestLocation = () => {
         if ("geolocation" in navigator) {
+            const locationToastId = toast.loading("Checking location access...");
             navigator.geolocation.getCurrentPosition(
                 () => {
+                    toast.dismiss(locationToastId);
                     setLocationGranted(true);
                     toast.success("Location access granted!");
                 },
                 (error) => {
+                    toast.dismiss(locationToastId);
                     console.error("Location error:", error);
-                    toast.error("Could not get location access.");
-                }
+                    if (error.code === error.TIMEOUT) {
+                      toast.error("Location request timed out. Please check your signal.");
+                    } else if (error.code === error.PERMISSION_DENIED) {
+                      toast.error("Location access denied.");
+                    } else {
+                      toast.error("Could not get location access.");
+                    }
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
             );
         } else {
             toast.error("Geolocation is not supported by your browser");

@@ -151,7 +151,7 @@ export default function EntryFilters({
   ];
 
   const statuses = ["In Process", "Completed"];
-  const years = ["2025", "2026", "2027", "2028", "2029", "2030"];
+  const years = ["2024", "2025", "2026", "2027", "2028", "2029", "2030"];
 
   // Proper way to detect if we're on the client
   const mounted = useSyncExternalStore(

@@ -16,7 +16,7 @@ export default function Footer() {
             width={120}
             height={24}
             className="h-6 w-auto object-contain opacity-80"
-            style={{ width: "auto" }}
+            style={{ width: "auto", height: "24px" }}
             unoptimized
           />
           <span className="hidden md:inline text-gray-600">|</span>

@@ -100,7 +100,7 @@ function MapInterface({ location, destinationName, stampInLocation, stampOutLoca
                 },
                 () => { // console.log("User location access denied or timed out") 
                 },
-                { timeout: 10000, maximumAge: 60000, enableHighAccuracy: true } // Optimization
+                { timeout: 15000, maximumAge: 30000, enableHighAccuracy: true } // Optimization
             );
         }
     }, []);

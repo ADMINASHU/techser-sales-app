@@ -61,6 +61,10 @@ function DialogContent({
           className
         )}
         {...props}>
+        {/* Accessibility: Ensure DialogContent always has a description */}
+        <DialogPrimitive.Description className="sr-only">
+          Dialog description for screen readers.
+        </DialogPrimitive.Description>
         {children}
         {showCloseButton && (
           <DialogPrimitive.Close

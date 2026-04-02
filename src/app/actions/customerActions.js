@@ -54,7 +54,7 @@ export async function createCustomer(formData) {
 
     revalidatePath("/customers");
     revalidatePath("/customer-log"); // Ensure check-in/out page shows new customer immediately
-    revalidateTag("customers"); // Invalidate all customer-related cache
+    revalidateTag("customers", "max"); // Invalidate all customer-related cache
     return { success: true, id: customer._id.toString() };
   } catch (error) {
     console.error("Create Customer Error:", error);
@@ -131,7 +131,7 @@ export async function deleteCustomer(id) {
 
   try {
     await dbConnect();
-    const customer = await Customer.findById(id);
+    const customer = await Customer.findById(id).lean();
     if (!customer) return { error: "Customer not found" };
 
     if (
@@ -158,7 +158,7 @@ export async function toggleCustomerStatus(id) {
 
   try {
     await dbConnect();
-    const customer = await Customer.findById(id);
+    const customer = await Customer.findById(id).select("isActive userId region branch").lean();
     if (!customer) return { error: "Customer not found" };
 
     // Allow toggle if it's the owner or an admin
@@ -171,11 +171,11 @@ export async function toggleCustomerStatus(id) {
       return { error: "Unauthorized" };
     }
 
-    customer.isActive = !customer.isActive;
-    await customer.save();
+    const newStatus = !customer.isActive;
+    await Customer.findByIdAndUpdate(id, { isActive: newStatus });
 
     revalidatePath("/customers");
-    return { success: true, isActive: customer.isActive };
+    return { success: true, isActive: newStatus };
   } catch (error) {
     console.error("Toggle Customer Status Error:", error);
     return { error: "Failed to toggle customer status" };
@@ -188,7 +188,7 @@ export async function toggleCustomerShare(id) {
 
   try {
     await dbConnect();
-    const customer = await Customer.findById(id);
+    const customer = await Customer.findById(id).select("isShared userId").lean();
     if (!customer) return { error: "Customer not found" };
 
     // Only owner or admin can toggle share status
@@ -199,11 +199,11 @@ export async function toggleCustomerShare(id) {
       return { error: "Unauthorized" };
     }
 
-    customer.isShared = !customer.isShared;
-    await customer.save();
+    const newShareStatus = !customer.isShared;
+    await Customer.findByIdAndUpdate(id, { isShared: newShareStatus });
 
     revalidatePath("/customers");
-    return { success: true, isShared: customer.isShared };
+    return { success: true, isShared: newShareStatus };
   } catch (error) {
     console.error("Toggle Customer Share Error:", error);
     return { error: "Failed to toggle customer share status" };

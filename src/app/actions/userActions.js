@@ -46,7 +46,7 @@ export async function updateProfile(formData) {
 
   try {
     await dbConnect();
-    const user = await User.findById(session.user.id);
+    const user = await User.findById(session.user.id).lean();
     if (!user) return { error: "User not found" };
 
     const isFirstTimeSetup =
@@ -79,7 +79,9 @@ export async function updateProfile(formData) {
       let recipients = await User.find({
         role: "super_user",
         region: targetRegion,
-      }).select("_id");
+      })
+        .select("_id")
+        .lean();
 
       let recipientIds = recipients.map((r) => r._id.toString());
       let titlePrefix = "Regional Update";
@@ -89,13 +91,15 @@ export async function updateProfile(formData) {
         recipients = await User.find({
           role: "admin",
           region: targetRegion,
-        }).select("_id");
+        })
+          .select("_id")
+          .lean();
         recipientIds = recipients.map((r) => r._id.toString());
       }
 
       // 3. Final Fallback to all Administrators
       if (recipientIds.length === 0) {
-        recipients = await User.find({ role: "admin" }).select("_id");
+        recipients = await User.find({ role: "admin" }).select("_id").lean();
         recipientIds = recipients.map((r) => r._id.toString());
         titlePrefix = "User Management";
       }
@@ -147,8 +151,7 @@ export async function changePassword(currentPassword, newPassword) {
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    user.password = hashedPassword;
-    await user.save();
+    await User.findByIdAndUpdate(session.user.id, { password: hashedPassword });
 
     return { success: true };
   } catch (error) {
@@ -182,7 +185,7 @@ export async function getCurrentUser() {
   if (!session) return null;
   try {
     await dbConnect();
-    const user = await User.findById(session.user.id).select("role status");
+    const user = await User.findById(session.user.id).select("role status").lean();
     return {
       role: user.role,
       status: user.status,

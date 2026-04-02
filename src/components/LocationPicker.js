@@ -141,7 +141,7 @@ function MapInterface({ onLocationSelect, initialCoordinates }) {
                     (error) => {
                         // console.log("Geolocation error:", error);
                     },
-                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
                 );
             }
         };
@@ -200,7 +200,7 @@ function MapInterface({ onLocationSelect, initialCoordinates }) {
                     console.error("Error fetching location:", error);
                     toast.error("Could not fetch location. Please ensure permissions are enabled.");
                 },
-                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
             );
         } else {
             toast.error("Geolocation is not supported by your browser");

@@ -17,7 +17,9 @@ async function notifySupervisors(action, entry, actor) {
       recipients = await User.find({
         role: "super_user",
         region: entry.userRegion,
-      }).select("_id");
+      })
+        .select("_id")
+        .lean();
     }
 
     let recipientIds = recipients.map((r) => r._id.toString());
@@ -28,14 +30,16 @@ async function notifySupervisors(action, entry, actor) {
       recipients = await User.find({
         role: "admin",
         region: entry.userRegion,
-      }).select("_id");
+      })
+        .select("_id")
+        .lean();
       recipientIds = recipients.map((r) => r._id.toString());
       // titlePrefix stays "Regional Update"
     }
 
     // 3. Final Fallback to all Administrators if no regional supervisor exists
     if (recipientIds.length === 0) {
-      recipients = await User.find({ role: "admin" }).select("_id");
+      recipients = await User.find({ role: "admin" }).select("_id").lean();
       recipientIds = recipients.map((r) => r._id.toString());
       titlePrefix = "New Activity";
     }
@@ -68,12 +72,12 @@ export async function customerStampIn(customerId, location) {
     // 2. Parallelize Data Fetching: Customer, and Existing Entry;
 
     const [customer, existingEntry] = await Promise.all([
-      Customer.findById(customerId),
+      Customer.findById(customerId).lean(),
       Entry.findOne({
         customerId,
         userId: session.user.id,
         status: { $in: ["In Process"] },
-      }),
+      }).lean(),
     ]);
 
     // 3. Logic Checks
@@ -123,7 +127,7 @@ export async function customerStampIn(customerId, location) {
     revalidatePath("/customer-log");
     revalidatePath("/entries");
     revalidatePath("/dashboard");
-    revalidateTag("entries"); // Invalidate cached entry lists
+    revalidateTag("entries", "max"); // Invalidate cached entry lists
     return { success: true };
   } catch (error) {
     return { error: "Failed to stamp in" };
@@ -154,7 +158,7 @@ export async function customerStampOut(customerId, location) {
         },
       },
       { new: true, sort: { createdAt: -1 } },
-    ); // Removed critical-path populates
+    ).lean(); // Removed critical-path populates
 
     if (!entry) {
       return { error: "No active stamp-in found for this customer" };
@@ -172,7 +176,7 @@ export async function customerStampOut(customerId, location) {
     revalidatePath("/customer-log");
     revalidatePath("/entries");
     revalidatePath("/dashboard");
-    revalidateTag("entries");
+    revalidateTag("entries", "max");
     return { success: true };
   } catch (error) {
     return { error: "Failed to stamp out" };
